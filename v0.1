@@ -1,4 +1,18 @@
-class human(object):
+"""
+Initial Notes.
+Fallout Shelter.
+Text-based.
+Inventory system.
+Crafting system.
+Room Building system.
+Room Rushing system.
+Player is a character.
+Can birth new people if two biologocally mature settlers of opposite gender are present. Cannot have child until most recent child is one year old.
+
+Codemaster=T.G.
+"""
+
+class human(object):#Main class for player and inhabitants of shelter.
 	def __init__(self,name,age,day_of_birth,parent_1,parent_2,gender,strength,perception,endurance,charisma,intelligence,luck):
 		self.name=name
 		self.age=0
@@ -13,39 +27,39 @@ class human(object):
 		self.luck=1
 		self.can_mate=0
 		self.children=[]
-		if self.name=="player":
+		if self.name="player":
 			self.can_mate=1
-	def mature(self):
+	def mature(self):#Should auto-run when birthday happens.
 		self.age+=1
-	def rebirth(self):
+	def rebirth(self):#Resets stats and age.
 		self.age=0
 		if self.gender=="f":
-			print(self," has been reborn and his stats have been reset")
-		else:
 			print(self," has been reborn and her stats have been reset")
+		else:
+			print(self," has been reborn and his stats have been reset")
 		self.strength=1
 		self.perception=1
 		self.endurance=1
 		self.charisma=1
 		self.intelligence=1
 		self.luck=1
-	def can_mate_check(self):
+	def can_mate_check(self):#Checks if character can mate and make children.
 		if self.age <18:
 			self.can_mate=0
 		elif len(self.children)>5:
 			self.can_mate=0
-		if len(self.children)==0:
+		else:
 			self.can_mate=1
 		for child in self.children:
 			if child.age<1:
 				self.can_mate=0
-		if self.can_mate==0:
+		if self.can_mate=0:
 			print("Sorry.",self," cannot mate.")
 		else:
 			print("Congratulations!", self," can mate.")
 		
 			
-	def die(self):
+	def die(self):#If ever mentoined again, should output "Sorry x is dead."
 		self.status="dead"
 		print(self," has died")
 		
@@ -79,7 +93,7 @@ def birth(name,parent_1,parent_2):
 	str(name)=human(name,0,parent_1,parent_2)
 	
 """
-Initilize room count:
+#Initilize room count:
 living_room_count=1
 oil_room_count=1
 thermal_room_count=0
@@ -128,29 +142,31 @@ def choice():
 		if len(a)!=3:
 			print("You need to input 2 mature people of opposite genders.")
 			choice()
-		if a.split()[1] not in all_people:
+		if a.split()[1] not in all_people:#Checks if character exists. 
 			print("No such",a.split()[1]," exists!")
 			choice()
-		if a.split()[2] not in all_people:
+		if a.split()[2] not in all_people:#Checks if character exists.
 			print("No such",a.split()[2]," exists!")
 			choice()
-		if a.split()[1].age <18:
+		if a.split()[1].age <18:#Checks if old enough
 			print(a.split()[1]," isn't old enough to copulate.")
 			choice()
-		if a.split()[2].age <18:
+		if a.split()[2].age <18:#Checks if old enough
 			print(a.split()[2]," isn't old enough to copulate.")
 			choice()
-		if a.split()[1].gender==a.split()[2].gender:
+		if a.split()[1].gender==a.split()[2].gender:#Checks gender
 			print("The people need to be different genders! COME ON MAN CAN U EVEN BIOLOGY!")
 			choice()
-		
-			
-		
+		new_name=input(Input name of new child")
+		if new_name in all_people:
+			print("Someone has already been named that!")
+			choice()
+		birth(new_name,a.split()[1],a.split()[2])
 	else:
 		print("Invalid Input. Try again.")
 		choice()
 		
-def see_inventory():
+def see_inventory():#Loops through inventory and displays the number of each item present
 	for a in all_items:
 		count=0
 		for item in inventory:
@@ -159,9 +175,9 @@ def see_inventory():
 		print(a,"*",count)
 		
 	
-def loop():#Needs reworking
+def loop():#Main loop is a function so game can loop when it ends.
 	day_count=1
-	end=0#Can lose postition or die.
+	end=0 #Can lose postition or die.
 	print("Welcome to my fallout shelter game.")
 	print("Welcome, great Overseer!")
 	print("It is your great duty to increase the population of your vault and keep your inhabitants happy!")
@@ -170,11 +186,11 @@ def loop():#Needs reworking
 	player_parent_2=input("What is the name of your mother?")
 	player=birth(player_name,player_parent_1,player_parent_2)
 	player.age=20
-	postition="secure"
+	postition="secure"#Can lose positon if overall vault happiness drops below a point.
 	inventory=[]
 	print("Commands:/n")
 	all_items=[]
-	all_items=[item.append("_",a) for a,item in range(0,101),all_items] #Python 3.4 fixes the error here if you remove the last parameter
+	all_items=[item.append("_",a) for a,item in range(0,101),all_items]
 	all_rooms=[]
 	all_rooms=[room.append("_",a) for a,room in range(0,101),all_rooms]
 	rooms=[]
