@@ -1,0 +1,11 @@
+Logs:
+
+
+8.12.15: T.G. 
+Have uploaded a v0.1 of the game and secured one collaborator.
+After a few mods, decided to put v0.1 in statis and any new changes should be commited as further versions.
+Any minor mods should be commited as seperate files. After a while, minor mods shall be collated into one new version of the game.
+
+9.12.15: T.G.
+Uploaded possible solution to adding items to the inventory in the easiest way. Need to modify the "item" class.
+
