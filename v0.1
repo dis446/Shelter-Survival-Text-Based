@@ -13,7 +13,7 @@ class human(object):
 		self.luck=1
 		self.can_mate=0
 		self.children=[]
-		if self.name="player":
+		if self.name=="player":
 			self.can_mate=1
 	def mature(self):
 		self.age+=1
@@ -39,7 +39,7 @@ class human(object):
 		for child in self.children:
 			if child.age<1:
 				self.can_mate=0
-		if self.can_mate=0:
+		if self.can_mate==0:
 			print("Sorry.",self," cannot mate.")
 		else:
 			print("Congratulations!", self," can mate.")
@@ -159,7 +159,7 @@ def see_inventory():
 		print(a,"*",count)
 		
 	
-def loop():
+def loop():#Needs reworking
 	day_count=1
 	end=0#Can lose postition or die.
 	print("Welcome to my fallout shelter game.")
@@ -174,7 +174,7 @@ def loop():
 	inventory=[]
 	print("Commands:/n")
 	all_items=[]
-	all_items=[item.append("_",a) for a,item in range(0,101),all_items]
+	all_items=[item.append("_",a) for a,item in range(0,101),all_items] #Python 3.4 fixes the error here if you remove the last parameter
 	all_rooms=[]
 	all_rooms=[room.append("_",a) for a,room in range(0,101),all_rooms]
 	rooms=[]
