@@ -10,3 +10,6 @@ Disclaimer: I do not own this game. The intellectual property is the sole proper
 
 Notes: By The-9880
 I am both god and legion; fear meh.
+
+\n\n
+If you need a disturbing thought, imagine pulling on your own testicles. Hard.
