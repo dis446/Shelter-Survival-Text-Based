@@ -1,11 +1,28 @@
 Logs:
 
-
 8.12.15: T.G. 
 Have uploaded a v0.1 of the game and secured one collaborator.
-After a few mods, decided to put v0.1 in statis and any new changes should be commited as further versions.
+After a few mods, decided to put v0.1 in stasis and any new changes should be commited as further versions.
 Any minor mods should be commited as seperate files. After a while, minor mods shall be collated into one new version of the game.
 
 9.12.15: T.G.
 Uploaded possible solution to adding items to the inventory in the easiest way. Need to modify the "item" class.
+
+10.12.15: T.G.
+Discovered Cloud 9 workstation system thanks to The-9880. Will use it to develop code and use github to store our work.
+Pushed massive update to all systems.  Version 0.2 commited to github.
+Changelog:
+Developed choice system.
+The main game loop seems almost done.
+Improved inventory system.
+Improved birthing system for new inhabitants.
+Initial implementation of hunger and happiness systems.
+Initial attempt at Action Points system.
+Alpha version of trading system pushed. Pre-alpha. LIke it barely even exists. 3 lines of code or something.
+Initial Food system.
+Player can now create a character. Kind of important to games so glad this is up.
+General bug fixes (Syntax errors only)
+
+All code needs massive debugging :( Will develop "broken" versions of all systems and patch them later.
+Isn't that how software development works?
 
