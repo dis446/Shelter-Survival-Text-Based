@@ -12,12 +12,4 @@ You may realize we ain't that serious. We like Joker
 
 Disclaimer: I do not own this game. The intellectual property is the sole property of Zenimax Ent. and it's respected subsidiaries.
 
-Notes: By The-9880
-I am both god and legion; fear meh.
 
-
-
-
-The-9880:If you need a disturbing thought, imagine pulling on your own testicles. Hard.
-
-T.G.: Can you not mate.
