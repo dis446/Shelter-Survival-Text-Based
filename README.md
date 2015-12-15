@@ -12,4 +12,5 @@ You may realize we ain't that serious. We like Joker
 
 Disclaimer: I do not own this game. The intellectual property is the sole property of Zenimax Ent. and it's respected subsidiaries.
 
+The-9880: If you need something disturbing to think about, imagine pulling on your own testicles. Hard.
 
