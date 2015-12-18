@@ -48,3 +48,9 @@ Might be some stuff I've forgotten, but it doesn't really matter.
 
 Still no debugging has happened :( 
 With the inclusion of all these new systems it's even less likely that this code will run. I don't know what I'm doing.
+
+18.12.15: T.G.
+Pushed v.04 to github. Too many changes to list. Basically improved every system. Most notably, completely reworked room system.
+Passed 1000 source code line count! The-9880 has done the crafting and scavenging systems.
+#NoDebug #ftw #CodeWontRun
+
