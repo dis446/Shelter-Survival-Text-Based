@@ -1031,7 +1031,7 @@ def game():#Needs work
 			choice()
 				
 		happiness_loss()
-		produce_all()
+		produce_all() #Causes all rooms that can produce, to produce.
 		update_defense()
 		day_count+=1
 
