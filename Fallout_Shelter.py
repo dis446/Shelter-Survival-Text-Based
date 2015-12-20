@@ -1,6 +1,6 @@
 #Text-based Fallout Shelter game developed by T.G. and The-9880
 from random import randint
-from operator import attrgetter #Used to sort objects by a chosen attribute
+from operator import attrgetter #Used to sort lists of objects by a chosen attribute
 
 class human(object): #Basic class for all the humans present in the game.
 	def __init__(self,name,day_of_birth,parent_1,parent_2,gender):
@@ -113,10 +113,10 @@ class human(object): #Basic class for all the humans present in the game.
 				self.die()
 	def heal(self,amount):
 		player=all_people[0]
-		if player.medic>0:
-			
+		if player.medic>0: #Medic Boost.
+			amount=amount*(1+(0.05*player.medic))
 		self.HP+=amount
-		if self.HP>99:
+		if self.HP>99: #Truncates health
 			self.HP=100
 	def rebirth(self): #Don't know if I'll ever use this.
 		self.age=0
@@ -135,14 +135,12 @@ class human(object): #Basic class for all the humans present in the game.
 	def get_index(self): #Returns the index of the character in the all_people list
 			for x in range(len(all_people)):
 				if all_people[x].name==self.name:
-					index=x
-					break
-			return index
+					return x
 				
 	def assign_to_room(self,chosen_room):
 		global rooms
 		global all_people
-		if not check_room(chosen_room):
+		if not check_room(chosen_room): #If room doesn't exist, bug.
 			print("Error with room allocation system. Please contact dev.")
 		else:
 			del(all_people(self).assigned_room][:])  #Clears the variable that holds the room the character has been assigned to.
@@ -212,6 +210,7 @@ class room(object): #Basic class for the rooms in the game.
 		else:
 			self.production+=50
 			self.rushed=1 #Lets game know this room has been rushed.
+			print(self.name, " has been rushed!")
 
 	def update_assigment(): #Updates length of assigned variable by adding more zeros to it.
 		global rooms
@@ -445,7 +444,7 @@ def build(r): #Builds a room once checks are done. Should append to (rooms) list
 	for y in built_room.components: #Does this for each component
 		for x in inventory: 
 			if y == x: #If it matches, delete this.
-				del(x) 
+				x.destroy() 
 				break #Ensures that only one instance of the item is removed for every one instance of the component.
 	all_people[0].gain_xp(100)
 	use_points(50)
@@ -696,7 +695,7 @@ def drink(person,amount)
 	all_people(person).thirst-=amount
 	if all_people(person).hunger<0:
 		all_people(person).thirst=0
-def auto_feed():
+def auto_feed_all():
 	global all_people
 	food_count=count_item("food","player")
 	water_count=count_item("water","player")
@@ -779,7 +778,6 @@ def trade(): #Trading system. Uses no Action Points
 				print("Sorry. ",a.split()[2]," doesn't exist!")
 				continue
 			#Checks end here
-			
 			cost=item(all_items[a.split()[2]]).value #Fetches cost of item by tempoarily creating it's object and retreiving it's value attribute
 			total_cost=cost*a.split()[1] #Sums up the money that is exchanging hands
 			
@@ -870,13 +868,12 @@ def produce_all(): #Causes production of all rooms.
 def choice():
 	global auto_feed
 	a=input("Choose what to do:")
-	valid=1
 	if a.split()[0]=="build": #Allows player to build new rooms. Checks if player has components to build room.
 		if len(a.split())!=2:
 			print("You have to input 2 words to build a room.")
-		elif a.split()[1] not in all_rooms:
-			print("This room doens't exist")
-		elif a.split()[1] in rooms:
+		elif not check_room(a.split()[1]):
+			print("This room doesn't exist.")
+		elif a.split()[1] in rooms.attrgetter("name"):
 			print("You've already built this room")			
 		else:
 			can_build=1
@@ -1088,7 +1085,7 @@ def choice():
 			elif cho=="h":
 				scavenge(a.split()[1],"")
 			else:
-				print("I'm just going to send them out until their health drops.")
+				print("Let's just assume you wanted them to go out until their health gets low.")
 				scavenge(a.split()[1],"")
 	elif a.split()[0]=="heal":
 		if a.split()[1]=="all":
@@ -1136,29 +1133,31 @@ def game():#Needs work
 	
 	postition="secure" #Only changed to "lost" when happiness drops below 5.
 	inventory=[] #All items that belong to the player. Just names
+	rooms=[] #Rooms that player has built. Objects!
+	all_people=[] #All the people alive in the shelter. Objects!	
+	
 	all_items=["wood","steel","turret","food","water",] #Stores every possible item in the inventory. Just names.
 	all_rooms=["living","bath","generator","kitchen","trader","storage",""] #Stores every possible room in the game. Just names.
 	all_attributes=["strength","perception","endurance","charisma","intelligence","luck","medic","science","tactitian","cook","inspiration","scrapper","barter"."electrician"]
 	
-	rooms=[] #Rooms that player has built. Objects!
-	all_people=[] #All the people alive in the shelter. Objects!	
 	caps=100
 	trader_caps=400
 	happiness=100
 	trader_inventory=[]
+	find_rand_item("trader",20) #Initializes trader inventory with 20 random items.
 	defense=0 
 	overuse=0#Keeps track of whether or not player has used too many action points.
-	auto_feed=1
+	auto_feed=1 #Can be set to 0 by player to conserve food.  Recomended to only do so during emergencies.
 	overuse=0
-	
-	while end==0 and position=="secure": #Loops the day
+
+	while end==0 and position=="secure": #Loops the day while player is alive and is still the overseer.
 		AP=50
 		if overuse==1:
 			AP=50-overuse_amount
-			
 		print("Today is day ".day_count)
 		
 		for person in all_people: #Performs daily checks for all people.
+			#Hunger Games.
 			person.hunger+=10
 			if person.hunger>99:
 				print(person.name," has died of hunger")
@@ -1167,6 +1166,7 @@ def game():#Needs work
 				print("Warning!",person.name," is starving and may die soon.")
 			elif person.hunger>50:
 				print(person.name," is hungry.")
+			#Thirsty games.
 			person.thirst+=10
 			if person.thirst>99:
 				print(person.name," has died of thirst")
@@ -1175,12 +1175,12 @@ def game():#Needs work
 				print("Warning!",person.name," is extremely thirsty and may die soon.")
 			elif person.hunger>50:
 				print(person.name," is thirsty.")
-			#Experience maitenence
+			#Experience games
 			if person.assigned_room!="":
 				r=rooms(assigned_room) # Can refer to room which character had been assigned to.
 				person.gain_xp(r.production//10)
 				
-			#Scavenging system driver.
+			#Scavenging games
 			if person.scavenging == 1:
 				if person.daysToScavengeFor == person.daysScavenging:
 					# Now that they've finished scavenging, set everything to 0
@@ -1198,8 +1198,8 @@ def game():#Needs work
 					person.scavenging=0
 					person.daysToScavengeFor = 0
 					person.daysScavenging = 0
-			
-		auto_feed()		
+		if auto_feed==1:	
+			auto_feed_all()		
 		
 		for room in all_rooms: #Performs daily room checks.
 			room.update_production() #Updates production value for all rooms.
