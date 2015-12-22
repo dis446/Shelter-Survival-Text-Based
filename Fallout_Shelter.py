@@ -1,7 +1,7 @@
 #Text-based Fallout Shelter game developed by T.G. and The-9880
 from random import randint
 from operator import attrgetter #Used to sort lists of objects by a chosen attribute
-
+#Test line to see if cloud 9 to github commit works properly
 class human(object): #Basic class for all the humans present in the game.
 	def __init__(self,name,day_of_birth,parent_1,parent_2,gender):
 		if len(all_people) <6 and day_count<3: #First 5 people will be 21 years old, so they can mate.
