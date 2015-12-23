@@ -1,4 +1,4 @@
-#Text-based Fallout Shelter game developed by T.G. and The-9880
+#Text-based Fallout Shelter game developed by T.G. and The-9880.
 from random import randint
 from operator import attrgetter #Used to sort lists of objects by a chosen attribute
 class human(object): #Basic class for all the humans present in the game.
