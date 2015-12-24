@@ -1,4 +1,4 @@
-#Text-based Fallout Shelter game developed by T.G. and The-9880
+#Text-based Fallout Shelter game developed by T.G. and The-9880.
 from random import randint
 from time import sleep
 import sys
