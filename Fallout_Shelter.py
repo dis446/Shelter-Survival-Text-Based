@@ -2,7 +2,7 @@
 from random import randint
 from time import sleep
 import sys
-try:
+try: #Just for laughs
 	from tqdm import tqdm #Used to make loading screens.
 except ImportError:
 	print("Error importing TQDM module. The game will still run regardless, but if this module was present, the game would be slightly better.")
