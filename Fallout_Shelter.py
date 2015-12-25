@@ -290,8 +290,8 @@ class Room(object): #Basic class for the rooms in the game.
 		self.level+=1
 	def count_assigned(self):
 		count=0
-		for x in self.assigned:
-			if x==1:
+		for x in range(len(self.assigned)):
+			if self.assigned[x]==1:
 				count+=1
 		return count
 	def see_assigned(self):
