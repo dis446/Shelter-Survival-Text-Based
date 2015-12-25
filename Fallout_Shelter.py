@@ -176,11 +176,12 @@ class Human(object): #Basic class for all the Humans present in the game.
 	def assign_to_room(self,chosen_room):
 		global rooms
 		global all_people
-		ind=self.get_index() #Get's index of person in all_people so it can be used to move people.
-		if self.assigned_room=="": #If person has been assigned.
+		ind=int(self.get_index()) #Get's index of person in all_people so it can be used to move people.
+		if self.assigned_room!="": #If person has been assigned.
 			rooms(chosen_room).assigned[ind]=0 #Removes person from their previously assigned room
 		self.assigned_room=str(chosen_room) #Let's character know which room they've been assigned.		
-		rooms(chosen_room).assigned[ind]=1 #Let's room know this person has been assigned to the room
+		room_index=int(get_room_index(chosen_room))
+		rooms[room_index].assigned[ind]='1' #Let's room know this person has been assigned to the room
 		
 	def can_mate_check(self): #Checks if person can have coitus and have children. Perfomed twice when player inputs coitus, once for each proposed parent.
 		self.can_mate=1
@@ -215,18 +216,20 @@ class Room(object): #Basic class for the rooms in the game.
 		self.name=name 
 		self.assigned=0 #1s and 0s that are used to store the indexes of assigned. Eg 001001 means that the 3rd and the 6th characters have been assigned here.
 		self.level=1 #Determines production level, max assigned.
+		self.risk=0
 		if self.name=="living": # Living rooms have no "assigned". Number of living rooms just limits the total population of the shelter.
-			self.risk=0
 			self.can_produce=0 #Stores whether or not room actually produces anything.				self.components=["wood",] #Need to add components.
 			self.assigned_limit=0 #No-one is assigned to the living room
 			self.components=["wood","wood","wood","wood"]
 		elif self.name=="generator":
+			self.risk=2
 			self.can_produce=1
 			self.assigned_limit=4 #Max number of workers that can work in the room at one time.
 		elif self.name=="storage":
 			self.can_produce=0
 			self.assigned_limit=0 #Max number of workers that can work in the room at one time.
 		elif self.name=="kitchen":
+			self.risk=2
 			self.can_produce=1
 			self.assigned_limit=5 #Max number of workers that can work in the room at one time.
 		elif self.name=="trader":
@@ -267,14 +270,16 @@ class Room(object): #Basic class for the rooms in the game.
 			player=all_people[0] #Fetches player so his stats can be used.
 			self.production=0 
 			if self.name=="generator":
-				for person in self.all_people:
-					self.production+=person.intelligence
+				for person_index in str(self.assigned):
+					if person_index=='1':
+						self.production+=all_people[person_index].intelligence
 				if player.electrician >0:
 					self.production=self.production*(1+(player.electrician*0.05))
 			
 			elif self.name=="kitchen":
-				for person in self.assigned:
-					self.production+=person.charisma
+				for person_index in str(self.assigned):
+					if person_index=='1':
+						self.production+=all_people[person_index].charisma
 				if player.cooking >0:
 					self.production=self.production*(1+(player.cooking*0.05)) 
 			else:
@@ -290,13 +295,13 @@ class Room(object): #Basic class for the rooms in the game.
 		self.level+=1
 	def count_assigned(self):
 		count=0
-		for x in range(len(self.assigned)):
-			if self.assigned[x]==1:
+		for x in str(self.assigned):
+			if x=='1':
 				count+=1
 		return count
 	def see_assigned(self):
-		for x in self.assigned:
-			if x==1:
+		for x in str(self.assigned):
+			if x=='1':
 				person=all_people[x]
 				print("Name : ",person.name)
 				person.see_stats()
@@ -462,7 +467,7 @@ def see_people(): #Displays everyone in the shelter.
 
 def see_rooms():
 	for r in rooms:
-		print(r.name,". Risk: ",r.risk,". Assigned: ",r.see_assigned(),". Level: ", self.level)
+		print(r.name,". Risk: ",r.risk,". Assigned: ",r.see_assigned(),". Level: ", r.level)
 		
 def see_inventory(inven):#Displays all items in inventory in the form (Log*5.Weight=5.Value=10.Components="Wood". Rarity=1).
 	inven=str(inven)
@@ -1159,19 +1164,20 @@ def choice():
 				
 		elif a.split()[0]=="assign":
 			global all_people
-			if len(a.split())!=4:
-				print("You have to input 4 words. E.g. assign Thomas to living")
-			elif a.split()[1] not in all_people:
+			if len(a.split())!=5:
+				print("You have to input 4 words. E.g. assign Thomas Marc to living")
+			elif not check_person(a.split()[1],a.split()[2]):
 				print("This ",a.split()[1]," doesn't exist.")
-			elif a.split()[3] not in all_rooms:
+			elif not check_room(a.split()[4]):
 				print("This room doesn't exist.")
-			elif a.split()[3] not in rooms:
+			elif not check_built_room(a.split()[4]):
 				print("You haven't built this room yet")
-			elif rooms(a.split()[3]).assigned_limit==rooms.a.split()[3].count_assigned():
+			elif rooms[get_room_index(a.split()[4])].assigned_limit==rooms[get_room_index(a.split()[4])].count_assigned():
 				print("This room is full")
 				print("You can assign someone in the room to another room to create space.")
 			else:
-				all_people(a.split()[1]).assign_to_room(a.split()[3])
+				person_index=get_person_index(a.split()[1],a.split()[2])
+				all_people[person_index].assign_to_room(a.split()[3])
 			
 		elif a.split()[0]=="upgrade":
 			global rooms
@@ -1285,7 +1291,7 @@ def game():
 	postition="secure" #Only changed to "lost" when happiness drops below 5.
 	player_quit=0 #Allows player to quit the game.
 	inventory=[] #All items that belong to the player. Just names
-	rooms=[Room('living')] #Rooms that player has built. Objects!
+	rooms=[Room('living'),Room('kitchen')] #Rooms that player has built. Objects!
 	all_people=[] #All the people alive in the shelter. Objects!	
 	used_names=[] #Names that have been used in the game. Ensures no two people have the same name.
 	all_items=["wood","steel","turret","food","water"] #Stores every possible item in the inventory. Just names.
