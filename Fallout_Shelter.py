@@ -239,7 +239,7 @@ class Room(object): #Basic class for the rooms in the game.
 		else:	
 			print("Bug with room creation system. Please contact dev. Class specific bug.")
 		if self.can_produce==1:
-			self.production=100
+			self.production=int(100)
 			self.can_rush=1
 			self.rushed=0
 		# Need to add more names.	
@@ -501,9 +501,9 @@ def see_resources():
 	food_count=count_item("food","player")
 	water_count=count_item("water","player")
 	power_count=count_item("watt","player")
-	print("Food: ",food_count)
-	print("Water: ",water_count)
-	print("Power: ",power_count)
+	print("Food * ",food_count)
+	print("Water * ",water_count)
+	print("Power * ",power_count)
 def  get_person_index(first_name,surname):
 	for x in range(len(all_people)):
 		if all_people[x].name==first_name and all_people[x].surname==surname:
@@ -519,23 +519,26 @@ def get_room_index(room):
 
 
 #Scavenging system.
-def scavenge(person,var): #Sends people on a scavenging mission.
+def scavenge(first_name,surname,var): #Sends people on a scavenging mission.
+	#Need to modify function to accept (first name) and (surname)
 	global all_people
-	if person not in all_people:
+	if not check_person(first_name,surname):
 		print("Error with scavenging system. Please contact dev!")
 	else:
-		all_people[person].scavenging=1
+		person=all_people[get_person_index(first_name,surname)]
+		person.scavenging=1
 		if var=="days": #If player chooses to send player for certain number of days, or until health drops below 20.
 			print("How many days do you want to send this person out?")
 			day_choice=input_int()
-			self.daysToScavengeFor = day_choice 
+			person.daysToScavengeFor = day_choice 
 		else:
-			self.daysToScavengeFor= 100 #Their health will drop below 20 before 100 days, so this is fine.
+			person.daysToScavengeFor= 100 #Their health will drop below 20 before 100 days, so this is fine.
 	use_points(10)
-	
-	
-	
-	
+
+
+
+
+
 
 #Construction system.
 def build(r): #Builds a room once checks are done. Should append to (rooms) list.
@@ -566,8 +569,8 @@ def craft(x):#Crafts an item once checks are done. Just add the name of an item 
 			if y == x:
 				chance_game=randint(0,101)
 				if chance_game>chance:
-					del(x)
-				break #Ensures that only one instance of the item is referenced
+					inventory.remove(x)
+				break #Ensures that only one instance of the item is referenced.
 	all_people[0].gain_xp(a.rarity*10) 
 	use_points(5)
 	
@@ -688,13 +691,11 @@ def rand_item(target_inventory):
 	num=randint(1,1024) 
 	lst=[2**a for a in range(0,11)]
 	count=0
-	print("random chance number:",num)
 	for chance in lst:
 		if num<chance:
 			break
 		count+=1
 	rar=10-count #Determines the rarity of an item. 50% chance it's a level 10, 25% chance it's a level 9, 12.5% chance it's a level 8 and so on.
-	print("rarity of random item",rar)
 	possible_items=[] #Stores each item if the rarity level matches what was randomly picked.
 	for x in all_items:
 		if Item(x).rarity==rar:
@@ -705,17 +706,25 @@ def rand_item(target_inventory):
 		#Following lines actually store the item in memory
 		if target_inventory=="player":
 			add_to_inven(actual_item,1,'inventory')
-			print("You have found a ", actual_item)
 		elif target_inventory=="trader":
 			add_to_inven(actual_item,1,'trader')
 		else:
 			print("Bug with random item system. Please contact dev!")
-	else:
-		print("No items exist of this rarity.") #Should never be run.
 def find_rand_item(inven,times): #Finds x items randomly and adds it to an inventory.
 	for x in range(0,times+1):
 		rand_item(inven)  # passes iven to rand_item function
-
+"""
+def remove_from_inventory(it,target_inventory):
+	global inventory
+	if target_inventory=="player":
+		for x in inventory:
+			if x==it:	
+				inventory.remove(it)
+	elif target_inventory=="trader":
+		trader_inventory.remove(it)
+	break
+"""		
+		
 def add_to_inven(x,number,inven): # Adds (x) (number) times to (inven) inventory. E.g. wood,5,player
 	global trader_inventory
 	global inventory
@@ -736,12 +745,12 @@ def lose_items(inven,number): #Randomly deletes multiple items from the target_i
 	global trader_inventory
 	if inven=="trader": #Runs daily. Simulates trader selling some items to NPCs.
 		for x in range(number):
-			rand_number=randint(0,len(trader_inventory))
+			rand_number=randint(0,len(trader_inventory)-1)
 			trader_inventory.remove(trader_inventory[rand_number])
 	elif inven=="player": #Only runs when shelter has been raided by a hostile force.
 		print("The raid made off with these items!")
 		for x in range(number):
-			rand_number=randint(0,len(inventory))
+			rand_number=randint(0,len(inventory)-1)
 			e=iventory[rand_number]
 			print(inventory[e])
 			inventory.remove(inventory[e])
@@ -759,7 +768,6 @@ def scrap(it):
 				load_time(300,("Scrapping "+str(it)))
 				all_people[0].gain_xp((Item(it).rarity)*10)
 				break
-				
 	use_points(2)
 
 
@@ -798,12 +806,10 @@ def update_defense(): #Updates the defense rating of the shelter, according to t
 	gun_count=count_item("gun","player")
 	defense+=gun_count	
 	#Add cases for more items that increase defense	
-
 	strength_sum=0
 	for person in all_people:
 		strength_sum+=person.strength
 	defense+=strength_sum
-	
 	if player.tactician>0:
 		defense=defense*(1+(player.tactician*0.05))
 	if player.inspiration>0:
@@ -900,10 +906,11 @@ def trade(): #Trading system. Uses no Action Points
 	barter=all_people[0].barter
 	stop_trade=0
 	while stop_trade==0: #"" lets trading , "break" stops trading
+		
 		print("Here are the traders' items: ")
 		see_inventory("trader") 
 		print("The trader has ", trader_caps, " caps.")
-			
+
 		print("Here are your items: ")
 		see_inventory("player")
 		print("You have ", caps, " caps.")
@@ -912,76 +919,87 @@ def trade(): #Trading system. Uses no Action Points
 		a=input("What do you want to do?.")
 		
 		#Following lines are checks.
+		let_trade=0
 		if len(a.split())!=3:
-			print("You have to input 3 words. Buy/sell,amount,item")
-			
-		try:
-			int(a.split()[1])
-		except ValueError:
-			print("You have to input a number as the second word")
-			
-		if a.split()[2] not in all_items:
-			print("Sorry. ",a.split()[2]," doesn't exist!")
-		#Checks end here
-		cost=Item(a.split()[2]).value #Fetches cost of item by tempoarily creating it's object and retreiving it's value attribute
-		total_cost=cost*a.split()[1] #Sums up the money that is exchanging hands
-		
-		if a.split()[0]=="buy":
-			#Adusjt the prices, depending on bartering level.
-			if barter==0:
-				total_cost=total_cost*1.2
-			elif barter==1:
-				total_cost=total_cost*1.15
-			elif barter==2:
-				total_cost=total_cost*1.1
-			elif barter==3:
-				total_cost=total_cost*1.05
-			if total_cost>caps:
-				print("You can't afford that!")
-			count=count_item(a.split(2),"trader")
-			if a.split()[1]>count:
-				if count==0:
-					print("The trader doesn't have any ",a.split()[2])
+			#Allow player to input (buy wood) instead of (buy 1 wood) everytime they only want one of an item.
+			if len(a.split())==2: #a is in the form (buy x) or (sell x)
+				if a.split()[1] in all_items:
+					if a.split()[0]=="buy" or a.split()[0]=="sell":
+						a="%s %s %s"%(a.split()[0],1,a.split()[1])
+						let_trade=1
+					else:
+						print("Invalid input. You can (buy) or (sell)")
 				else:
-					print("The trader doesn't have ",a.split()[1]," of ",a.split()[2])
+					print("This item doesn't exist")	
+			elif a.split()[0]=='end' or a.split()[0]=='stop':
+				stop_trade=1
 			else:
-				for x in range(a.split()[1]):
-					trader_inventory[str(a.split()[2])].destroy()
-					inventor.append(str(a.split()[2]))
-				caps-=total_cost
-				
-		elif a.split()[0]=="sell":
-			if barter==0:
-				total_cost=total_cost*0.8
-			elif barter==1:
-				total_cost=total_cost*0.85
-			elif barter==2:
-				total_cost=total_cost*0.9
-			elif barter==3:
-				total_cost=total_cost*0.95
-			if total_cost>trader_caps:
-				print("The trader can't afford that!")
-			count=count_item(a.split(2),"player")
-			if a.split()[1]>count:
-				if count==0:
-					print("You don't have any ",a.split()[2])
+				print("You have to input 3 words. Buy/sell,amount,item")
+		elif len(a.split())==3:
+			let_trade=1
+		if let_trade==1:#Messy conditional routine coming up.
+			if a.split()[2] in all_items:
+				check=1
+				try:
+					a.split()[1]=int(a.split()[1])
+				except ValueError:
+					print("You have to input a number as the second word")
+					check=0
+				if check==1:
+					cost=Item(a.split()[2]).value #Fetches cost of item by tempoarily creating it's object and retreiving it's value attribute
+					print("Cost of one item",cost)
+					total_cost=cost*int(a.split()[1]) #Sums up the money that is exchanging hands
+					print("Cost of all item",total_cost)
+					a.split()[0]==a.split()[0].lower()
+					if a.split()[0]=="buy":
+						#Adjusts the prices, depending on bartering level.
+						for x in range(0,4):
+							total_cost=int(total_cost*(1.2-(x*0.05)))
+						if total_cost>caps:
+							print("You can't afford that!")
+						else:
+							count=count_item(a.split()[2],"trader")
+							if int(a.split()[1])>count:
+								if count==0:
+									print("The trader doesn't have any ",a.split()[2])
+								else:
+									print("The trader doesn't have ",a.split()[1]," of ",a.split()[2])
+							else:
+								for x in range(int(a.split()[1])):
+									trader_inventory.remove(str(a.split()[2]))
+									inventory.append(a.split()[2])
+								caps-=total_cost
+								trader_caps+=total_cost	
+					elif a.split()[0]=="sell":
+						#Adjusts the prices, depending on bartering level.
+						for x in range(0,4):
+							total_cost=int(total_cost*(0.8+(x*0.05)))
+						if total_cost>trader_caps:
+							print("The trader can't afford that!")
+						else:
+							count=count_item(a.split()[2],"player")
+							if int(a.split()[1])>count:
+								if count==0:
+									print("You don't have any ",a.split()[2])
+								else:
+									print("You don't have ",int(a.split()[1])," of ",a.split()[2])
+							else:
+								for x in range(int(a.split()[1])):
+									inventory.remove(str(a.split()[2]))
+									trader_inventory.append(a.split()[2])
+								trader_caps-=total_cost
+								caps+=total_cost
+					else:
+						print("Invalid Input. (buy) and (sell) are accepted")
 				else:
-					print("You don't have ",a.split()[1]," of ",a.split()[2])
+					print("Only numbers are accepted")					
 			else:
-				for x in range(a.split()[1]):
-					_inventory[str(a.split()[2])].destroy()
-					trader_inventory.append(str(a.split()[2]))
-				trader_caps-=total_cost
-		elif a.split()[0]=="end" or a.split()[0]=="stop":
-			stop_trade=1
-		else:
-			print("Invalid Input! Try again!")
-			
-		
+				print("Sorry. ",a.split()[2]," doesn't exist!")	
+	load_time(100,"Ending trade")
+					
 #Production system
 def produce_all(): #Causes production of all rooms.
 	global rooms
-	global inventory
 	for r in rooms:
 		if r.can_produce==1:
 			r.update_production() 
@@ -1094,6 +1112,8 @@ def choice():
 				see_rooms()
 			elif a.split()[1]=="day":
 				print("Today is day",day_count)
+			elif a.split()[1]=="resources":
+				see_resources()
 			else:
 				print("Incorrect input. To see people, input (see people). To view your inventory, input (see inventory) ")
 				
@@ -1292,7 +1312,6 @@ def game():
 	happiness=100
 	trader_inventory=[]
 	find_rand_item("trader",20) #Initializes trader inventory with 20 random items.
-	print("Trader's inventory:",trader_inventory)
 	defense=0 
 	overuse=0#Keeps track of whether or not player has used too many action points.
 	auto_feed=1 #Can be set to 0 by player to conserve food.  Recomended to only do so during emergencies.
@@ -1322,6 +1341,7 @@ def game():
 	print("You have been given 100 caps to start your journey.")
 	AP=50
 	build('trader')
+	craft('turret')
 	while end==0 and postition=="secure" and player_quit==0: #Loops the day while player is alive and is still the overseer.
 		AP=50
 		if overuse==1:
