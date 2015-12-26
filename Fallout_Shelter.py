@@ -6,7 +6,7 @@ try:
 	from tqdm import tqdm #Used to make loading screens.
 except ImportError:
 	print("Error importing TQDM module. The game will still run regardless, but if this module was present, the game would be slightly better.")
-
+#Automated git code sync test comment.
 """#Function to space out prints, giving player time to read. Similar to Fallout 4 terminall CLI.	
 def printl(x):
 	sleep(0.5)
