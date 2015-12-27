@@ -134,7 +134,8 @@ class Human(object): #Basic class for all the Humans present in the game.
 				print("Invalid choice")
 				self.level-=1
 				self.level_up()
-		print (self.name, "  is now level ", self.level)
+		
+		
 	def mature(self):
 		self.age+=1
 		print(self.name," has matured and is now ",self.age," years old!")
@@ -169,18 +170,17 @@ class Human(object): #Basic class for all the Humans present in the game.
 		
 	def get_index(self): #Returns the index of the character in the all_people list
 			for x in range(len(all_people)):
-				if all_people[x].name==self.name:
+				if all_people[x].name==self.name and all_people[x].surname==self.surname:
 					return x
 				
 	def assign_to_room(self,chosen_room):
 		global rooms
 		global all_people
 		ind=int(self.get_index()) #Get's index of person in all_people so it can be used to move people.
-		if self.assigned_room!="": #If person has been assigned.
-			rooms(chosen_room).assigned[ind]=0 #Removes person from their previously assigned room
+		if self.assigned_room!="": #If person was previously assigned.
+			rooms[get_room_index(chosen_room)].assigned[int(ind)]='0' #Removes person from their previously assigned room
 		self.assigned_room=str(chosen_room) #Let's character know which room they've been assigned.		
-		room_index=int(get_room_index(chosen_room))
-		rooms[room_index].assigned[ind]='1' #Let's room know this person has been assigned to the room
+		rooms[(get_room_index(chosen_room))].assigned[ind]='1' #Let's room know this person has been assigned to the room
 		
 	def can_mate_check(self): #Checks if person can have coitus and have children. Perfomed twice when player inputs coitus, once for each proposed parent.
 		self.can_mate=1
@@ -213,7 +213,7 @@ class Human(object): #Basic class for all the Humans present in the game.
 class Room(object): #Basic class for the rooms in the game.
 	def __init__(self,name): #Name would be something like "living_room_3" while group would be "living". So all living rooms have the same initial stats.
 		self.name=name 
-		self.assigned=0 #1s and 0s that are used to store the indexes of assigned. Eg 001001 means that the 3rd and the 6th characters have been assigned here.
+		self.assigned='0' #1s and 0s that are used to store the indexes of assigned. Eg 001001 means that the 3rd and the 6th characters have been assigned here.
 		self.level=1 #Determines production level, max assigned.
 		self.risk=0
 		if self.name=="living": # Living rooms have no "assigned". Number of living rooms just limits the total population of the shelter.
@@ -231,9 +231,10 @@ class Room(object): #Basic class for the rooms in the game.
 			self.risk=2
 			self.can_produce=1
 			self.assigned_limit=5 #Max number of workers that can work in the room at one time.
+			self.components=["wood","wood","wood"]
 		elif self.name=="trader":
 			self.can_produce=0
-			self.inhabitancts_limit=1
+			self.assigned_limit=1
 			self.components=["wood","wood","wood","steel","wood"]
 		else:	
 			print("Bug with room creation system. Please contact dev. Class specific bug.")
@@ -597,20 +598,22 @@ def get_gender(): #Randomly generates a gender. For NPCs
 	else:
 		gender="f"
 	return gender
-def check_person(first_name,surname): #Check if a person exists in
+def check_person(first_name,surname): #Check if a person exists.
 	for per in all_people:
 		if per.name==first_name and per.surname==surname:
+			print("This person exists")
 			return True
 	else:
 		return False
 def check_xp(name,surname):
 	global all_people
 	person_index=get_person_index(name,surname) #Fetches index of person in the all_people list.
-	person=all_people[person_index] #Fetches person object and stores it locally.
-	xp_needed=2**person.level #Xp needed to level up increases exponentially
+	person=all_people[person_index] #Fetches person object and stores it locally. So now (person) is a shortcut to the person.
+	xp_needed=3**person.level #Xp needed to level up increases exponentially
 	if person.XP+1 > xp_needed:
 		print(person.name," has leveled up")
 		person.level_up()
+		print (person.name, "  is now level ", person.level)
 
 def birth(parent_1_first_name,parent_1_surname,parent_2_first_name,parent_2_surname): #Creates new character.
 	global all_people
@@ -1124,6 +1127,8 @@ def choice():
 				print("No such",a.split()[1]," exists!")
 			elif not check_person(a.split()[3],a.split()[4]):
 				print("No such",a.split()[2]," exists!")
+			elif len(all_people)==living_capacity():
+				print("You've reached the vault's maximum capacity. Upgrade your living room to hold more people")
 			else:
 				person_1_index=get_person_index(a.split()[1],a.split()[2])
 				person_2_index=get_person_index(a.split()[3],a.split()[4])
@@ -1165,7 +1170,7 @@ def choice():
 		elif a.split()[0]=="trade":
 			if not check_built_room('trader'):
 				print("You haven't built a trader room yet!")
-			elif rooms[get_room_index("trader")].assigned==[0 for a in range(len(all_people))]:
+			elif '1' not in str(rooms[get_room_index('trader')].assigned):
 				print("No one has been assigned to this room! You can't trade untill then.")
 			else:
 				trade()
@@ -1189,15 +1194,16 @@ def choice():
 			
 		elif a.split()[0]=="upgrade":
 			global rooms
-			if a.split()[1] not in rooms:
+			if not check_room(a.split()[1]) or not check_built_room(a.split()[1]):
 				print("This room doesn't exist. Try again.")
 			elif a.split()[1]=="trader":
 				print("This room cannot be upgraded")
 			else:
-				r=rooms(a.split()[1]) #Tempoarily fetches room so it's attributes can be used
-				items_needed=r.components 
+				r=rooms[get_room_index(a.split()[1])] #Tempoarily fetches room so it's attributes can be used
+				items_needed=r.components
 				for x in range(r.level-1): #The higher the level, the more components needed to upgrade
-					items_needed=items_needed.append(items_needed)	
+					for component in items_needed:
+						items_needed.append(component)	
 				can_up=1 #Can the room be upgraded or not?
 				for ite in all_items: #For each item
 					needed=0 #Counts how many are needed
@@ -1205,11 +1211,15 @@ def choice():
 						if ite==comp:
 							needed+=1
 					available=count_item(ite,"player") #Counts number of component available to the player
-					if available<needed:
+					if available<needed:#Not enough
 						can_up=0
+						print("You don't have enough",ite, "to upgrade your ", r.name)
 						break
 				if can_up==1:
-					rooms(split()[1]).upgrade()
+					for component in items_needed:
+						inventory.remove(component)
+					r.upgrade()
+					print(r.name,"has been upgraded and is now level",r.level)
 					
 		elif a.split()[0]=="disable":
 			if a.split()[1]=="auto":
@@ -1259,7 +1269,7 @@ def choice():
 			confirm=input("Are you sure? All unsaved data will be lost!")
 			confirm=confirm[0].lower()
 			if confirm=="y":
-				player_quit=1				
+				player_quit=1	
 		else:
 			print("Invalid Input. Try again.")
 	else:
@@ -1345,7 +1355,8 @@ def game():
 		AP=50
 		if overuse==1:
 			AP=50-overuse_amount
-		load_time(200,("Today is day ",day_count))
+		print("Today is day ",day_count)
+		load_time(300,"A new day dawns.")
 		
 		
 		for person in all_people: #Performs daily checks for all people.
@@ -1353,21 +1364,21 @@ def game():
 				#Hunger Games.
 				person.hunger+=10
 				if person.hunger>99:
-					print(person.name," has died of hunger")
+					print(person.name,person.surname," has died of hunger")
 					person.die()
 				elif person.hunger>80:
-					print("Warning!",person.name," is starving and may die soon.")
+					print("Warning!",person.name,person.surname," is starving and may die soon.")
 				elif person.hunger>50:
-					print(person.name," is hungry.")
+					print(person.name,person.surname," is hungry.")
 				#Thirsty games.
 				person.thirst+=10
 				if person.thirst>99:
-					print(person.name," has died of thirst")
+					print(person.name,person.surname," has died of thirst")
 					person.die()
 				elif person.hunger>80:
-					print("Warning!",person.name," is extremely thirsty and may die soon.")
+					print("Warning!",person.name,person.surname," is extremely thirsty and may die soon.")
 				elif person.hunger>50:
-					print(person.name," is thirsty.")
+					print(person.name,person.surname," is thirsty.")
 				#Scavenging games
 				if person.scavenging == 1:
 					if person.daysToScavengeFor == person.daysScavenging:
@@ -1422,7 +1433,7 @@ def game():
 		elif happiness<20:
 			print("Warning. Your people are unhappy. You could lose your position if you don't improve the situation soon.")
 		skip=0	
-		while AP>0 and overuse==0: #Loops player actions.
+		while AP>0 and overuse==0 and player_quit==0: #Loops player actions.
 			choice()
 			if skip==1:
 				break
@@ -1431,7 +1442,6 @@ def game():
 		all_people[0].gain_xp(happiness//10)
 		happiness_loss()
 		day_count+=1
-		load_time(300,"A new day dawns.")
 			
 	else: #Once game ends.
 		if end==1:
