@@ -54,3 +54,11 @@ Pushed v.04 to github. Too many changes to list. Basically improved every system
 Passed 1000 source code line count! The-9880 has done the crafting and scavenging systems.
 #NoDebug #ftw #CodeWontRun
 
+29.12.15: T.G.
+Been a while since log update. Doesn't mean work wasn't being done. Pushed v0.5 and the game works... Sort of. 
+All Syntax errors resolved. Now debugging.
+Information, human management and trading systems fully functional.
+Other systems quasi-functional. Need more work. Especially room assignment system.
+
+In other news, started using git on local workstations and github to auto-sync code between local stations and cloud spaces (C9!!!)
+Passed 1400 code line mark. Project is coming together.
