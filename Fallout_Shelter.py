@@ -1046,6 +1046,8 @@ def produce_all(): #Causes production of all rooms.
 #Choice system!
 def choice():
 	global auto_feed
+	global all_people
+	global rooms
 	a=input("Choose what to do:")
 	if len(a)>0:
 		if a.split()[0]=="build": #Allows player to build new rooms. Checks if player has components to build room.
@@ -1200,7 +1202,6 @@ def choice():
 				trade()
 				
 		elif a.split()[0]=="assign":
-			global all_people
 			if len(a.split())!=5:
 				print("You have to input 4 words. E.g. assign Thomas Marc to living")
 			elif not check_person(a.split()[1],a.split()[2]):
@@ -1217,7 +1218,6 @@ def choice():
 				all_people[person_index].assign_to_room(a.split()[3])
 			
 		elif a.split()[0]=="upgrade":
-			global rooms
 			if not check_room(a.split()[1]) or not check_built_room(a.split()[1]):
 				print("This room doesn't exist. Try again.")
 			elif a.split()[1]=="trader":
