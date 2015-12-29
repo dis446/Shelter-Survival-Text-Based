@@ -171,17 +171,38 @@ class Human(object): #Basic class for all the Humans present in the game.
 	def get_index(self): #Returns the index of the character in the all_people list
 			for x in range(len(all_people)):
 				if all_people[x].name==self.name and all_people[x].surname==self.surname:
-					return x
+					return int(x)
 				
 	def assign_to_room(self,chosen_room):
-		global rooms
+		global rooms 
 		global all_people
-		ind=int(self.get_index()) #Get's index of person in all_people so it can be used to move people.
-		if self.assigned_room!="": #If person was previously assigned.
-			rooms[get_room_index(chosen_room)].assigned[int(ind)]='0' #Removes person from their previously assigned room
-		self.assigned_room=str(chosen_room) #Let's character know which room they've been assigned.		
-		rooms[(get_room_index(chosen_room))].assigned[ind]='1' #Let's room know this person has been assigned to the room
-		
+		person_index=self.get_index()
+		print("Index of ",self.name,"is",person_index)	
+		room_index=get_room_index(chosen_room)
+		print("Index of ",chosen_room," is ",room_index)
+		room=all_rooms[room_index]
+		if all_people[person_index].assigned_room!='': #If person has been assigned before
+			for room in rooms:
+				string=str(room.assigned)
+				lst=[]
+				for digit in string:
+					lst.append(digit)
+				lst[person_index]='0'
+				string=''
+				for digit in lst:
+					string=string+digit
+				room.assigned=string
+		string=str(room.assigned)
+		lst=[]
+		for digit in string:
+			lst.append(digit)
+		lst[person_index]='1'
+		string=''
+		for digit in lst:
+			string=string+digit
+		room.assigned=string				
+		all_people[person_index].assigned_room=str(chosen_room)
+	
 	def can_mate_check(self): #Checks if person can have coitus and have children. Perfomed twice when player inputs coitus, once for each proposed parent.
 		self.can_mate=1
 		if self.age <18:
@@ -213,7 +234,7 @@ class Human(object): #Basic class for all the Humans present in the game.
 class Room(object): #Basic class for the rooms in the game.
 	def __init__(self,name): #Name would be something like "living_room_3" while group would be "living". So all living rooms have the same initial stats.
 		self.name=name 
-		self.assigned='0' #1s and 0s that are used to store the indexes of assigned. Eg 001001 means that the 3rd and the 6th characters have been assigned here.
+		self.assigned='' #1s and 0s that are used to store the indexes of assigned. Eg 001001 means that the 3rd and the 6th characters have been assigned here.
 		self.level=1 #Determines production level, max assigned.
 		self.risk=0
 		if self.name=="living": # Living rooms have no "assigned". Number of living rooms just limits the total population of the shelter.
@@ -253,14 +274,14 @@ class Room(object): #Basic class for the rooms in the game.
 			self.rushed=1 #Lets game know this room has been rushed.
 			print(self.name, " has been rushed!")
 
-	def update_assigment(): #Updates length of assigned variable by adding more zeros to it.
+	def update_assigment(): #Updates length of assigned variable, due to population growth, by adding more zeros to it.
 		global rooms
 		current_count=len(self.assigned) #Count's how many digits exist
 		required_count=len(all_people) #Count's how many digits should exists
 		if current_count<required_count:
 			difference=required_count-current_count 
 			for x in range(difference):
-				self.assigned.append(0) #Adds a zero at the end of the string based on the total population.
+				self.assigned.append('0') #Adds a zero at the end of the string based on the total population.
 		
 	def update_production(self): #Calculates production level based on number of and skills of assigned. 
 		global rooms
@@ -402,15 +423,16 @@ class Item(object): # Basic model for items in the game. Objects of this class w
 
 #Information system!
 # Bunch of functions used by other functions to retrieve information about the shelter, it's assigned, rooms and items.
-	
+load=0
 def load_time(x,message):
-	if 'tqdm' in sys.modules:
+	
+	if 'tqdm' in sys.modules and load==1:
 		print(str(message))
 		for x in tqdm(range(0,x)):
 			sleep(0.01)
 	else:
 		print(str(message))
-		sleep(x/100)	
+		sleep(x/10000)	
 def input_int(x): #Whenever player has to input an integer, this should be used. Catches errors.
 	x=input("Input an integer.")
 	try:
@@ -509,8 +531,10 @@ def  get_person_index(first_name,surname):
 		if all_people[x].name==first_name and all_people[x].surname==surname:
 			return int(x)
 def get_room_index(room):
+	room=str(room)
 	for r in range(len(rooms)):
 		if rooms[r].name==room:
+			print("Room index",r)
 			return int(r)		
 
 
@@ -1352,6 +1376,7 @@ def game():
 	build('trader')
 	craft('turret')
 	while end==0 and postition=="secure" and player_quit==0: #Loops the day while player is alive and is still the overseer.
+		print("Here is the trader's assigned variable",rooms[get_room_index('trader')].assigned)
 		AP=50
 		if overuse==1:
 			AP=50-overuse_amount
