@@ -7,9 +7,34 @@ try:
 except ImportError:
 	print("Error importing TQDM module. The game will still run regardless, but if this module was present, the game would be slightly better.")
 """#Function to space out prints, giving player time to read. Similar to Fallout 4 terminall CLI.	
-def printl(x):
+def printl(a):
 	sleep(0.5)
-	print(str(x))
+	print(str(a))
+def  printl(a,b):
+	printl(a)
+	printl(b)
+def printl(a,b,c):
+	printl(a)
+	printl(b)
+	printl(c)
+def printl(a,b,c,d):
+	printl(a)
+	printl(b)
+	printl(c)
+	print(d)
+def printl(a,b,c,d,e):
+	printl(a)
+	printl(b)
+	printl(c)
+	print(d)
+	print(e)
+def printl(a,b,c,d,e,f):
+	printl(a)
+	printl(b)
+	printl(c)
+	print(d)
+	print(e)
+	print(f)
 """
 
 class Human(object): #Basic class for all the Humans present in the game.
@@ -38,6 +63,7 @@ class Human(object): #Basic class for all the Humans present in the game.
 			self.inspiration=0 #Boosts production and defense of all inhabitants.
 			self.scrapper=0 #Boosts chance of finding a component twice during scrapping.
 			self.electrician=0 #Boosts power production
+			self.assigned_room=""
 		else: #Stats specific to NPCs
 			self.scavenging = 0
 			self.daysScavenging = 0
@@ -174,13 +200,14 @@ class Human(object): #Basic class for all the Humans present in the game.
 					return int(x)
 				
 	def assign_to_room(self,chosen_room):
-		global rooms 
+		global rooms
 		global all_people
 		person_index=self.get_index()
-		print("Index of ",self.name,"is",person_index)	
+		#print("Index of ",self.name,"is",person_index)	
 		room_index=get_room_index(chosen_room)
-		print("Index of ",chosen_room," is ",room_index)
-		room=all_rooms[room_index]
+		#print("Index of ",chosen_room," is ",room_index)
+		room=rooms[room_index]#Refers to the actual room
+		print("Chosen room is",room.name)
 		if all_people[person_index].assigned_room!='': #If person has been assigned before
 			for room in rooms:
 				string=str(room.assigned)
@@ -193,16 +220,19 @@ class Human(object): #Basic class for all the Humans present in the game.
 					string=string+digit
 				room.assigned=string
 		string=str(room.assigned)
+		#print("Assigned log",string)
 		lst=[]
 		for digit in string:
 			lst.append(digit)
+		#print("Assigned log",lst)
 		lst[person_index]='1'
 		string=''
 		for digit in lst:
 			string=string+digit
-		room.assigned=string				
-		all_people[person_index].assigned_room=str(chosen_room)
-	
+		room.assigned=string
+		print("Updated assigned log",room.assigned)				
+		all_people[person_index].assigned_room=str(chosen_room)#Let's  character know where they've been assigned.
+		#print("Room",self.name,"has been assigned to is",all_people[person_index].assigned_room)
 	def can_mate_check(self): #Checks if person can have coitus and have children. Perfomed twice when player inputs coitus, once for each proposed parent.
 		self.can_mate=1
 		if self.age <18:
@@ -235,23 +265,23 @@ class Room(object): #Basic class for the rooms in the game.
 	def __init__(self,name): #Name would be something like "living_room_3" while group would be "living". So all living rooms have the same initial stats.
 		self.name=name 
 		self.assigned='' #1s and 0s that are used to store the indexes of assigned. Eg 001001 means that the 3rd and the 6th characters have been assigned here.
-		self.level=1 #Determines production level, max assigned.
+		self.level=1 #Determines production level, max assigned limit etc.
 		self.risk=0
 		if self.name=="living": # Living rooms have no "assigned". Number of living rooms just limits the total population of the shelter.
 			self.can_produce=0 #Stores whether or not room actually produces anything.				self.components=["wood",] #Need to add components.
-			self.assigned_limit=0 #No-one is assigned to the living room
-			self.components=["wood","wood","wood","wood"]
+			self.assigned_limit=0 #No-one can be assigned to the living room
+			self.components=["wood","wood","wood","wood"] #Required to build this room
 		elif self.name=="generator":
 			self.risk=2
 			self.can_produce=1
 			self.assigned_limit=4 #Max number of workers that can work in the room at one time.
 		elif self.name=="storage":
 			self.can_produce=0
-			self.assigned_limit=0 #Max number of workers that can work in the room at one time.
+			self.assigned_limit=0
 		elif self.name=="kitchen":
 			self.risk=2
 			self.can_produce=1
-			self.assigned_limit=5 #Max number of workers that can work in the room at one time.
+			self.assigned_limit=5
 			self.components=["wood","wood","wood"]
 		elif self.name=="trader":
 			self.can_produce=0
@@ -274,14 +304,13 @@ class Room(object): #Basic class for the rooms in the game.
 			self.rushed=1 #Lets game know this room has been rushed.
 			print(self.name, " has been rushed!")
 
-	def update_assigment(): #Updates length of assigned variable, due to population growth, by adding more zeros to it.
-		global rooms
-		current_count=len(self.assigned) #Count's how many digits exist
-		required_count=len(all_people) #Count's how many digits should exists
-		if current_count<required_count:
-			difference=required_count-current_count 
-			for x in range(difference):
-				self.assigned.append('0') #Adds a zero at the end of the string based on the total population.
+#	def update_assigment(): #Updates length of assigned variable, due to population growth, by adding more zeros to it.
+#		global rooms
+#		current_count=len(self.assigned) #Count's how many digits exist
+#		required_count=len(all_people) #Count's how many digits should exists
+#			difference=required_count-current_count 
+#			for x in range(difference):
+#				self.assigned.append('0') #Adds a zero at the end of the string based on the total population.
 		
 	def update_production(self): #Calculates production level based on number of and skills of assigned. 
 		global rooms
@@ -321,11 +350,12 @@ class Room(object): #Basic class for the rooms in the game.
 				count+=1
 		return count
 	def see_assigned(self):
+		index=0
 		for x in str(self.assigned):
 			if x=='1':
-				person=all_people[x]
+				person=all_people[index]
 				print("Name : ",person.name)
-				person.see_stats()
+			index+=1
 	def count_component(self,component):
 		count = 0
 		for x in self.components:
@@ -483,13 +513,13 @@ def check_built_room(x): #Checks if room has been built yet
 	return False
 			
 def see_people(): #Displays everyone in the shelter.
-	print("Name. Age. Gender. Hunger. Thirst.")
+	print("Name. Age. Gender. Hunger. Thirst. Assinged room")
 	for person in all_people:
-		print(person.name,person.parent_1,person.age,person.gender,person.hunger,person.thirst) #Need to add more attributes
+		print(person.name,person.parent_1,person.age,person.gender,person.hunger,person.thirst,person.assigned_room) #Need to add more attributes
 
 def see_rooms():
 	for r in rooms:
-		print(r.name,". Risk: ",r.risk,". Assigned: ",r.see_assigned(),". Level: ", r.level)
+		print(r.name,". Risk: ",r.risk,". Level: ", r.level,". Assigned: ",r.see_assigned())
 		
 def see_inventory(inven):#Displays all items in inventory in the form (Log*5.Weight=5.Value=10.Components="Wood". Rarity=1).
 	inven=str(inven)
@@ -532,10 +562,10 @@ def  get_person_index(first_name,surname):
 			return int(x)
 def get_room_index(room):
 	room=str(room)
-	for r in range(len(rooms)):
+	for r in range(0,len(rooms)):
 		if rooms[r].name==room:
-			print("Room index",r)
-			return int(r)		
+			print("Room index fetch returns,",r)
+			return r		
 
 
 
@@ -608,11 +638,15 @@ def craft(x):#Crafts an item once checks are done. Just add the name of an item 
 #Human management system
 def get_player_gender():#Asks player what gender they are.
 	gender=input("Please choose a gender.(M/F)")
-	gender=gender[0].lower()
-	if gender=="m" or gender=="f":
-		return gender
+	if len(gender)>0:
+		gender=gender[0].lower()
+		if gender=="m" or gender=="f":
+			return gender
+		else:
+			print("Invalid gender choice!")
+			get_player_gender()
 	else:
-		print("Invalid gender choice!")
+		print("No input detected!")
 		get_player_gender()
 
 def get_gender(): #Randomly generates a gender. For NPCs
@@ -654,7 +688,7 @@ def birth(parent_1_first_name,parent_1_surname,parent_2_first_name,parent_2_surn
 			all_people[parent_2_index].children.append(str(name))
 			all_people(parent_1_index).partner=str(parent_2)
 			all_people(parent_2_index).partner=str(parent_2)
-			for r in all_rooms:
+			for r in rooms:
 				r.update_assigment()
 			if day_count>2: #First few births cost no points
 				use_points(50)
@@ -671,8 +705,8 @@ def birth(parent_1_first_name,parent_1_surname,parent_2_first_name,parent_2_surn
 def first_four(): #Runs once at beginning of game. Creates 4 new people. Costs no Action Points!
 	global all_people
 	global used_names
+	global rooms
 	names=["Thompson","Elenor","Codsworth","Sharmak","Luthor","Marhsall","Cole","Diven","Davenport","John","Max","Lex","Leth","Exavor"] #Random surnames for inital 5 inhabitants. All children will inherit their surnames from their parents.	if day_count<2: #Initial 5 inhabitants need to be birthed
-	#print("Names count ",len(names)-1)
 	for person in all_people:
 		used_names.append(str(person.name))
 	while len(all_people)<6:
@@ -683,8 +717,7 @@ def first_four(): #Runs once at beginning of game. Creates 4 new people. Costs n
 			continue
 		all_people.append(Human(names[num_1],day_count,names[num_2],names[num_3],get_gender()))
 		used_names.append(names[num_1])
-		used_names.append(names[num_2])	
-
+		used_names.append(names[num_2])
 def create_player(): #Only ran at start of game. First inhabitant of vault should be the player.
 	global all_people
 	name=input("Choose a first name for yourself: ")
@@ -706,8 +739,26 @@ def create_player(): #Only ran at start of game. First inhabitant of vault shoul
 	else:
 		print("Only single word inputs are accepted.")
 		create_player()
-
-
+def update_all_assignment():
+	global rooms
+	for r in rooms:
+		current_count=len(r.assigned) #Count's how many digits exist
+		print("This many digits exist",current_count)
+		required_count=len(all_people) #Count's how many digits should exists
+		print("How many are needed",required_count)
+		if current_count<required_count:
+			difference=required_count-current_count
+			lst=[]
+			for letter in r.assigned:
+				lst.append(letter)
+			for x in range(difference):
+				lst.append('0')
+			final=''
+			for letter in lst:
+				final=final+letter
+			print("We're adding this to the assigned",final)
+			r.assigned=r.assigned+final
+			print("This is what happened", r.assigned)
 
  
 #Inventory managment system!
@@ -1211,11 +1262,11 @@ def choice():
 			elif not check_built_room(a.split()[4]):
 				print("You haven't built this room yet")
 			elif rooms[get_room_index(a.split()[4])].assigned_limit==rooms[get_room_index(a.split()[4])].count_assigned():
-				print("This room is full")
+				print("This room is full.")
 				print("You can assign someone in the room to another room to create space.")
 			else:
 				person_index=get_person_index(a.split()[1],a.split()[2])
-				all_people[person_index].assign_to_room(a.split()[3])
+				all_people[person_index].assign_to_room(a.split()[4])
 			
 		elif a.split()[0]=="upgrade":
 			if not check_room(a.split()[1]) or not check_built_room(a.split()[1]):
@@ -1358,6 +1409,9 @@ def game():
 	all_people[0].age=20
 	first_four()
 	load_time(200,"Populating Vault with 5 random inhabitants")
+	update_all_assignment()
+		
+	#Put Instructions for player here
 	print("Commands: ")
 	print("see people: View all inhabitants")
 	print("see items: View all items")
@@ -1370,12 +1424,12 @@ def game():
 	print("coitus x y: Send daddy and mommy to the love-house")
 	print("scavenge x: Send x on a scavenging mission")
 	print("")
-	#Put Instructions for player here
 	print("You have been given 100 caps to start your journey.")
 	AP=50
 	build('trader')
 	craft('turret')
-	while end==0 and postition=="secure" and player_quit==0: #Loops the day while player is alive and is still the overseer.
+	update_all_assignment()
+	while end==0 and postition=="secure" and player_quit==0: #Loops the day while player is alive,is still the overseer and doesn't decide to quit.
 		print("Here is the trader's assigned variable",rooms[get_room_index('trader')].assigned)
 		AP=50
 		if overuse==1:
