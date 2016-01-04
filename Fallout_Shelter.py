@@ -11,24 +11,29 @@ def printl(a):
 	sleep(0.5)
 	print(str(a))
 def  printl(a,b):
+	sleep(0.5)
 	printl(a)
 	printl(b)
 def printl(a,b,c):
+	sleep(0.5)
 	printl(a)
 	printl(b)
 	printl(c)
 def printl(a,b,c,d):
+	sleep(0.5)
 	printl(a)
 	printl(b)
 	printl(c)
 	print(d)
 def printl(a,b,c,d,e):
+	sleep(0.5)
 	printl(a)
 	printl(b)
 	printl(c)
 	print(d)
 	print(e)
 def printl(a,b,c,d,e,f):
+	sleep(0.5)
 	printl(a)
 	printl(b)
 	printl(c)
@@ -109,6 +114,7 @@ class Human(object): #Basic class for all the Humans present in the game.
 		self.see_stats()
 		self.level+=1
 		if self.name==all_people[0].name: #If player has leveled up
+			print("\n")
 			choice=input("Please choose an attribute to level up: ")
 			choice.lower()
 			if choice=="strength":
@@ -157,7 +163,7 @@ class Human(object): #Basic class for all the Humans present in the game.
 			elif choice=="luck":
 				self.luck+=1
 			else:
-				print("Invalid choice")
+				print("'\nInvalid choic.\n")
 				self.level-=1
 				self.level_up()
 		
@@ -475,17 +481,10 @@ def input_int(x): #Whenever player has to input an integer, this should be used.
 
 def count_item(item,target_inventory): #Counts total number of an item present in an inventory
 	item=str(item)
-	count=0
 	if target_inventory=="player":
-		for x in inventory:
-			if x==item:
-				count+=1
-		return count
+		return inventory.count(item)
 	elif target_inventory=="trader":
-		for x in trader_inventory:
-			if x==item:
-				count+=1
-		return count
+		return trader_inventory.count(item)
 	else:
 		print("Bug with item counting system. Please contact dev!")
 		
@@ -564,7 +563,7 @@ def get_room_index(room):
 	room=str(room)
 	for r in range(0,len(rooms)):
 		if rooms[r].name==room:
-			print("Room index fetch returns,",r)
+			#print("Room index fetch returns,",r)
 			return r		
 
 
@@ -659,7 +658,7 @@ def get_gender(): #Randomly generates a gender. For NPCs
 def check_person(first_name,surname): #Check if a person exists.
 	for per in all_people:
 		if per.name==first_name and per.surname==surname:
-			print("This person exists")
+			#print("This person exists")
 			return True
 	else:
 		return False
@@ -857,6 +856,8 @@ def raid():
 	raider=raiders[randint(len(raiders))] #Randomly chooses a raider party.
 	attack_power=randint(1,day_count//10)
 	load_time(10,("There was a ",raider," raid on your shelter!"))	 
+	print("THe total enemy power was",attack_power)
+	print("Your total defenses are",defense)
 	if defense>attack_power:
 		print("But your defenses were strong enough to send them packing!")
 	else:
@@ -1407,7 +1408,7 @@ def game():
 	create_player()
 	load_time(100,"Creating player.")
 	all_people[0].age=20
-	first_four()
+	first_four()#Creates the first four inhabitants.
 	load_time(200,"Populating Vault with 5 random inhabitants")
 	update_all_assignment()
 		
@@ -1504,6 +1505,9 @@ def game():
 		raid_chance=randint(1,5)
 		if day_count<11:
 			raid_chance=1 #No raids should happen in the early days.
+		if day_count==3:
+			print("Test raid!")
+			raid()
 		if raid_chance>4:
 			raid()
 			
