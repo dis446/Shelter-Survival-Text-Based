@@ -6,6 +6,8 @@ try:
 	from tqdm import tqdm #Used to make loading screens.
 except ImportError:
 	print("Error importing TQDM module. The game will still run regardless, but if this module was present, the game would be slightly better.")
+<<<<<<< HEAD
+=======
 """#Function to space out prints, giving player time to read. Similar to Fallout 4 terminall CLI.	
 def printl(a):
 	sleep(0.5)
@@ -41,6 +43,7 @@ def printl(a,b,c,d,e,f):
 	print(e)
 	print(f)
 """
+>>>>>>> 722a8a95636023277f1aa764d9d9724406958075
 
 class Human(object): #Basic class for all the Humans present in the game.
 	def __init__(self,name,day_of_birth,parent_1,parent_2,gender):
@@ -213,7 +216,7 @@ class Human(object): #Basic class for all the Humans present in the game.
 		room_index=get_room_index(chosen_room)
 		#print("Index of ",chosen_room," is ",room_index)
 		room=rooms[room_index]#Refers to the actual room
-		print("Chosen room is",room.name)
+		#print("Chosen room is",room.name)
 		if all_people[person_index].assigned_room!='': #If person has been assigned before
 			for room in rooms:
 				string=str(room.assigned)
@@ -236,7 +239,7 @@ class Human(object): #Basic class for all the Humans present in the game.
 		for digit in lst:
 			string=string+digit
 		room.assigned=string
-		print("Updated assigned log",room.assigned)				
+		#print("Updated assigned log",room.assigned)				
 		all_people[person_index].assigned_room=str(chosen_room)#Let's  character know where they've been assigned.
 		#print("Room",self.name,"has been assigned to is",all_people[person_index].assigned_room)
 	def can_mate_check(self): #Checks if person can have coitus and have children. Perfomed twice when player inputs coitus, once for each proposed parent.
@@ -293,7 +296,7 @@ class Room(object): #Basic class for the rooms in the game.
 			self.can_produce=0
 			self.assigned_limit=1
 			self.components=["wood","wood","wood","steel","wood"]
-		else:	
+		else:
 			print("Bug with room creation system. Please contact dev. Class specific bug.")
 		if self.can_produce==1:
 			self.production=int(100)
@@ -356,20 +359,13 @@ class Room(object): #Basic class for the rooms in the game.
 				count+=1
 		return count
 	def see_assigned(self):
-		index=0
 		for x in str(self.assigned):
 			if x=='1':
 				person=all_people[index]
-				print("Name : ",person.name)
-			index+=1
+				print("Name : ",person.name,person.surname)
 	def count_component(self,component):
-		count = 0
-		for x in self.components:
-			if x == component:
-				count += 1
-		return count
-	
-	
+		return self.components.count(str(component))
+		
 class Item(object): # Basic model for items in the game. Objects of this class will never be stored, instead created on the fly to retrieve attributes.
 	def __init__(self,name):
 		self.name=name#Just needs to get the name, all other attributes are automatically assigned by the following lines.
@@ -406,7 +402,7 @@ class Item(object): # Basic model for items in the game. Objects of this class w
 		elif self.name=="wire":
 			self.value=40
 			self.weight=1
-			self.components=[]
+			self.components=['copper','copper','copper']
 			self.rarity=4
 		elif self.name=="silicon":
 			self.value=50
@@ -414,20 +410,12 @@ class Item(object): # Basic model for items in the game. Objects of this class w
 			self.components=[]
 			self.rarity=6
 		
-		
-			
-		
 		else:
 			print("Item doesn't exist. Bug with item creation system. Please contact dev.")
 		self.scrapped=0 #Keeps track of whether item has been scrapped by player.
 	    
 	def count_component(self,component):
-		count = 0
-		for x in self.components:
-			if x == component:
-				count += 1
-		return count
-		
+		return self.components.count(str(component))
 	def scrap(self): #Destroys the item and adds it's compoenents to the inventory.
 		global inventory
 		print(self.name," has been scrapped and these")
@@ -518,7 +506,10 @@ def see_people(): #Displays everyone in the shelter.
 
 def see_rooms():
 	for r in rooms:
-		print(r.name,". Risk: ",r.risk,". Level: ", r.level,". Assigned: ",r.see_assigned())
+		print(r.name)
+		print("Risk: ",r.risk,". Level: ", r.level)
+		print("Assigned: ",r.see_assigned())
+		print("\n")
 		
 def see_inventory(inven):#Displays all items in inventory in the form (Log*5.Weight=5.Value=10.Components="Wood". Rarity=1).
 	inven=str(inven)
@@ -558,7 +549,7 @@ def see_resources():
 def  get_person_index(first_name,surname):
 	for x in range(len(all_people)):
 		if all_people[x].name==first_name and all_people[x].surname==surname:
-			return int(x)
+			return x
 def get_room_index(room):
 	room=str(room)
 	for r in range(0,len(rooms)):
@@ -707,14 +698,15 @@ def first_four(): #Runs once at beginning of game. Creates 4 new people. Costs n
 	global rooms
 	names=["Thompson","Elenor","Codsworth","Sharmak","Luthor","Marhsall","Cole","Diven","Davenport","John","Max","Lex","Leth","Exavor"] #Random surnames for inital 5 inhabitants. All children will inherit their surnames from their parents.	if day_count<2: #Initial 5 inhabitants need to be birthed
 	for person in all_people:
-		used_names.append(str(person.name))
+		used_names.append(person.name,person.surname)
 	while len(all_people)<6:
 		num_1=randint(0,len(names)-1)
 		num_2=randint(0,len(names)-1)
-		num_3=randint(0,len(names)-1)
-		if num_1==num_2 or num_1==num_3 or num_2==num_3:
+		if num_1==num_2: #People can't have the same surname and first name.
+ 			continue
+		if names[num_1] in used_names or names[num_2] in used_names:
 			continue
-		all_people.append(Human(names[num_1],day_count,names[num_2],names[num_3],get_gender()))
+		all_people.append(Human(names[num_1],day_count,names[num_2],"Alena",get_gender())) #First few inhabitants all have the same mother.
 		used_names.append(names[num_1])
 		used_names.append(names[num_2])
 def create_player(): #Only ran at start of game. First inhabitant of vault should be the player.
@@ -1113,14 +1105,12 @@ def choice():
 				room=Room(a.split()[1])
 				checked=[] #Stores components already checked. Useful. If there's 5 pieces of wood in the components list, the loop is only run once, instead of 5 times
 				for component in room.components:
-					if component not in checked:
-						number_available=count_item(component,"player")
-						number_needed=room.count_component(component)
-						if number_needed>number_available: 
+					if component not in checked:#Only runs check if item hasn't been encountered before
+						if room.count_component(component)>count_item(component,"player"): #If player doesn't have enough
 							print("You don't have enough", component,"to build",a.split()[1])
 							can_craft=0
+							#break #I don't break so the users will see everything they don't have.
 						checked.append(component)
-						
 				if can_craft==1:
 					print("You have crafted a", a.split()[1])
 					craft(a.split()[1])
@@ -1182,7 +1172,7 @@ def choice():
 			else:
 				room_index=get_room_index(a.split()[1])
 				rooms[room_index].rush()
-			
+				
 		elif a.split()[0]=="see":
 			if a.split()[1]=="people":
 				see_people()
@@ -1195,12 +1185,11 @@ def choice():
 			elif a.split()[1]=="resources":
 				see_resources()
 			else:
-				print("Incorrect input. To see people, input (see people). To view your inventory, input (see inventory) ")
+				print("Incorrect input. You can (see people),(see inventory), (see rooms) or (see resources)")
 				
 		elif a.split()[0]=="coitus": #Allows player to create new inhabitants
-			people_names=[a.name for a in all_people] #Used to check input
 			if len(a.split())!=5:
-				print("You need to input 2 mature people of opposite genders.")
+				print("You need to input 2 mature people of opposite genders in the form (coitus Alex Marshall Mallus Cumberland)")
 			elif not check_person(a.split()[1],a.split()[2]):
 				print("No such",a.split()[1]," exists!")
 			elif not check_person(a.split()[3],a.split()[4]):
@@ -1220,7 +1209,7 @@ def choice():
 					elif person_1.surname==person_2.surname:
 						print("Sorry. Incest isn't allowed. At least be ethical!")
 					elif person_1.gender==person_2.gender:
-						print("The people need to be different genders! COME ON MAN CAN U EVEN BIOLOGY!")
+						print("The people need to be different genders! COME ON MAN CAN U EVEN BIOLOGY!?")
 					else:
 						birth(person_1.name,person_1.surname,person_2.name,person_2.surname) #Pass these love birds to the birthing system
 				else:	
@@ -1414,8 +1403,9 @@ def game():
 		
 	#Put Instructions for player here
 	print("Commands: ")
-	print("see people: View all inhabitants")
+	print("\nsee people: View all inhabitants")
 	print("see items: View all items")
+	print("see rooms: View all rooms")
 	print("build x: Consruct a room")
 	print("craft x: Craft an item")
 	print("scrap x: Destroy an item and add it's components to your inventory")
@@ -1424,8 +1414,7 @@ def game():
 	print("trade: Begin trading interaction")
 	print("coitus x y: Send daddy and mommy to the love-house")
 	print("scavenge x: Send x on a scavenging mission")
-	print("")
-	print("You have been given 100 caps to start your journey.")
+	print("\nYou have been given 100 caps to start your journey.")
 	AP=50
 	build('trader')
 	craft('turret')
