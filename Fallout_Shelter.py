@@ -1,50 +1,11 @@
 #Text-based Fallout Shelter game developed by T.G. and The-9880.
 from random import randint
 from time import sleep
-import sys
+import sys #Used to check if modules have been imported correctly.
 try:
 	from tqdm import tqdm #Used to make loading screens.
 except ImportError:
 	print("Error importing TQDM module. The game will still run regardless, but if this module was present, the game would be slightly better.")
-<<<<<<< HEAD
-=======
-"""#Function to space out prints, giving player time to read. Similar to Fallout 4 terminall CLI.	
-def printl(a):
-	sleep(0.5)
-	print(str(a))
-def  printl(a,b):
-	sleep(0.5)
-	printl(a)
-	printl(b)
-def printl(a,b,c):
-	sleep(0.5)
-	printl(a)
-	printl(b)
-	printl(c)
-def printl(a,b,c,d):
-	sleep(0.5)
-	printl(a)
-	printl(b)
-	printl(c)
-	print(d)
-def printl(a,b,c,d,e):
-	sleep(0.5)
-	printl(a)
-	printl(b)
-	printl(c)
-	print(d)
-	print(e)
-def printl(a,b,c,d,e,f):
-	sleep(0.5)
-	printl(a)
-	printl(b)
-	printl(c)
-	print(d)
-	print(e)
-	print(f)
-"""
->>>>>>> 722a8a95636023277f1aa764d9d9724406958075
-
 class Human(object): #Basic class for all the Humans present in the game.
 	def __init__(self,name,day_of_birth,parent_1,parent_2,gender):
 		self.name=name
