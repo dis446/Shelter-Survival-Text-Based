@@ -1,7 +1,7 @@
 #Text-based Fallout Shelter game developed by T.G. and The-9880.
 from random import randint
 from time import sleep
-import sys #Used to check if modules have been imported successful.
+import sys #Used to check if modules have been imported correctly.
 try:
 	from tqdm import tqdm #Used to make loading screens.
 except ImportError:
