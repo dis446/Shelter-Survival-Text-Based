@@ -35,8 +35,8 @@ class Human(object): #Basic class for all the Humans present in the game.
 			self.assigned_room=""
 		else: #Stats specific to NPCs
 			self.scavenging = 0
-			self.daysScavenging = 0
-			self.daysToScavengeFor = 0
+			self.days_scavenging = 0
+			self.days_to_scavenge_for = 0
 		
 		
 		self.hunger=0
@@ -169,16 +169,27 @@ class Human(object): #Basic class for all the Humans present in the game.
 			for x in range(len(all_people)):
 				if all_people[x].name==self.name and all_people[x].surname==self.surname:
 					return int(x)
-				
+	def unassign(self):
+		for room in rooms: #Breaks apart each room's assigned number, removes the person, and reassembles the assigned number.
+			string_room_name=str(room.assigned)
+			lst=[]
+			for digit in string_room_name:
+				lst.append(digit)	
+			lst[person_index]='0'
+			string=''
+			for digit in lst:
+				string=string+digit
+			room.assigned=string
+		self.assigned_room=''		
 	def assign_to_room(self,chosen_room):
 		global rooms
 		global all_people
 		person_index=self.get_index()
-		#print("Index of ",self.name,"is",person_index)	
+		print("Index of ",self.name,"is",person_index)	
 		room_index=get_room_index(chosen_room)
-		#print("Index of ",chosen_room," is ",room_index)
+		print("Index of ",chosen_room," is ",room_index)
 		room=rooms[room_index]#Refers to the actual room
-		#print("Chosen room is",room.name)
+		print("Chosen room is",room.name)
 		if all_people[person_index].assigned_room!='': #If person has been assigned before
 			for room in rooms:
 				string=str(room.assigned)
@@ -482,21 +493,22 @@ def check_built_room(x): #Checks if room has been built yet
 	return False
 			
 def see_people(): #Displays everyone in the shelter.
-	print("Name. Age. Gender. Hunger. Thirst. Assinged room")
 	for person in all_people:
-		print(person.name,person.parent_1,person.age,person.gender,person.hunger,person.thirst,person.assigned_room) #Need to add more attributes
-
+		print(person.name,person.surname)
+		print("  Age:",person.age," Gender:",person.gender.upper()," Hunger:",person.hunger," Thirst:",person.thirst," Room:",person.assigned_room) 
 def see_rooms():
+	print("")
 	for r in rooms:
-		print(r.name)
-		print("Risk: ",r.risk,". Level: ", r.level)
-		print("Assigned: ")
-		r.see_assigned()
+		for word in r.name.split():
+			print(word[0].upper()+word[1:],end=" ")
+		print("\nRisk: ",r.risk,". Level: ", r.level)
+		if r.can_produce==1 or r.name=="trader":#Only rooms that can produce can have assignments, with the exception of the trader.
+			r.see_assigned()
 		print("\n")
 		
 def see_inventory(inven):#Displays all items in inventory in the form (Log*5.Weight=5.Value=10.Components="Wood". Rarity=1).
 	inven=str(inven)
-	seen_items=[]
+	seen_items=[]#Stores item types already seen, so if 5 units of wood are present, they are all shown in bulk in one go, instead of each one individualy.
 	if inven=="player":
 		for x in inventory:
 			if x not in seen_items:
@@ -525,7 +537,7 @@ def living_capacity():#Returns maximum number of inhabitants that can exist in t
 	return capacity
 	"""
 	room=rooms[get_room_index('living')]
-	return (10*room.level)
+	return (5*room.level)
 def see_resources():
 	food_count=count_item("food","player")
 	water_count=count_item("water","player")
@@ -561,9 +573,9 @@ def scavenge(first_name,surname,var): #Sends people on a scavenging mission.
 		if var=="days": #If player chooses to send player for certain number of days, or until health drops below 20.
 			#print("How many days do you want to send this person out?")
 			day_choice=input_int()
-			person.daysToScavengeFor = day_choice 
+			person.days_to_scavenge_for = day_choice 
 		else:
-			person.daysToScavengeFor= 100 #Their health will drop below 20 before 100 days, so this is fine.
+			person.days_to_scavenge_for= 100 #Their health will drop below 20 before 100 days, so this is fine.
 	use_points(10)
 
 
@@ -1074,23 +1086,6 @@ def trade(): #Trading system. Uses no Action Points
 				print("Sorry. ",a.split()[2]," doesn't exist!")	
 	load_time(100,"Ending trade")
 					
-#Production system
-def produce_all(): #Causes production of all rooms.
-	global rooms
-	for r in rooms:
-		if r.can_produce==1:
-			r.update_production() 
-			if r.name=="kitchen":
-				for x in range(r.production//10):
-					add_to_inven("food")
-			elif r.name=="generator":
-				for x in range(r.production//10):
-					add_to_inven("watt")
-			elif r.name=="water works":
-				for x in range(r.production//10):
-					add_to_inven("water")
-			#Add more cases for each production capable room
-			
 				
 
 	
@@ -1442,43 +1437,43 @@ def game():
 	AP=50
 	update_all_assignment()
 	while end==0 and postition=="secure" and player_quit==0: #Loops the day while player is alive,is still the overseer and doesn't decide to quit.
-		#print("Here is the trader's assigned variable",rooms[get_room_index('trader')].assigned)
 		AP=50
 		if overuse==1:
 			AP=50-overuse_amount
 		print("Today is day ",day_count)
 		load_time(300,"A new day dawns.")
 		
-		
 		for person in all_people: #Performs daily checks for all people.
+			#Hunger Games.
+			person.hunger+=10
+			if person.hunger>99:
+				print(person.name,person.surname," has died of hunger")
+				person.die()
+			elif person.hunger>80:
+				print("Warning!",person.name,person.surname," is starving and may die soon.")
+			elif person.hunger>50:
+				print(person.name,person.surname," is hungry.")
+			#Thirsty games.
+			person.thirst+=10
+			if person.thirst>99:
+				print(person.name,person.surname," has died of thirst")
+				person.die()	
+			elif person.hunger>80:
+				print("Warning!",person.name,person.surname," is extremely thirsty and may die soon.")
+			elif person.hunger>50:
+				print(person.name,person.surname," is thirsty.")
+			#Level Up games
+			check_xp(person.name,person.surname) #Checks if person has enough xp to level up.	
 			if person.name != all_people[0].name: #Routines specific to NPCs.
-				#Hunger Games.
-				person.hunger+=10
-				if person.hunger>99:
-					print(person.name,person.surname," has died of hunger")
-					person.die()
-				elif person.hunger>80:
-					print("Warning!",person.name,person.surname," is starving and may die soon.")
-				elif person.hunger>50:
-					print(person.name,person.surname," is hungry.")
-				#Thirsty games.
-				person.thirst+=10
-				if person.thirst>99:
-					print(person.name,person.surname," has died of thirst")
-					person.die()
-				elif person.hunger>80:
-					print("Warning!",person.name,person.surname," is extremely thirsty and may die soon.")
-				elif person.hunger>50:
-					print(person.name,person.surname," is thirsty.")
 				#Scavenging games
 				if person.scavenging == 1:
-					if person.daysToScavengeFor == person.daysScavenging:
+					if person.days_to_scavenge_for == person.days_scavenging:
 						# Now that they've finished scavenging, set everything to 0
 						person.Scavenging = 0
-						person.daysToScavengeFor = 0
-						person.daysScavenging = 0
+						person.days_to_scavenge_for = 0
+						person.days_scavenging = 0
 					else:
-						person.daysScavenging += 1
+						person.days_scavenging += 1
 						#Randomly finds an item
 						rand_item("player")
 						health_loss=randint(0,50)
@@ -1486,30 +1481,38 @@ def game():
 						person.gain_xp(randint(10,200))
 					if person.health<20:
 						person.scavenging=0
-						person.daysToScavengeFor = 0
-						person.daysScavenging = 0
+						person.days_to_scavenge_for = 0
+						person.days_scavenging = 0
 				#Experience games
 				if person.assigned_room!="":
 					r=rooms[get_room_index(person.assigned_room)] # Can refer to room which character had been assigned to.
 					if r.can_produce==1:
 						person.gain_xp(r.production//10)
-			#Level Up games
-			check_xp(person.name,person.surname) #Checks if person has enough xp to level up.	
+			
 		
 		if auto_feed==1:
 			auto_feed_all()		
 		
 		for r in rooms: #Performs daily room checks.
 			if r.can_produce==1:
+				r.update_production() 
+				if r.name=="kitchen":
+					for x in range(r.production//10):
+						add_to_inven("food")
+				elif r.name=="generator":
+					for x in range(r.production//10):
+						add_to_inven("watt")
+				elif r.name=="water works":
+					for x in range(r.production//10):
+						add_to_inven("water")
+				#Add more cases for each production capable room	
 				if r.rushed==1:
 					r.production-=50
 					r.rushed=0
-		produce_all() #Causes all rooms that can produce, to produce.
-		#Also updates production of all rooms.
-		
+				
 		#Trader inventory updates with new items and loses some items.
 		number=randint(0,(len(trader_inventory)//5)) #Loses a random number of items
-		lose_items("trader",number) 
+		lose_items("trader",number)
 		number=randint(0,len(trader_inventory)//5) #Finds another random number.
 		find_rand_item("trader",number) #Finds random number of items.
 		
