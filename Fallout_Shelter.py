@@ -204,6 +204,7 @@ class Human(object): #Basic class for all the Humans present in the game.
 		#print("Updated assigned log",room.assigned)				
 		all_people[person_index].assigned_room=str(chosen_room)#Let's  character know where they've been assigned.
 		#print("Room",self.name,"has been assigned to is",all_people[person_index].assigned_room)
+		print(self.name,self.surname,"has been assigned to",chosen_room)
 	def can_mate_check(self): #Checks if person can have coitus and have children. Perfomed twice when player inputs coitus, once for each proposed parent.
 		self.can_mate=1
 		if self.age <18:
@@ -242,28 +243,34 @@ class Room(object): #Basic class for the rooms in the game.
 			self.can_produce=0 #Stores whether or not room actually produces anything.				self.components=["wood",] #Need to add components.
 			self.assigned_limit=0 #No-one can be assigned to the living room
 			self.components=["wood","wood","wood","wood"] #Required to build this room
+			self.power_usage=5
 		elif self.name=="generator":
 			self.risk=2
 			self.can_produce=1
 			self.components=["steel","steel","steel","steel"]
 			self.assigned_limit=4 #Max number of workers that can work in the room at one time.
+			self.power_usage=0
 		elif self.name=="storage":
 			self.can_produce=0
 			self.assigned_limit=0
 			self.components=["steel","steel"]
+			self.power_usage=1
 		elif self.name=="kitchen":
 			self.risk=2
 			self.can_produce=1
 			self.assigned_limit=5
 			self.components=["wood","wood","wood"]
+			self.power_usage=10
 		elif self.name=="trader":
 			self.can_produce=0
 			self.assigned_limit=1
 			self.components=["wood","wood","steel","steel","wood"]
+			self.power_usage=2
 		elif self.name=="water works":
 			self.can_produce=0
 			self.assigned_limit=1
 			self.components=["wood","wood","steel"]
+			self.power_usage=10
 		else:
 			print("Bug with room creation system. Please contact dev. Class specific bug.")
 		if self.can_produce==1:
@@ -483,7 +490,8 @@ def see_rooms():
 	for r in rooms:
 		print(r.name)
 		print("Risk: ",r.risk,". Level: ", r.level)
-		print("Assigned: ",r.see_assigned())
+		print("Assigned: ")
+		r.see_assigned()
 		print("\n")
 		
 def see_inventory(inven):#Displays all items in inventory in the form (Log*5.Weight=5.Value=10.Components="Wood". Rarity=1).
@@ -507,13 +515,17 @@ def see_inventory(inven):#Displays all items in inventory in the form (Log*5.Wei
 					seen_items.append(x)
 	else:			
 		print("Major bug with inventory information system. Please contact dev!")
-def living_capacity():
+def living_capacity():#Returns maximum number of inhabitants that can exist in the shelter, depending on the level of the living room.
+	"""
 	index=get_room_index('living')
 	room=rooms[index]
 	capacity=0
 	for x in range(room.level):
 		capacity+=10
 	return capacity
+	"""
+	room=rooms[get_room_index('living')]
+	return (10*room.level)
 def see_resources():
 	food_count=count_item("food","player")
 	water_count=count_item("water","player")
@@ -732,9 +744,17 @@ def update_all_assignment():
 			#print("We're adding this to the assigned",final)
 			r.assigned=r.assigned+final
 			#print("This is what happened", r.assigned)
-
- 
-
+def power_usage():#Returns the total power needed by every room in the game.
+	total=0
+	for r in rooms:
+		total+=r.power_usage
+	return total
+def power_production():
+	total=0
+	generator=rooms[get_room_index('generator')]
+	for x in range(0,generator.production):
+		total+=production
+	return p
  
 #Inventory managment system!
 
@@ -930,10 +950,9 @@ def happiness_loss(): #Depending on hunger or thirst level, reduces general happ
 		print("Due to your inhabitants being hungry and/or thirsty the shelter's overall happiness has dropped to ",happiness)
 
 
+
 #Action Point usage system.
-#This system is very important and needs to be developed.
-#Should deduct from AP. If Ap gets below 0, stores the difference in (overuse). The next day's Action points should be less then.
-#For example, if player has 10 action points left, and perfrom an action that costs 20, a day will pass but instead of 50, they'll have 40 action points
+
 def use_points(point):
 	global AP
 	global overuse
