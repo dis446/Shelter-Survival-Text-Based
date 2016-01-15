@@ -368,7 +368,7 @@ class Room(object): #Basic class for the rooms in the game.
 		for x in str(self.assigned):
 			if x=='1':
 				person=all_people[count]
-				print(person.name,person.surname)
+				print("      ",person.name,person.surname)
 			count+=1
 	def count_component(self,component):
 		return self.components.count(str(component))
@@ -531,7 +531,7 @@ def check_built_room(x): #Checks if room has been built yet
 def see_people(): #Displays everyone in the shelter.
 	for person in all_people:
 		print(person.name,person.surname)
-		print("  Age:",person.age," Gender:",(person.gender).upper()," Hunger:",person.hunger," Thirst:",person.thirst," Room:",person.assigned_room) 
+		print("    Age:",person.age," Gender:",(person.gender).upper()," Hunger:",person.hunger," Thirst:",person.thirst," Room:",person.assigned_room) 
 def see_rooms():
 	print("")
 	for r in rooms:
@@ -539,9 +539,9 @@ def see_rooms():
 			print(word[0].upper()+word[1:],end=" ")
 		if r.can_produce==1:
 			r.update_production()
-			print("\nRisk: ",r.risk,". Level: ", r.level,"Power: ",r.power_available,"Production: ",r.production)
+			print("\n    Risk:",r.risk,"  Level:", r.level,"  Power:",r.power_available,"  Production:",r.production)
 		else:
-			print("\nRisk: ",r.risk,". Level: ", r.level,"Power: ",r.power_available)
+			print("\n    Risk:",r.risk,"  Level:", r.level,"  Power:",r.power_available)
 		
 		if r.can_produce==1 or r.name=="trader":#Only rooms that can produce can have assignments, with the exception of the trader.
 			r.see_assigned()
@@ -979,7 +979,7 @@ def feed(first_name,surname,amount): #Reduces the hunger level of a person.
 #This needs to reduce the thirst level aswell.
 	global all_people
 	person=all_people[get_person_index(first_name,surname)]
-	person.hunger-=amount
+	person.hunger-=amount*10
 	if person.hunger<0:
 		person.hunger=0
 def drink(first_name,surname,amount):
@@ -992,6 +992,7 @@ def auto_feed_all():
 	global all_people
 	food_count=count_item("food","player")
 	water_count=count_item("water","player")
+	load_time(200,"Feeding all inhabitants.")
 	while food_count>0 and avg_hunger()>1:
 		for person in all_people:
 			feed(person.name,person.surname,1)
@@ -1504,14 +1505,12 @@ def game():
 		AP=50
 		if overuse==1:
 			AP=50-overuse_amount
-		print("Today is day ",day_count)
 		load_time(300,"A new day dawns.")
-		
+		print("Today is day ",day_count)
 		
 		if auto_feed==1:
 			auto_feed_all()		
-			
-		
+	
 				
 		#Trader inventory updates with new items and loses some items.
 		number=randint(0,(len(trader_inventory)//5)) #Loses a random number of items
@@ -1520,35 +1519,24 @@ def game():
 		find_rand_item("trader",number) #Finds random number of items.
 		
 		
-		for x in range(rooms[get_room_index('generator')].production):
-			add_to_inven("watt",1,"player")
-				
+		add_to_inven("watt",rooms[get_room_index('generator')].production,"player")
+		
 		for r in rooms: #Performs daily room checks.
-			if r.name!='generator':
+			if r.name!='generator' and r.can_produce==1:
 				if r.can_use_power():
-					r.power_available="On"
 					r.use_power()
-				else:
-					r.power_available="Off"
-					print("You don't have enough power to keep the",r.name,"supplied.")
-			
-				if r.can_produce==1:
 					r.update_production()
+					if r.name=="kitchen":
+						add_to_inven("food",r.production,'player')
+					elif r.name=="water works":
+						add_to_inven("water",r.production,'player')
+					#Add more cases for each production capable room.
+				else:
+					print("You don't have enough power to keep the",r.name,"supplied.")
 						
-					if r.power_available=="On": 
-						if r.name=="kitchen":
-							for x in range(r.production):
-								add_to_inven("food",1,'player')
-						elif r.name=="water works":
-							for x in range(r.production):
-								add_to_inven("water",1,'player')
-
-							
-				#Add more cases for each production capable room.
-				if r.can_rush==1: #De-rushes every room that was rushed.
-					if r.rushed==1:
-						r.production-=50
-						r.rushed=0
+				if r.can_rush==1 and r.rushed==1: #De-rushes every room that was rushed.
+					r.production-=50
+					r.rushed=0
 		for person in all_people: #Performs daily checks for all people.
 			#Hunger Games.
 			person.hunger+=10
@@ -1612,14 +1600,12 @@ def game():
 		
 		print("Due to your shelter's happiness level you have gained ", happiness//10, " experience")
 		all_people[0].gain_xp(happiness//10)
-		happiness_loss()
-			
 		if happiness<5:
 			postition="lost"
 		elif happiness<25:
 			print("Warning. Your people are unhappy. You could lose your position if you don't improve the situation soon.")
-		
-		
+		happiness_loss()
+			
 		day_count+=1
 			
 	else: #Once game ends.
