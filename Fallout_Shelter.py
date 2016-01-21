@@ -2,6 +2,7 @@
 from random import randint
 from time import sleep
 import sys #Used to check if modules have been imported correctly.
+import os
 try:
 	from tqdm import tqdm #Used to make loading screens.
 except ImportError:
@@ -15,14 +16,12 @@ class Human(object): #Basic class for all the Humans present in the game.
 		self.gender=gender
 		if len(all_people) <8 and day_count<3: #First 5 people will be 21 years old, so they can mate.
 			self.age=21
+			self.surname=self.parent_1 #Early inhabitants just adopt their father's first names as surnames.
 		else:
 			self.age=0
-		if len(all_people)<8: #Early inhabitants just adopt their father's first names as surnames.
-			self.surname=self.parent_1
-		else: #Futher inhabitants inherit the family name
+			#Futher inhabitants inherit the family name
 			parent_1_index=get_person_index(self.parent_1)
 			self.surname=all_people[parent_1_index].surname
-			
 		if len(all_people)==0: #Stats specific to the player
 			self.medic=0 #Improves healing capabilities of stimpacks
 			self.crafting=0 #Chance to hold on to some components when crafting.
@@ -585,7 +584,7 @@ def see_resources():
 	print("Power * ",count_item("watt","player"))
 def get_person_index(first_name,surname):
 	for x in range(len(all_people)):
-		if all_people[x].name==first_name and all_people[x].surname==surname:
+		if all_people[x].name==first_name[0].upper()+first_name[1:] and all_people[x].surname[0].upper()+surname[1:]==surname:
 			return x
 def get_room_index(room):
 	room=str(room)
@@ -686,7 +685,7 @@ def get_gender(): #Randomly generates a gender. For NPCs
 	return gender
 def check_person(first_name,surname): #Check if a person exists.
 	for per in all_people:
-		if per.name==first_name and per.surname==surname:
+		if per.name==first_name[0].upper()+first_name[1:] and per.surname==surname[0].upper()+surname[1:]:
 			#print("This person exists")
 			return True
 	else:
@@ -1261,16 +1260,16 @@ def choice():
 			if len(a.split())!=5:
 				print("You need to input 2 mature people of opposite genders in the form (coitus Alex Marshall Mallus Cumberland)")
 			elif not check_person(a.split()[1],a.split()[2]):
-				print("No such",a.split()[1]," exists!")
+				print("No such",a.split()[1],a.split()[2]," exists!")
 			elif not check_person(a.split()[3],a.split()[4]):
-				print("No such",a.split()[2]," exists!")
+				print("No such",a.split()[2],a.split()[4]," exists!")
 			elif len(all_people)==living_capacity():
 				print("You've reached the vault's maximum capacity. Upgrade your living room to hold more people")
 			else:
-				person_1_index=get_person_index(a.split()[1],a.split()[2])
-				person_2_index=get_person_index(a.split()[3],a.split()[4])
-				person_1=all_people[person_1_index]
-				person_2=all_people[person_2_index]
+				print("Person_1 index",get_person_index(a.split()[1],a.split()[2]))
+				print("Person_2 index",get_person_index(a.split()[3],a.split()[4]))
+				person_1=all_people[get_person_index(a.split()[1],a.split()[2])]
+				person_2=all_people[get_person_index(a.split()[3],a.split()[4])]
 				if (person_1.partner=="" and person_2.partner=="") or person_1.partner==person_2.name:			
 					if person_1.age <18:
 						print(a.split()[1]," isn't old enough to copulate.")					
@@ -1322,7 +1321,7 @@ def choice():
 						
 			if len(a.split())<5:
 				print("You have to input 4 or more words. E.g. assign Thomas Marc to living")
-			elif not check_person(a.split()[1][0].upper()+a.split()[1][1:],a.split()[2][0].upper()+a.split()[2][1:]):#Capitalizes first character of first and last name so player doesn't have to.
+			elif not check_person(a.split()[1],a.split()[2]):#Capitalizes first character of first and last name so player doesn't have to.
 				print("This ",a.split()[1]," doesn't exist.")
 			elif not check_room(potential_room):
 				print("This room doesn't exist.")
@@ -1422,8 +1421,15 @@ def choice():
 		print("You have to choose something!")
 		
 
-	
+"""#Load
+def save_game():
 
+def load_game():
+	if not os.exists("Saves"):
+    	os.mkdir("Saves)
+    else:
+    	saves=open(
+"""
 #Game system.
 def game():
 	global AP
