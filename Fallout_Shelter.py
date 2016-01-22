@@ -11,17 +11,14 @@ class Human(object): #Basic class for all the Humans present in the game.
 	def __init__(self,name,day_of_birth,parent_1,parent_2,gender):
 		self.name=name
 		self.day_of_birth=day_of_birth
-		self.parent_1=parent_1
-		self.parent_2=parent_2
+		self.parent_1=parent_1 #Surname
+		self.parent_2=parent_2 #Surname
 		self.gender=gender
+		self.surname=self.parent_1 
 		if len(all_people) <8 and day_count<3: #First 5 people will be 21 years old, so they can mate.
 			self.age=21
-			self.surname=self.parent_1 #Early inhabitants just adopt their father's first names as surnames.
 		else:
 			self.age=0
-			#Futher inhabitants inherit the family name
-			parent_1_index=get_person_index(self.parent_1)
-			self.surname=all_people[parent_1_index].surname
 		if len(all_people)==0: #Stats specific to the player
 			self.medic=0 #Improves healing capabilities of stimpacks
 			self.crafting=0 #Chance to hold on to some components when crafting.
@@ -304,7 +301,7 @@ class Room(object): #Basic class for the rooms in the game.
 			self.production+=50
 			self.rushed=1 #Lets game know this room has been rushed.
 			print(self.name, " has been rushed!")
-
+	"""
 	def update_assigment(): #Updates length of assigned variable, due to population growth, by adding more zeros to it.
 		global rooms
 		current_count=len(self.assigned) #Count's how many digits exist
@@ -312,7 +309,7 @@ class Room(object): #Basic class for the rooms in the game.
 		difference=required_count-current_count 
 		for x in range(difference):
 			self.assigned.append('0') #Adds a zero at the end of the string based on the total population.
-		
+	"""	
 	def update_production(self): #Calculates production level based on number, and skills, of assigned people. 
 		global rooms
 		if self.can_produce==0:
@@ -584,7 +581,7 @@ def see_resources():
 	print("Power * ",count_item("watt","player"))
 def get_person_index(first_name,surname):
 	for x in range(len(all_people)):
-		if all_people[x].name==first_name[0].upper()+first_name[1:] and all_people[x].surname[0].upper()+surname[1:]==surname:
+		if all_people[x].name==first_name[0].upper()+first_name[1:] and all_people[x].surname==surname[0].upper()+surname[1:]:
 			return x
 def get_room_index(room):
 	room=str(room)
@@ -707,17 +704,19 @@ def birth(parent_1_first_name,parent_1_surname,parent_2_first_name,parent_2_surn
 	name=input("Choose a first name for the new child: ")
 	if len(name.split())==1: #Player can only input one word
 		if name not in used_names:
-			name=name[0].upper()+name[1:len(name)] #Capitalizes first letter
-			all_people.append(Human(name,day_count,parent_1,parent_2,get_gender()))
+			name=name[0].upper()+name[1:len(name)] #Capitalizes first letter_
+			parent_1=all_people[get_person_index(parent_1_first_name,parent_1_surname)]
+			parent_2=all_people[get_person_index(parent_2_first_name,parent_2_surname)]
+			if parent_2.gender=="m":
+				parent_1,parent_2 = parent_2,parent_1
+			all_people.append(Human(name,day_count,parent_1.surname,parent_2.surname,get_gender()))
 			#Following lines let parent's know about their children and their partners.
-			parent_1_index=get_person_index(parent_1_first_name,parent_1_surname)
-			parent_2_index=get_person_index(parent_2_first_name,parent_2_surname)
-			all_people[parent_1_index].children.append(str(name))
-			all_people[parent_2_index].children.append(str(name))
-			all_people(parent_1_index).partner=str(parent_2)
-			all_people(parent_2_index).partner=str(parent_2)
-			for r in rooms:
-				r.update_assigment()
+			parent_1.children.append(str(name+" "+parent_1_surname))
+			parent_2.children.append(str(name+" "+parent_1_surname))
+			parent_1.partner=str(parent_2)
+			parent_2.partner=str(parent_1)
+			see_people()
+			update_all_assignment()
 			if day_count>2: #First few births cost no points
 				use_points(50)
 			all_people[0].gain_xp(100)
@@ -735,7 +734,7 @@ def first_few(): #Runs once at beginning of game. Creates 4 new people. Costs no
 	global used_names
 	global rooms
 	global used_names
-	names=["Thompson","Elenor","Codsworth","Sharmak","Luthor","Marshall","Cole","Diven","Davenport","John","Max","Lex","Leth","Exavor"] #Random surnames for inital 5 inhabitants. All children will inherit their surnames from their parents.	if day_count<2: #Initial 5 inhabitants need to be birthed
+	names=["Thompson","Elenor","Codsworth","Sharmak","Luthor","Marshall","Cole","Diven","Davenport","John","Max","Lex","Leth","Exavor"] #Random names for inital 5 inhabitants. All children will inherit their surnames from their parents.if day_count<2: #Initial 5 inhabitants need to be birthed
 	for person in all_people:
 		used_names.append(person.name)
 		used_names.append(person.surname)
@@ -1283,8 +1282,8 @@ def choice():
 						birth(person_1.name,person_1.surname,person_2.name,person_2.surname) #Pass these love birds to the birthing system
 				else:	
 					print("Infedility shall not be allowed!!!")
-					print(person_1.name,"  is married to ",person_1.partner)
-					print(person_2.name,"  is married to ",person_2.partner)
+					print(person_1.name,person_1.surname, " is married to ", person_1.partner)
+					print(person_2.name,person_2.surname, " is married to ", person_2.partner)
 				
 		elif a.split()[0]=="feed": ##Checks if player has enough food to feed person and then calls feed(person) function.
 			food_count=count_item("food") ##Counts how much food is available for feeding
