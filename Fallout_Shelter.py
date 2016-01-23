@@ -14,7 +14,8 @@ class Human(object): #Basic class for all the Humans present in the game.
 		self.parent_1=parent_1 #Surname
 		self.parent_2=parent_2 #Surname
 		self.gender=gender
-		self.surname=self.parent_1 
+		self.surname=self.parent_1
+		self.partner="" 
 		if len(all_people) <8 and day_count<3: #First 5 people will be 21 years old, so they can mate.
 			self.age=21
 		else:
@@ -295,13 +296,10 @@ class Room(object): #Basic class for the rooms in the game.
 		
 	def rush(self): 
 		global rooms
-		if self.can_rush==0: #Method should never be called on non-rushable rooms.
-			print("Bug with can_rush check. Please contact dev.")
-		else:
-			self.production+=50
-			self.rushed=1 #Lets game know this room has been rushed.
-			print(self.name, " has been rushed!")
-	"""
+		self.production=self.production*2 
+		self.rushed=1 #Lets game know this room has been rushed.
+		print(self.name, " has been rushed!")
+	"""#Old assignment string management system.
 	def update_assigment(): #Updates length of assigned variable, due to population growth, by adding more zeros to it.
 		global rooms
 		current_count=len(self.assigned) #Count's how many digits exist
@@ -713,8 +711,8 @@ def birth(parent_1_first_name,parent_1_surname,parent_2_first_name,parent_2_surn
 			#Following lines let parent's know about their children and their partners.
 			parent_1.children.append(str(name+" "+parent_1_surname))
 			parent_2.children.append(str(name+" "+parent_1_surname))
-			parent_1.partner=str(parent_2)
-			parent_2.partner=str(parent_1)
+			parent_1.partner=parent_2.name+" "+parent_2.surname
+			parent_2.partner=parent_1.name+" "+parent_1.surname
 			see_people()
 			update_all_assignment()
 			if day_count>2: #First few births cost no points
@@ -1164,9 +1162,6 @@ def choice():
 				print("This room doesn't exist.")
 			elif check_built_room(potential_room):
 				print("You've already built this room.")
-##Old Power usage system
-#			elif power_production<power_usage+Room(potential_room):
-#				print("You don't have enough power to build a",potential room". Upgrade your generator.")
 			else:
 				room=Room(potential_room)
 				checked=[] #Stores components already checked. Useful. If there's 5 pieces of wood in the components list, the loop is only run once, instead of 5 times
@@ -1232,14 +1227,20 @@ def choice():
 				print("Invalid Input. Either enter (scrap wood) or (scrap 5 wood)")
 						
 		elif a.split()[0]=="rush":#Speeds up room tempoarily. Needs a lot of work. room.Rush() method incomplete.
-			if not check_room(a.split()[1:]):
+			potential_room=''
+			for x in a.split()[1:]:
+				if len(potential_room)==0:
+					potential_room=x
+				else:
+					potential_room=potential_room+" "+x
+			if not check_room(potential_room):
 				print("This room doesn't exist.")
-			elif not check_built_room(a.split()[1:]):
+			elif not check_built_room(potential_room):
 				print("You haven't built this room yet.")
-			elif rooms[get_room_index(a.split()[1:])].can_rush==0:
+			elif Room(potential_room).can_rush==0:
 				print("This room cannot be rushed")
 			else:
-				rooms[get_room_index(a.split()[1:])].rush()
+				rooms[get_room_index(potential_room)].rush()
 				
 		elif a.split()[0]=="see":
 			if a.split()[1]=="people":
@@ -1265,11 +1266,11 @@ def choice():
 			elif len(all_people)==living_capacity():
 				print("You've reached the vault's maximum capacity. Upgrade your living room to hold more people")
 			else:
-				print("Person_1 index",get_person_index(a.split()[1],a.split()[2]))
-				print("Person_2 index",get_person_index(a.split()[3],a.split()[4]))
+				#print("Person_1 index",get_person_index(a.split()[1],a.split()[2]))
+				#print("Person_2 index",get_person_index(a.split()[3],a.split()[4]))
 				person_1=all_people[get_person_index(a.split()[1],a.split()[2])]
 				person_2=all_people[get_person_index(a.split()[3],a.split()[4])]
-				if (person_1.partner=="" and person_2.partner=="") or person_1.partner==person_2.name:			
+				if (person_1.partner=="" and person_2.partner=="") or person_1.partner==person_2.name+" "+person_2.surname:			
 					if person_1.age <18:
 						print(a.split()[1]," isn't old enough to copulate.")					
 					elif person_2.age <18:
@@ -1282,8 +1283,14 @@ def choice():
 						birth(person_1.name,person_1.surname,person_2.name,person_2.surname) #Pass these love birds to the birthing system
 				else:	
 					print("Infedility shall not be allowed!!!")
-					print(person_1.name,person_1.surname, " is married to ", person_1.partner)
-					print(person_2.name,person_2.surname, " is married to ", person_2.partner)
+					if person_1.partner!="":
+						print(person_1.name,person_1.surname, " is married to ", person_1.partner)
+					else:
+						print(person_1.name,person_1.surname, " isn't  married.")
+					if person_2.partner!="":
+						print(person_2.name,person_2.surname, " is married to ", person_2.partner)
+					else:
+						print(person_2.name,person_2.surname, " isn't  married.")
 				
 		elif a.split()[0]=="feed": ##Checks if player has enough food to feed person and then calls feed(person) function.
 			food_count=count_item("food") ##Counts how much food is available for feeding
@@ -1422,6 +1429,10 @@ def choice():
 
 """#Load
 def save_game():
+	name=input("What name would you like to give this save file?")
+	if name!="":
+		
+	else:
 
 def load_game():
 	if not os.exists("Saves"):
