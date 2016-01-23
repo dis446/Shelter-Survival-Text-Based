@@ -246,6 +246,7 @@ class Room(object): #Basic class for the rooms in the game.
 		self.assigned='' #1s and 0s that are used to store the indexes of assigned. Eg 001001 means that the 3rd and the 6th characters have been assigned here.
 		self.level=1 #Determines production level, max assigned limit etc.
 		self.risk=0
+		self.broken=0
 		self.power_available="On" #'On' if there is enough power for the room, 'Off' otherwise.
 		if self.name=="living": # Living rooms have no "assigned". Number of living rooms just limits the total population of the shelter.
 			self.can_produce=0 #Stores whether or not room actually produces anything.				self.components=["wood",] #Need to add components.
@@ -264,7 +265,7 @@ class Room(object): #Basic class for the rooms in the game.
 			self.components=["steel","steel"]
 			self.power_usage=1
 		elif self.name=="kitchen":
-			self.risk=2
+			self.risk=1
 			self.can_produce=1
 			self.assigned_limit=3
 			self.components=["wood","wood","wood"]
@@ -275,6 +276,7 @@ class Room(object): #Basic class for the rooms in the game.
 			self.components=["wood","wood","steel","steel","wood"]
 			self.power_usage=2
 		elif self.name=="water works":
+			self.risk=2
 			self.can_produce=1
 			self.assigned_limit=3
 			self.components=["wood","wood","steel"]
@@ -296,9 +298,11 @@ class Room(object): #Basic class for the rooms in the game.
 		
 	def rush(self): 
 		global rooms
-		self.production=self.production*2 
 		self.rushed=1 #Lets game know this room has been rushed.
+		self.risk+=5
 		print(self.name, " has been rushed!")
+	def fix(self):
+		global rooms
 	"""#Old assignment string management system.
 	def update_assigment(): #Updates length of assigned variable, due to population growth, by adding more zeros to it.
 		global rooms
@@ -310,11 +314,12 @@ class Room(object): #Basic class for the rooms in the game.
 	"""	
 	def update_production(self): #Calculates production level based on number, and skills, of assigned people. 
 		global rooms
-		if self.can_produce==0:
-			print("Bug with room production update system. Please contact dev.")
-		else:
-			player=all_people[0] #Fetches player so his stats can be used.
-			self.production=0 
+		if self.broken==1:
+			self.production=0
+			print(self.name,"is broken and needs to be fixed.")
+		else:	
+			player=all_people[0] #Fetches player so their stats can be used.
+			self.production=0
 			if self.name=="generator":
 				for person_index in str(self.assigned):
 					if person_index=='1':
@@ -328,6 +333,7 @@ class Room(object): #Basic class for the rooms in the game.
 						self.production+=(all_people[int(person_index)].intelligence)*10 
 				if player.cooking >0:
 					self.production=self.production*(1+(player.cooking*0.05)) 
+			
 			elif self.name=="water works":
 				for person_index in str(self.assigned):
 					if person_index=='1':
@@ -344,7 +350,8 @@ class Room(object): #Basic class for the rooms in the game.
 				print("Bug with room production update system. Please contact dev.")
 			if player.inspiration>0:
 				self.production=self.production*(1+(player.inspiration*0.03))
-				
+			if self.can_rush==1 and self.rushed==1:
+				self.production=self.production*2
 	def upgrade(self):
 		global rooms
 		if self.can_produce==1:
@@ -373,7 +380,7 @@ class Room(object): #Basic class for the rooms in the game.
 			return False
 	def use_power(self):
 		for x in range(0,self.power_usage):
-			Item('watt').destroy()
+			Item('watt').destroy("player")
 class Item(object): # Basic model for items in the game. Objects of this class will never be stored, instead created on the fly to retrieve attributes.
 	def __init__(self,name):
 		self.name=name#Just needs to get the name, all other attributes are automatically assigned by the following lines.
@@ -453,14 +460,21 @@ class Item(object): # Basic model for items in the game. Objects of this class w
 			for item in self.components:
 				inventory.append(item)
 		self.scrapped=1 #Differentiate between whether item has been scrapped or just destroyed
-		self.destroy()
+		self.destroy("player")
 	
-	def destroy(self):
+	def destroy(self,target_inventory):
 		global inventory
-		for x in range(len(inventory)):
-			if Item(inventory[x]).name==self.name:
-				inventory.remove(inventory[x])
-				break
+		if target_inventory=="player":
+			for x in range(len(inventory)):
+				if Item(inventory[x]).name==self.name:
+					inventory.remove(inventory[x])
+					break
+		elif target_inventory=="trader":
+			global trader_inventory
+			for x in range(len(trader_inventory)):
+				if Item(trader_inventory[x]).name==self.name:
+					trader_inventory.remove(trader_inventory[x])
+					break
 	#	if self.scrapped!=1: #Don't need to print anything if the item has been scrapped
 	#		print(self.name," has been used!")
 
@@ -533,7 +547,7 @@ def see_rooms():
 			print(word[0].upper()+word[1:],end=" ")
 		if r.can_produce==1:
 			r.update_production()
-			print("\n    Risk:",r.risk,"  Level:", r.level,"  Power:",r.power_available,"  Production:",r.production)
+			print("\n    Risk:",r.risk*10,"%  Level:", r.level,"  Power:",r.power_available,"  Production:",r.production)
 		else:
 			print("\n    Risk:",r.risk,"  Level:", r.level,"  Power:",r.power_available)
 		
@@ -626,7 +640,7 @@ def build(r): #Builds a room once checks are done. Should append to (rooms) list
 	for y in built_room.components: #Does this for each component
 		for x in inventory: 
 			if y == x: #If it matches, delete this.
-				Item(x).destroy() 
+				Item(x).destroy("player") 
 				break #Ensures that only one instance of the item is removed for every one instance of the component.
 	all_people[0].gain_xp(100)
 	use_points(10)
@@ -974,26 +988,31 @@ def avg_thirst(): #Calculates average thirst level
 def feed(first_name,surname,amount): #Reduces the hunger level of a person. 
 #This needs to reduce the thirst level aswell.
 	global all_people
+	global inventory
 	person=all_people[get_person_index(first_name,surname)]
 	person.hunger-=amount*10
 	if person.hunger<0:
 		person.hunger=0
+	Item('food').destroy('player')
 def drink(first_name,surname,amount):
+	global inventory
 	global all_people
 	person=all_people[get_person_index(first_name,surname)]
 	person.thirst-=amount
 	if person.thirst<0:
 		person.thirst=0
+	Item('water').destroy('player')	
+	
 def auto_feed_all():
 	global all_people
 	food_count=count_item("food","player")
 	water_count=count_item("water","player")
 	load_time(200,"Feeding all inhabitants.")
-	while food_count>0 and avg_hunger()>1:
+	while food_count>0 and avg_hunger()>2:
 		for person in all_people:
 			feed(person.name,person.surname,1)
 			food_count-=1
-	while water_count>0 and avg_thirst()>1:
+	while water_count>0 and avg_thirst()>2:
 		for person in all_people:
 			drink(person.name,person.surname,1)
 			water_count-=1
@@ -1226,7 +1245,7 @@ def choice():
 			else:
 				print("Invalid Input. Either enter (scrap wood) or (scrap 5 wood)")
 						
-		elif a.split()[0]=="rush":#Speeds up room tempoarily. Needs a lot of work. room.Rush() method incomplete.
+		elif a.split()[0]=="rush":#Speeds up room tempoarily.
 			potential_room=''
 			for x in a.split()[1:]:
 				if len(potential_room)==0:
@@ -1239,8 +1258,50 @@ def choice():
 				print("You haven't built this room yet.")
 			elif Room(potential_room).can_rush==0:
 				print("This room cannot be rushed")
+			elif Room(potential_room).rushed==1:
+				print("This room has already been rushed.")
 			else:
-				rooms[get_room_index(potential_room)].rush()
+				room=rooms[get_room_index(potential_room)]
+				chance=randint(0,9) #Chance that the rush fails and the room tempoarily breaks.
+				if room.risk>chance:
+					print(room.name," has failed to rush and is broken!")
+					room.broken=1
+				else:	
+					room.rush()	
+		elif a.split()[0]=="fix":
+			potential_room=''
+			for x in a.split()[1:]:
+				if len(potential_room)==0:
+					potential_room=x
+				else:
+					potential_room=potential_room+" "+x
+			if not check_room(potential_room):
+				print("This room doesn't exist.")
+			elif not check_built_room(potential_room):
+				print("You haven't built this room yet.")
+			elif rooms[get_room_index(potential_room)].broken==0:
+				print("This room isn't even broken. There's no need to fix it!")
+			else:
+				room=rooms[get_room_index(potential_room)]
+				can_fix=1
+				items_needed=[]
+				for it in room.components:
+					chance=randint(0,1)
+					if chance==1:
+						items_needed.append(it)
+				checked_items=[]
+				for it in items_needed:
+					if it not in checked_items:
+						available=count_item(it,'player')
+						needed=room.count_component(it)
+						if needed>available:
+							print("You need",needed-available,"more",it,"to fix this room.")
+							can_fix=0
+						checked_items.append(it)
+				if can_fix==1:
+					self.broken=0
+					for it in items_needed:
+						Item(it).destroy("player")		
 				
 		elif a.split()[0]=="see":
 			if a.split()[1]=="people":
@@ -1472,7 +1533,7 @@ def game():
 	postition="secure" #Only changed to "lost" when happiness drops below 5.
 	player_quit=0 #Allows player to quit the game.
 	inventory=['turret'] #All items that belong to the player. Just names
-	rooms=[Room('living'),Room('kitchen'),Room('water works'),Room('trader'),Room('generator')] #Rooms that player has built. Objects!
+	rooms=[Room('generator'),Room('living'),Room('kitchen'),Room('water works'),Room('trader')] #Rooms that player has built. Objects!
 	
 	all_people=[] #All the people alive in the shelter. Objects!	
 	used_names=[] #Names that have been used in the game. Ensures no two people have the same name.
@@ -1517,7 +1578,7 @@ def game():
 	AP=50
 	update_all_assignment()
 	
-	while end==0 and postition=="secure" and player_quit==0: #Loops the day while player is alive,is still the overseer and doesn't decide to quit.
+	while end==0 and postition=="secure" and player_quit==0: #Loops the day while player is alive,still the overseer and doesn't decide to quit.
 		AP=50
 		if overuse==1:
 			AP=50-overuse_amount
@@ -1526,7 +1587,6 @@ def game():
 		
 		if auto_feed==1:
 			auto_feed_all()		
-	
 				
 		#Trader inventory updates with new items and loses some items.
 		number=randint(0,(len(trader_inventory)//5)) #Loses a random number of items
@@ -1534,8 +1594,9 @@ def game():
 		number=randint(0,len(trader_inventory)//5) #Finds another random number.
 		find_rand_item("trader",number) #Finds random number of items.
 		
-		
+		rooms[get_room_index('generator')].update_production()
 		add_to_inven("watt",rooms[get_room_index('generator')].production,"player")
+		print("Producing",rooms[get_room_index('generator')].production," power")
 		
 		for r in rooms: #Performs daily room checks.
 			if r.name!='generator' and r.can_produce==1:
@@ -1544,15 +1605,16 @@ def game():
 					r.update_production()
 					if r.name=="kitchen":
 						add_to_inven("food",r.production,'player')
+						print("Cooking",r.production," food.")
 					elif r.name=="water works":
 						add_to_inven("water",r.production,'player')
+						print("Pumping",r.production,"water.")
 					#Add more cases for each production capable room.
 				else:
-					print("You don't have enough power to keep the",r.name,"supplied.")
-						
+					print("You don't have enough power to keep the",r.name,"supplied.")	
 				if r.can_rush==1 and r.rushed==1: #De-rushes every room that was rushed.
-					r.production-=50
 					r.rushed=0
+					
 		for person in all_people: #Performs daily checks for all people.
 			#Hunger Games.
 			person.hunger+=10
@@ -1608,6 +1670,7 @@ def game():
 			raid()
 		if raid_chance>4:
 			raid()						
+			
 		while AP>0 and overuse==0 and player_quit==0: #Loops player actions.
 			choice()
 			if skip==1:
@@ -1630,8 +1693,7 @@ def game():
 		elif postition=="lost":
 			print("Too bad. You lost your postition because of your poor leadership skills.")
 		again=input("Want to play again? ")
-		again=again[0].lower()
-		if again=="y":
+		if again[0].lower()=="y":
 			game()
 		else:
 			print("Okay. Thanks for playing!!!")
