@@ -12,7 +12,7 @@ class Human(object): #Basic class for all the Humans present in the game.
 		self.gender=gender
 		self.surname=self.parent_1
 		self.partner="" 
-		if len(all_people) <8 and day_count<3: #First 5 people will be 21 years old, so they can mate.
+		if len(all_people)<8 and day_count<3: #First 5 people will be 21 years old, so they can mate.
 			self.age=21
 		else:
 			self.age=0
@@ -26,9 +26,9 @@ class Human(object): #Basic class for all the Humans present in the game.
 			self.scrapper=0 #Boosts chance of finding a component twice during scrapping.
 			self.electrician=0 #Boosts power production
 		else: #Stats specific to NPCs
-			self.scavenging = 0
-			self.days_scavenging = 0
-			self.days_to_scavenge_for = 0
+			self.scavenging=0
+			self.days_scavenging=0
+			self.days_to_scavenge_for=0
 		
 		self.hunger=0
 		self.thirst=0
@@ -134,7 +134,7 @@ class Human(object): #Basic class for all the Humans present in the game.
 			damage_taken=0
 		else:	 
 			self.HP-=damage_taken
-			if self.HP < 1:
+			if self.HP<1:
 				self.die()
 	def heal(self,amount):
 		player=all_people[0]
@@ -209,7 +209,7 @@ class Human(object): #Basic class for all the Humans present in the game.
 		print(self.name,self.surname,"has been assigned to",chosen_room)
 	def can_mate_check(self): #Checks if person can have coitus and have children. Perfomed twice when player inputs coitus, once for each proposed parent.
 		self.can_mate=1
-		if self.age <18:
+		if self.age<18:
 			self.can_mate=0
 		if len(self.children)>5: #Upper limit of children is 5
 			self.can_mate=0
@@ -319,27 +319,27 @@ class Room(object): #Basic class for the rooms in the game.
 				for person_index in str(self.assigned):
 					if person_index=='1':
 						self.production+=(all_people[int(person_index)].strength)*10 
-				if player.electrician >0:
+				if player.electrician>0:
 					self.production=self.production*(1+(player.electrician*0.05))
 			
 			elif self.name=="kitchen":
 				for person_index in str(self.assigned):
 					if person_index=='1':
 						self.production+=(all_people[int(person_index)].intelligence)*10 
-				if player.cooking >0:
+				if player.cooking>0:
 					self.production=self.production*(1+(player.cooking*0.05)) 
 			
 			elif self.name=="water works":
 				for person_index in str(self.assigned):
 					if person_index=='1':
 						self.production+=(all_people[int(person_index)].perception)*10
-				if player.cooking >0:
+				if player.cooking>0:
 					self.production=self.production*(1+(player.cooking*0.05))
 			elif self.name=="radio":
 				for person_index in str(self.assigned):
 					if person_index=='1':
 						self.production+=(all_people[int(person_index)].charisma)*10 
-				if player.inspiration >0:
+				if player.inspiration>0:
 					self.production=self.production*(1+(player.inspiration*0.05))
 			else:
 				print("Bug with room production update system. Please contact dev.")
@@ -614,7 +614,7 @@ def scavenge(first_name,surname,var): #Sends people on a scavenging mission.
 		if var=="days": #If player chooses to send player for certain number of days, or until health drops below 20.
 			#print("How many days do you want to send this person out?")
 			day_choice=input_int()
-			person.days_to_scavenge_for = day_choice 
+			person.days_to_scavenge_for=day_choice 
 		else:
 			person.days_to_scavenge_for= 100 #Their health will drop below 20 before 100 days, so this is fine.
 	use_points(10)
@@ -633,7 +633,7 @@ def build(r): #Builds a room once checks are done. Should append to (rooms) list
 	load_time(5,("Building ",r))
 	for y in built_room.components: #Does this for each component
 		for x in inventory: 
-			if y == x: #If it matches, delete this.
+			if y==x: #If it matches, delete this.
 				Item(x).destroy("player") 
 				break #Ensures that only one instance of the item is removed for every one instance of the component.
 	all_people[0].gain_xp(100)
@@ -643,14 +643,14 @@ def craft(x):#Crafts an item once checks are done. Just add the name of an item 
 	load_time(5,("Crafting ",x))
 	add_to_inven(x, 1, "player")
 	#Perk bonuses
-	a = Item(x)
+	a=Item(x)
 	for x in range(0,5):
 		if all_people[0].crafting==x:
 			chance=x*2
 			break
 	for y in a.components:
 		for x in inventory:
-			if y == x:
+			if y==x:
 				chance_game=randint(0,101)
 				if chance_game>chance:
 					inventory.remove(x)
@@ -698,7 +698,7 @@ def check_xp(name,surname):
 	person_index=get_person_index(name,surname) #Fetches index of person in the all_people list.
 	person=all_people[person_index] #Fetches person object and stores it locally. So now (person) is a shortcut to the person.
 	xp_needed=1000+(3**person.level) #Xp needed to level up increases exponentially
-	if person.XP+1 > xp_needed:
+	if person.XP+1>xp_needed:
 		print(person.name," has",person.XP," XP")
 		print(person.name," has leveled up")
 		person.level_up()
@@ -714,7 +714,7 @@ def birth(parent_1_first_name,parent_1_surname,parent_2_first_name,parent_2_surn
 			parent_1=all_people[get_person_index(parent_1_first_name,parent_1_surname)]
 			parent_2=all_people[get_person_index(parent_2_first_name,parent_2_surname)]
 			if parent_2.gender=="m":
-				parent_1,parent_2 = parent_2,parent_1
+				parent_1,parent_2=parent_2,parent_1
 			all_people.append(Human(name,day_count,parent_1.surname,parent_2.surname,get_gender()))
 			#Following lines let parent's know about their children and their partners.
 			parent_1.children.append(str(name+" "+parent_1_surname))
@@ -1196,7 +1196,7 @@ def choice():
 				print("Invalid item. Try again.")
 			else:
 				can_craft=1
-				actual_item = Item(a.split()[1]) #Creates an instance of the item, so it's attributes can be fetched.
+				actual_item=Item(a.split()[1]) #Creates an instance of the item, so it's attributes can be fetched.
 				if len(actual_item.components)==0:
 					print("This is a basic item and so cannot be crafted.")
 				else:
@@ -1334,9 +1334,9 @@ def choice():
 				person_1=all_people[get_person_index(a.split()[1],a.split()[2])]
 				person_2=all_people[get_person_index(a.split()[3],a.split()[4])]
 				if (person_1.partner=="" and person_2.partner=="") or person_1.partner==person_2.name+" "+person_2.surname:			
-					if person_1.age <18:
+					if person_1.age<18:
 						print(a.split()[1]," isn't old enough to copulate.")					
-					elif person_2.age <18:
+					elif person_2.age<18:
 						print(a.split()[2]," isn't old enough to copulate.")
 					elif person_1.surname==person_2.surname:
 						print("Sorry. Incest isn't allowed. At least be ethical!")
@@ -1398,7 +1398,7 @@ def choice():
 				print("This room doesn't exist.")
 			elif not check_built_room(potential_room):
 				print("You haven't built this room yet")
-			elif rooms[get_room_index(potential_room)].assigned_limit == rooms[get_room_index(potential_room)].count_assigned():
+			elif rooms[get_room_index(potential_room)].assigned_limit==rooms[get_room_index(potential_room)].count_assigned():
 				print("This room is full.")
 				print("You can assign someone in the room to another room to create space.")
 			else:
@@ -1640,16 +1640,16 @@ def game():
 				print(person.name,person.surname," is thirsty.")
 			#Level Up games
 			check_xp(person.name,person.surname) #Checks if person has enough xp to level up.	
-			if person.name != all_people[0].name: #Routines specific to NPCs.
+			if person.name!=all_people[0].name: #Routines specific to NPCs.
 				#Scavenging games
-				if person.scavenging == 1:
-					if person.days_to_scavenge_for == person.days_scavenging:
+				if person.scavenging==1:
+					if person.days_to_scavenge_for==person.days_scavenging:
 						# Now that they've finished scavenging, set everything to 0
-						person.Scavenging = 0
-						person.days_to_scavenge_for = 0
-						person.days_scavenging = 0
+						person.Scavenging=0
+						person.days_to_scavenge_for=0
+						person.days_scavenging=0
 					else:
-						person.days_scavenging += 1
+						person.days_scavenging+=1
 						#Randomly finds an item
 						rand_item("player")
 						health_loss=randint(0,50)
@@ -1657,8 +1657,8 @@ def game():
 						person.gain_xp(randint(10,200))
 					if person.health<20:
 						person.scavenging=0
-						person.days_to_scavenge_for = 0
-						person.days_scavenging = 0
+						person.days_to_scavenge_for=0
+						person.days_scavenging=0
 				#Experience games
 				if person.assigned_room!="":
 					r=rooms[get_room_index(person.assigned_room)] # Can refer to room which character had been assigned to.
