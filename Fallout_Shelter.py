@@ -47,27 +47,10 @@ class Human(object): #Basic class for all the Humans present in the game.
 		self.partner="" #Keeps track of partner of person. Only partners can have coitus.
 		self.level=1
 		self.XP=0
-	def see_stats(self): #View stats of person.
-		print("Strength: ",self.strength)
-		print("Perception: ",self.perception)
-		print("Endurance: ",self.endurance)
-		print("Charisma: ",self.charisma)
-		print("Intelligence: ",self.intelligence)
-		print("Luck: ",self.luck)
-		if self.name==all_people[0].name: #Player has extra stats
-			print("")
-			print("Medic: ",self.medic)
-			print("Crafting: ",self.crafting)
-			print("Tactician: ",self.tactician)
-			print("Cooking: ",self.cooking)
-			print("Inspiration: ",self.inspiration)
-			print("Scrapping: ",self.scrapper)
-			print("Bartering: ",self.barter)
-			print("Electricain: ",self.electrician)
 	def gain_xp(self,amount):
 		self.XP+=amount
 	def level_up(self):
-		self.see_stats()
+		see_stats(self.name,self.surname)
 		self.level+=1
 		if self.name==all_people[0].name: #If player has leveled up
 			print("\n")
@@ -568,14 +551,6 @@ def see_inventory(inven):#Displays all items in inventory in the form (Log*5.Wei
 		print("Major bug with inventory information system. Please contact dev!")
 
 def living_capacity():#Returns maximum number of inhabitants that can exist in the shelter, depending on the level of the living room.
-	"""
-	index=get_room_index('living')
-	room=rooms[index]
-	capacity=0
-	for x in range(room.level):
-		capacity+=10
-	return capacity
-	"""
 	room=rooms[get_room_index('living')]
 	print("Maximum number of inhabitants",5*room.level)
 	return (5*room.level)
@@ -603,7 +578,6 @@ def get_room_index(room):
 
 #Scavenging system.
 def scavenge(first_name,surname,var): #Sends people on a scavenging mission.
-	#Need to modify function to accept (first name) and (surname)
 	global all_people
 	if not check_person(first_name,surname):
 		print("Error with scavenging system. Please contact dev!")
@@ -821,6 +795,24 @@ def auto_assign():#Automatically assigns free inhabitants to rooms
 					person.assign_to_room(r.name)
 					break
 
+def see_stats(first_name,surname):
+	person=all_people[get_person_index(first_name,surname))]
+	print("Strength: ",person.strength)
+	print("Perception: ",person.perception)
+	print("Endurance: ",person.endurance)
+	print("Charisma: ",person.charisma)
+	print("Intelligence: ",person.intelligence)
+	print("Luck: ",person.luck)
+	if person.name==all_people[0].name: #Player has extra stats
+		print("")
+		print("Medic: ",person.medic)
+		print("Crafting: ",person.crafting)
+		print("Tactician: ",person.tactician)
+		print("Cooking: ",person.cooking)
+		print("Inspiration: ",person.inspiration)
+		print("Scrapping: ",person.scrapper)
+		print("Bartering: ",person.barter)
+		print("Electricain: ",person.electrician)
 
 
 
