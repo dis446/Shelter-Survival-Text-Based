@@ -1260,8 +1260,15 @@ def choice():
 				if room.risk>chance:
 					print(room.name," has failed to rush and is broken!")
 					room.broken=1
-				else:	
-					room.rush()	
+				else:
+					check=input("Are you sure?",room.name,"has a",room.risk*10,"% chance of breaking.")
+					if len(check)>0:
+						if check[0].lower()=="y":
+							room.rush()
+						else:
+							print("Rush failed.")
+					else:
+						print("Rush failed.")	
 		elif a.split()[0]=="fix":
 			potential_room=''
 			for x in a.split()[1:]:
@@ -1293,9 +1300,10 @@ def choice():
 							can_fix=0
 						checked_items.append(it)
 				if can_fix==1:
-					self.broken=0
+					room.broken=0
 					for it in items_needed:
-						Item(it).destroy("player")		
+						Item(it).destroy("player")
+					print(room.name,"has been fixed and is now in full working order.")		
 				
 		elif a.split()[0]=="see":
 			if a.split()[1]=="people":
