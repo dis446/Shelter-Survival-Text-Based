@@ -234,11 +234,11 @@ class Human(object): #Basic class for all the Humans present in the game.
 
 
 class Room(object): #Basic class for the rooms in the game.
-	def __init__(self,name): #Name would be something like "living_room_3" while group would be "living". So all living rooms have the same initial stats.
+	def __init__(self,name):
 		self.name=name
 		self.assigned='' #1s and 0s that are used to store the indexes of assigned. Eg 001001 means that the 3rd and the 6th characters have been assigned here.
-		self.level=1 #Determines production level, max assigned limit etc.
-		self.risk=0
+		self.level=1 #Determines the production level, max assigned limit etc.
+		self.risk=0 #Risk of breaking down, when rushed.
 		self.broken=0
 		self.power_available="On" #'On' if there is enough power for the room, 'Off' otherwise.
 		if self.name=="living": # Living rooms have no "assigned". Number of living rooms just limits the total population of the shelter.
@@ -476,7 +476,7 @@ class Item(object): # Basic model for items in the game. Objects of this class w
 
 #Information system!
 # Bunch of functions used by other functions to retrieve information about the shelter, it's assigned, rooms and items.
-load=1 #If this is 1, loading screens are activated. IF 0, no loading screens.
+load=0 #If this is 1, loading screens are activated. If 0, no loading screens.
 def load_time(x,message): #This is a fake loading screen. There's no loading happening, just improves pacing of the game.
 	if load==1:
 		print(str(message))
@@ -511,8 +511,7 @@ def count_weight(): #Calculates the sum of the weights of all items currently in
 		count+=Item(x).weight #Creates instances of class on the fly. If 5 wood present, tempoarily creates 5 wood, one by one, uses their weight and discards them
 	return count
 
-def storage_capacity(): #Calculates how much more weight the player can hold.  Used to check if player can take any more items.
-	global all_rooms
+def storage_capacity(all_rooms): #Calculates how much weight player can store.  Used to check if player can take any more items.
 	capacity=all_rooms("storage").production
 	return capacity
 
@@ -856,17 +855,6 @@ def find_rand_item(inven,times): #Finds x items randomly and adds it to an inven
 	for x in range(0,times+1):
 		rand_item(inven)  # passes iven to rand_item function
 
-"""
-def remove_from_inventory(it,target_inventory):
-	global inventory
-	if target_inventory=="player":
-		for x in inventory:
-			if x==it:
-				inventory.remove(it)
-	elif target_inventory=="trader":
-		trader_inventory.remove(it)
-	break
-"""
 
 def add_to_inven(x,number,inven): # Adds (x) (number) times to (inven) inventory. E.g. wood,5,player
 	global trader_inventory
