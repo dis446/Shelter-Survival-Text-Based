@@ -1,10 +1,6 @@
 # Fallout-Shelter-Text-Based
 An open source, text based version of the popular Bethesda Fallout Shelter game, with a few modifications, written in Python 3.
 Fallout Shelter should have an inventory, crafting, room-building, room-rushing, and scrapping systems. The player shall be an overseer who is an actual character in the game, with their own stats. Uses Fallout S.P.E.C.I.A.L system.
-Classes:
-    Human
-    Item
-    Room
 
 
 Notes: By T.G.
