@@ -519,9 +519,8 @@ def storage_capacity(): #Calculates how much more weight the player can hold.  U
 	return capacity
 		
 def check_room(x): #Checks if the room exists
-	for r in all_rooms:
-		if x==r:
-			return True
+	if x in all_rooms:
+		return True
 	return False
 	
 def check_built_room(x): #Checks if room has been built yet
@@ -1501,9 +1500,9 @@ def save_game():
 
 def load_game():
 	if not os.exists("Saves"):
-    	os.mkdir("Saves)
-    else:
-    	saves=open(
+		os.mkdir("Saves)
+	else:
+		saves=open(
 """
 #Game system.
 def game():
