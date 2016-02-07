@@ -1827,6 +1827,7 @@ def game():
     global end
     global postition
     global people
+    global day_count
     global inventory
     global rooms
     global caps
@@ -1907,9 +1908,9 @@ def game():
     # Can be set to 0 by player to conserve food.  Recomended to only do so
     # during food emergencies.
     auto_feed = 1
-    # Keeps track whether or not player has used too many Action points for a
-    # day.
-    overuse = 0
+		# Keeps track whether or not player has used too many Action points for a
+		# day.
+		# overuse = 0    Why is this declared twice?
 
     print("Welcome to the text-based fallout shelter game!")
     print("Welcome, great Overseer!")
