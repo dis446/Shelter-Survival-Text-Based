@@ -1163,7 +1163,7 @@ def choice():
 	global all_people
 	global rooms
 	a=input("Choose what to do: ")
-	if len(a)>0:
+	if len(a)>0: #From here on out, a.split()[0] is used to cut out the first word of the input and compare it individually.
 		if a.split()[0]=="build": #Allows player to build new rooms. Checks if player has components to build room.
 			potential_room=''
 			for x in a.split()[1:]:
