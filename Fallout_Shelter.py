@@ -1,12 +1,8 @@
-#Text-based Fallout Shelter game developed by T.G. and The-9880.
-from random import randint
-from time import sleep
-import sys #Used to check if modules have been imported correctly.
-import os
-try:
-	from tqdm import tqdm #Used to make loading screens.
-except ImportError:
-	print("Error importing TQDM module. The game will still run regardless, but if this module was present, the game would be slightly better.")
+#Text-based Fallout Shelter game developed by T.G.
+from random import randint #Used for random choosing of values ( E.g. names)
+from time import sleep #Used to space out prints and create Fake loading times
+from tqdm import tqdm #Used to make loading screens.
+
 class Human(object): #Basic class for all the Humans present in the game.
 	def __init__(self,name,day_of_birth,parent_1,parent_2,gender):
 		self.name=name
@@ -20,7 +16,7 @@ class Human(object): #Basic class for all the Humans present in the game.
 			self.age=21
 		else:
 			self.age=0
-		if len(all_people)==0: #Stats specific to the player
+		if len(all_people)==0: #Stats specific to the player, as player is always first person created.
 			self.medic=0 #Improves healing capabilities of stimpacks
 			self.crafting=0 #Chance to hold on to some components when crafting.
 			self.tactician=0 #Boosts defense
@@ -33,7 +29,6 @@ class Human(object): #Basic class for all the Humans present in the game.
 			self.scavenging = 0
 			self.days_scavenging = 0
 			self.days_to_scavenge_for = 0
-		
 		
 		self.hunger=0
 		self.thirst=0
@@ -484,10 +479,9 @@ class Item(object): # Basic model for items in the game. Objects of this class w
 
 #Information system!
 # Bunch of functions used by other functions to retrieve information about the shelter, it's assigned, rooms and items.
-load=0
-def load_time(x,message):
-	
-	if 'tqdm' in sys.modules and load==1:
+load=1 #If this is 1, loading screens are activated. IF 0, no loading screens.
+def load_time(x,message): #This is a fake loading screen. There's no loading happening, just improves pacing of the game.
+	if load==1:
 		print(str(message))
 		for x in tqdm(range(0,x)):
 			sleep(0.01)
@@ -1362,22 +1356,24 @@ def choice():
 						print(person_2.name,person_2.surname, " isn't  married.")
 				
 		elif a.split()[0]=="feed": ##Checks if player has enough food to feed person and then calls feed(person) function.
-			food_count=count_item("food") ##Counts how much food is available for feeding
-			if avg_hunger()<2:
-				print("You're people are working on full bellies boss!")
-			elif len(a.split())==2: ##If player wants to feed only one person
-				if a.split()[1] not in all_people: ##Checks if chosen Human exists
-					print("This person doesn't exist.")
-				else:	
-					hunger=all_people(a.split()[1].hunger) ##Fetches hunger level of selected Human
-					amount=input("Feed ",a.split()[1],"  by how much? ")
-					if amount<hunger:
-						print("You don't have enough food to feed ",a.split()[1])
-					else:
-						feed(a.split()[1],amount)
-			else: 
-				print("Invalid input! Can only feed one person like this. Use the auto_feed system to feed everyone.")
-				
+			if len(choice)>0:
+				food_count=count_item("food") ##Counts how much food is available for feeding
+				if avg_hunger()<2:
+					print("You're people are working on full bellies boss!")
+				elif len(a.split())==2: ##If player wants to feed only one person
+					if a.split()[1] not in all_people: ##Checks if chosen Human exists
+						print("This person doesn't exist.")
+					else:	
+						hunger=all_people(a.split()[1].hunger) ##Fetches hunger level of selected Human
+						amount=input("Feed ",a.split()[1],"  by how much? ")
+						if amount<hunger:
+							print("You don't have enough food to feed ",a.split()[1])
+						else:
+							feed(a.split()[1],amount)
+				else: 
+					print("Invalid input! Can only feed one person like this. Use the auto_feed system to feed everyone.")
+			else:
+				print("Invalid input. Who do you want to feed?")
 		elif a.split()[0]=="trade":
 			if not check_built_room('trader'):
 				print("You haven't built a trader room yet!")
@@ -1536,10 +1532,10 @@ def game():
 	load_time(300,"Initializing game.")
 	
 	day_count=1
-	skip=0
-	end=0 #Can lose postition or die.  This is used for a while loop.
-	postition="secure" #Only changed to "lost" when happiness drops below 5.
-	player_quit=0 #Allows player to quit the game.
+	skip=0 #Keeps track of when player is skipping a day.
+	end=0 #Can lose postition or die.
+	postition="secure" # Changed to "lost" when happiness drops below 5.
+	player_quit=0 # Allows player to quit the game.
 	inventory=['turret'] #All items that belong to the player. Just names
 	rooms=[Room('generator'),Room('living'),Room('kitchen'),Room('water works'),Room('trader')] #Rooms that player has built. Objects!
 	
@@ -1549,23 +1545,23 @@ def game():
 	all_rooms=["living","bath","generator","kitchen","trader","storage","water works"] #Stores every possible room in the game. Just names.
 	all_attributes=["strength","perception","endurance","charisma","intelligence","luck","medic","science","tactitian","cook","inspiration","scrapper","barter","electrician"]
 	
-	caps=100
-	trader_caps=400
+	caps=100#Basic currency
+	trader_caps=400 
 	happiness=100
 	trader_inventory=[]
 	find_rand_item("trader",20) #Initializes trader inventory with 20 random items.
 	defense=0 
 	overuse=0#Keeps track of whether or not player has used too many action points.
-	auto_feed=1 #Can be set to 0 by player to conserve food.  Recomended to only do so during emergencies.
-	overuse=0
+	auto_feed=1 #Can be set to 0 by player to conserve food.  Recomended to only do so during food emergencies.
+	overuse=0 #Keeps track whether or not player has used too many Action points for a day.
 	
 	print("Welcome to the text-based fallout shelter game!")
 	print("Welcome, great Overseer!")
 	print("It is your great duty to increase the population of your vault and keep your inhabitants happy.")
 	create_player()
 	load_time(100,"Creating player.")
-	all_people[0].age=20
-	first_few()#Creates the first four inhabitants.
+	all_people[0].age=20 #Set's player to 20
+	first_few() #Creates the first five inhabitants.
 	load_time(200,"Populating Vault with 5 random inhabitants")
 	update_all_assignment()
 		
