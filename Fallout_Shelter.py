@@ -1495,22 +1495,6 @@ def choice():
 	else:
 		print("You have to choose something!")
 
-"""
-#Load/save system. On the hold for now.
-def save_game():
-	name=input("What name would you like to give this save file?")
-	if name!="":
-
-	else:
-
-def load_game():
-	if not os.exists("Saves"):
-		os.mkdir("Saves)
-	else:
-		saves=open(
-"""
-
-
 
 
 #Game system.
