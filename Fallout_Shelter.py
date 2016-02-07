@@ -1495,7 +1495,8 @@ def choice():
 	else:
 		print("You have to choose something!")
 
-"""#Load
+"""
+#Load/save system. On the hold for now.
 def save_game():
 	name=input("What name would you like to give this save file?")
 	if name!="":
