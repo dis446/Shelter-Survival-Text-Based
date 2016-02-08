@@ -1,6 +1,5 @@
 class Human(object):  # Basic class for all the Humans present in the game.
-
-    def __init__(self, name, day_of_birth, parent_1, parent_2, gender):
+    def __init__(self, name, day_of_birth, parent_1, parent_2, age, gender):
         self.name = name
         self.day_of_birth = day_of_birth
         self.parent_1 = parent_1  # Surname
@@ -8,11 +7,6 @@ class Human(object):  # Basic class for all the Humans present in the game.
         self.gender = gender
         self.surname = self.parent_1
         self.partner = ""
-        # First 5 people will be 21 years old, so they can mate.
-        if len(people) < 5 and day_count < 3:
-            self.age = 21
-        else:
-            self.age = 0
         # Stats specific to the player, as player is always first person
         # created.
         if len(people) == 0:
@@ -35,7 +29,7 @@ class Human(object):  # Basic class for all the Humans present in the game.
         self.hunger = 0
         self.thirst = 0
         self.HP = 100
-        # The stats of the person. Plan to use this to affect the production of
+        # The stats of the person. Affects the production of
         # room the person has been assigned to.
         self.strength = 1
         self.perception = 1
@@ -47,9 +41,8 @@ class Human(object):  # Basic class for all the Humans present in the game.
         self.assigned_room = ""  # Keeps track of where person is working.
         self.can_mate = 0  # Keeps track of mating ablility
         self.children = []  # List of all children
-        # Keeps track of partner of person. Only partners can have coitus.
-        self.partner = ""
-        self.level = 1
+        self.partner = "" # Keeps track of partner of person. Only partners can have coitus.
+        self.level = 1 #Determines production 
         self.XP = 0
 
     def gain_xp(self, amount):
