@@ -551,14 +551,12 @@ def load_time(x, message):
 
 
 # Whenever player has to input an integer, this should be used. Catches errors.
-def input_int(x):
-    x = input("Input an integer: ")
-    try:
-        int(x)
-    except ValueError:
-        print("Invalid. Only integer numbers are accepted!")
-        x = input("Try again. Input: ")
-        check_int(x)  # Recursion!
+def input_int(s):
+    while True:
+        try:
+            x = int(input(s))
+        except:
+            print("Invalid. Only integer numbers are accepted!")
     return x
 
 
@@ -731,7 +729,7 @@ def get_room_index(room):
 
 # Scavenging system.
 # Sends people on a scavenging mission.
-def scavenge(first_name, surname, var):
+def scavenge(first_name, surname, var=None):
     global people
     if not check_person(first_name, surname):
         print("Error with scavenging system. Please contact dev!")
@@ -739,8 +737,7 @@ def scavenge(first_name, surname, var):
         person = people[get_person_index(first_name, surname)]
         person.scavenging = 1
         if var == "days":  # If player chooses to send player for certain number of days, or until health drops below 20.
-            #print("How many days do you want to send this person out?")
-            day_choice = input_int()
+            day_choice = input_int("How many days do you want to send this person out?")
             person.days_to_scavenge_for = day_choice
         else:
             # Their health will drop below 20 before 100 days, so this is fine.
@@ -1789,11 +1786,11 @@ def choice():
                 if cho == "d":
                     scavenge(a.split()[1], "days")
                 elif cho == "h":
-                    scavenge(a.split()[1], "")
+                    scavenge(a.split()[1])
                 else:
                     print(
                         "Let's just assume you wanted them to go out until their health gets low.")
-                    scavenge(a.split()[1], "")
+                    scavenge(a.split()[1])
 
         elif a.split()[0] == "heal":
             if a.split()[1] == "all":
