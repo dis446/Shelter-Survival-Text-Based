@@ -1655,10 +1655,9 @@ def choice():
                 # Counts how much food is available for feeding
                 food_count = count_item("food")
                 if avg_hunger() < 2:
-                    print("You're people are working on full bellies boss!")
+                    print("Your people are working on full bellies boss!")
                 elif len(a.split()) == 2:  # If player wants to feed only one person
-                    if a.split()[
-                            1] not in people:  # Checks if chosen Human exists
+                    if a.split()[1] not in people:  # Checks if chosen Human exists
                         print("This person doesn't exist.")
                     else:
                         # Fetches hunger level of selected Human
@@ -1764,7 +1763,7 @@ def choice():
                         r.level)
 
         elif a.split()[0] == "disable":
-            if a.split()[1] == "auto":
+            if a.split()[1] == "auto_feed":
                 auto_feed = 0
                 print(
                     "Warning. You have disabled the auto_feed feature. Be careful, your people may starve!")
@@ -1772,7 +1771,7 @@ def choice():
                 print("Invalid input. You can disable the (auto_feed) system.")
 
         elif a.split()[0] == "enable":
-            if a.split()[1] == "auto":
+            if a.split()[1] == "auto_feed":
                 auto_feed = 1
                 print("Auto-feed system is working optimally.")
             else:
@@ -1815,10 +1814,47 @@ def choice():
             confirm = confirm[0].lower()
             if confirm == "y":
                 player_quit = 1
+        elif a.split()[0] == "help":
+            print_help()
         else:
             print("Invalid Input. Try again.")
     else:
         print("You have to choose something!")
+
+
+def print_help():
+    print("Commands: \n")
+    print("""Room actions:
+    see rooms           : View all rooms
+    build x             : Construct room 'x'
+    rush x              : Rush construction of room 'x'
+    upgrade x           : Upgrade room 'x'
+    fix x               : Fix damaged room 'x'
+    """)
+    print("""Inhabitant actions:
+    see people          : View all inhabitants
+    feed x              : Feed inhabitant 'x'
+    enable auto_feed    : Enable automatically feeding inhabitants
+    disable auto_feed   : Disable automatically feeding inhabitants
+    coitus x y          : Send inhabitants 'x' and 'y' to the love-house
+    scavenge x          : Send inhabitant 'x' to scavenge in the wasteland
+    heal x              : Heal inhabitant 'x'
+    heal all            : Heal all inhabitants
+    assign x y          : Assign inhabitant 'x' to room 'y'
+    auto assign         : Automatically assign unassigned inhabitants to rooms
+    """)
+    print("""Inventory actions:
+    see items           : View all held items
+    scrap x             : Destroy item and add its components to your inventory
+    trade               : Begin trading interaction
+    """)
+    print("""Other actions:
+    see day             : View day number
+    see resources       : View all resources available
+    skip                : Skip
+    end                 : Quit game
+    help                : See this help text
+    """)
 
 
 # Game system.
@@ -1922,22 +1958,11 @@ def game():
     load_time(200, "Populating Vault with 5 random inhabitants")
     update_all_assignment()
 
-    # Put Instructions for player here
-    print("Commands: ")
-    print("\nsee people: View all inhabitants")
-    print("see items: View all items")
-    print("see rooms: View all rooms")
-    print("build x: Consruct a room")
-    print("craft x: Craft an item")
-    print("scrap x: Destroy an item and add it's components to your inventory")
-    print("enable auto_feed: Enable the automatic inhabitant feeding system")
-    print("disable auto_feed: Disable the automatic inhabitant feeding system")
-    print("trade: Begin trading interaction")
-    print("coitus x y: Send daddy and mommy to the love-house")
-    print("scavenge x: Send x on a scavenging mission")
     print("\nYou have been given 100 caps to start your journey.")
     AP = 50
     update_all_assignment()
+
+    print_help()
 
     # Loops the day while player is alive,still the overseer and doesn't
     # decide to quit.
