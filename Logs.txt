@@ -62,3 +62,6 @@ Other systems quasi-functional. Need more work. Especially room assignment syste
 
 In other news, started using git on local workstations and github to auto-sync code between local stations and cloud spaces (C9!!!)
 Passed 1400 code line mark. Project is coming together.
+
+08/02/16: T.G.
+Been a while since any log updates. But a lot of work has been done. Most of the systems work. Have switched to PEP-8 style format and moved all the classes to seperate .py files. Mikevb1 has been a huge help.   
