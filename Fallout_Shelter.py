@@ -97,9 +97,9 @@ def see_rooms():
     print("")
     for r in rooms:
         for word in r.name.split():
-            print(word[0].upper() + word[1:], end=" ")
-        if r.can_produce == 1:
-            r.update_production()
+            print(word[0].upper() + word[1:], end=" ") #Capitlaizes the first letter of the name and print's it out.
+        if r.can_produce == 1: 
+            r.update_production() #To get the most up-to-date data on it's production.
             print(
                 "\n    Risk:",
                 r.risk * 10,
@@ -118,7 +118,7 @@ def see_rooms():
                 "  Power:",
                 r.power_available)
 
-        # Only rooms that can produce can have assignments, with the exception
+        # Only rooms that can produce have assignments, with the exception
         # of the trader.
         if r.can_produce == 1 or r.name == "trader":
             r.see_assigned()
@@ -241,17 +241,17 @@ def build(r):
     use_points(10)
 
 
-# Crafts an item once checks are done. Just add the name of an item to the
-# inventory name.
+# Crafts an item once checks are done. Just adds the name of an item to the
+# inventory list.
 def craft(x):
     global inventory
     load_time(5, ("Crafting ", x))
     add_to_inven(x, 1, "player")
     # Perk bonuses
-    a = Item(x)
-    for x in range(0, 5):
-        if people[0].crafting == x:
-            chance = x * 2
+    a = Item(x) 
+    for l in range(0, 5):
+        if people[0].crafting == l:
+            chance = l * 2
             break
     for y in a.components:
         for x in inventory:
@@ -259,8 +259,7 @@ def craft(x):
                 chance_game = randint(0, 101)
                 if chance_game > chance:
                     inventory.remove(x)
-                # Ensures that only one instance of the item is referenced.
-                break
+                break # Ensures that only one instance of the item is referenced.
     people[0].gain_xp(a.rarity * 10)
     use_points(5)
 
@@ -281,19 +280,16 @@ def get_player_gender():  # Asks player what gender they are.
 
 
 def get_gender():  # Randomly generates a gender. For NPCs
-    gender = randint(0, 1)
-    if gender == 0:
-        gender = "m"
+    if randint(0, 1) == 0:
+        return "m"
     else:
-        gender = "f"
-    return gender
+        return "f"
 
 
 def check_person(first_name, surname):  # Check if a person exists.
     for per in people:
-        if per.name == first_name[0].upper(
-        ) + first_name[1:] and per.surname == surname[0].upper() + surname[1:]:
-            #print("This person exists")
+        if per.name == first_name[0].upper() + first_name[1:] 
+        and per.surname == surname[0].upper() + surname[1:]:
             return True
     else:
         return False
@@ -322,12 +318,11 @@ def birth(
         parent_2_first_name,
         parent_2_surname):
     global people
-    global rooms
     name = input("Choose a first name for the new child: ")
     if len(name.split()) == 1:  # Player can only input one word
         if name not in used_names:
             # Capitalizes first letter_
-            name = name[0].upper() + name[1:len(name)]
+            name = name[0].upper() + name[1:]
             parent_1 = people[
                 get_person_index(
                     parent_1_first_name,
