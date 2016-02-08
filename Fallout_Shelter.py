@@ -27,7 +27,7 @@ def load_time(x, message): #Where x is how long loading should happen and 'messa
         print(str(message))
         sleep(x / 10000)
 
-def print_line(message):
+def print_line(message): #Function that replaces (print()). Allows breathing room for the user between lines printed 
     for line in message.splitlines():
         sleep(0.5)
         print(str(line))

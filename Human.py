@@ -9,7 +9,7 @@ class Human(object):  # Basic class for all the Humans present in the game.
         self.partner = ""
         # Stats specific to the player, as player is always first person
         # created.
-        if len(people) == 0:
+        if len(people) == 0: #Stat's specific to the player.
             self.medic = 0  # Improves healing capabilities of stimpacks
             # Chance to hold on to some components when crafting.
             self.crafting = 0
