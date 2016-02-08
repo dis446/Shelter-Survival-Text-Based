@@ -1330,7 +1330,7 @@ def print_help():
 def game():
     global AP
     global end
-    global postition
+    global position
     global people
     global day_count
     global inventory
@@ -1352,8 +1352,8 @@ def game():
 
     day_count = 1
     skip = 0  # Keeps track of when player is skipping a day.
-    end = 0  # Can lose postition or die.
-    postition = "secure"  # Changed to "lost" when happiness drops below 5.
+    end = 0  # Can lose position or die.
+    position = "secure"  # Changed to "lost" when happiness drops below 5.
     player_quit = 0  # Allows player to quit the game.
     # All items that belong to the player. Just string names
     inventory = ['turret']
@@ -1435,7 +1435,7 @@ def game():
 
     # Loops the day while player is alive,still the overseer and doesn't
     # decide to quit.
-    while end == 0 and postition == "secure" and player_quit == 0:
+    while end == 0 and position == "secure" and player_quit == 0:
         AP = 50
         if overuse == 1:
             AP = 50 - overuse_amount
@@ -1562,7 +1562,7 @@ def game():
             " experience")
         people[0].gain_xp(happiness // 10)
         if happiness < 5:
-            postition = "lost"
+            position = "lost"
         elif happiness < 25:
             print("Warning. Your people are unhappy. You could lose your position if you don't improve the situation soon.")
         happiness_loss()
@@ -1572,9 +1572,9 @@ def game():
     else:  # Once game ends.
         if end == 1:
             print("Too bad. You died.")
-        elif postition == "lost":
+        elif position == "lost":
             print(
-                "Too bad. You lost your postition because of your poor leadership skills.")
+                "Too bad. You lost your position because of your poor leadership skills.")
         again = input("Want to play again? ")
         if again[0].lower() == "y":
             game()
