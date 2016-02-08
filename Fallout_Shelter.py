@@ -455,16 +455,15 @@ def create_player():
 				parent_1 = parent_1[0].upper() + parent_1[1:len(parent_1)]
 				parent_2 = input("What is the surname of your mother?")
 				if len(parent_2.split()) == 1:
-					parent_2 = parent_2[0].upper() + parent_2[2:len(parent_2)]
-					player_name=name+parent_1 # Used so the Human class know's who the player is 
-					people.append(
-						Human(
+					parent_2 = parent_2[0].upper() + parent_2[2:len(parent_2)] 
+					player=	Human(
 							name,
 							day_count,
 							parent_1,
 							parent_2,
 							21,
 							get_player_gender()))
+					return player
 				else:
 					print_line("Only single word inputs are accepted.")
 					create_player()
@@ -1393,10 +1392,8 @@ def game():
 	used_names = []# Names that have been used in the game. Ensures no two people have the same name.
 	inventory = ['turret'] # All items that belong to the player. Just string names
 		
-	create_player()
-	player=people[0]
+	player = create_player()
 	load_time(100, "Creating player.")
-	player.age = 20  # Set's player to 20
 	first_few()  # Creates the first five inhabitants.
 	load_time(200, "Populating Vault with 5 random inhabitants")
 	

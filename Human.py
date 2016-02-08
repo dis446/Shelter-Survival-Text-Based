@@ -6,13 +6,7 @@ class Human(object):  # Basic class for all the Humans present in the game.
 		self.parent_2 = parent_2  # Surname
 		self.gender = gender
 		self.surname = self.parent_1 
-		self.partner = ""
-		
-		#Specific to NPC
-		
-		self.hunger = 0
-		self.thirst = 0
-		self.HP = 100
+		self.partner = "" 
 		
 		# The stats of the person. Affects the production of
 		# room the person has been assigned to.
