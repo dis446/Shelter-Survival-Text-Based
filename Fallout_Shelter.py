@@ -4,6 +4,8 @@ from time import sleep  # Used to space out print_lines and create Fake loading 
 from tqdm import tqdm  # Used to make loading screens.
 
 from Human import Human
+from NPC import NPC 
+from Player import Player
 from Room import Room
 from Item import Item
 
