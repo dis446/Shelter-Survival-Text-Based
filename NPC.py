@@ -1,3 +1,4 @@
+from Human import Human
 class NPC(Human):
 	def __init__(self, first_name, day_of_birth, parent_1, parent_2, age, gender):
 		Human.___init__(self, first_name, day_of_birth, parent_1, parent_2, age, gender)

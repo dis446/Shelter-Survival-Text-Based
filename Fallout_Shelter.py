@@ -28,9 +28,10 @@ def load_time(x, message): #Where x is how long loading should happen and 'messa
 
 def print_line(*messages): #Function that replaces (print()). Allows breathing room for the user between lines printed 
 	for message in messages:
-		print(message)
-		#sleep(0.5) #Normal value used.
-		sleep(0.1) #Only used while game is in development.
+		for line in message.splitlines():
+			sleep(0.5) #Normal value used.
+			#sleep(0.1) #Only used while game is in development.
+			print(line)
 		
 def print_help():
 	print_line("Commands: \n")
@@ -1274,7 +1275,7 @@ def choice():
 							"to upgrade your ",
 							r.name)
 						break
-				if can_up =True:
+				if can_up:
 					for component in items_needed:
 						inventory.remove(component)
 					r.upgrade()
@@ -1367,6 +1368,7 @@ def game():
 	global player_quit
 	global skip
 	load_time(300, "Initializing game.")
+	print_help()
 
 	day_count = 1
 	skip = False  # Keeps track of when player is skipping a day.
