@@ -18,7 +18,7 @@ load = False # If this is True, loading screens are activated. If False, no load
 # This is a fake loading screen. There's no loading happening, just
 # improves pacing of the game.
 def load_time(x, message): #Where x is how long loading should happen and 'message' is what it should print_line out to the screen 
-	if load == True:
+	if load:
 		print_line(str(message))
 		for x in tqdm(range(0, x)):
 			sleep(0.01)
@@ -506,7 +506,7 @@ def see_rooms():
 	for r in rooms:
 		for word in r.name.split():
 			print_line(word[0].upper() + word[1:], end=" ") #Capitlaizes the first letter of the name and print_line's it out.
-		if r.can_produce == True: 
+		if r.can_produce: 
 			r.update_production() #To get the most up-to-date data on it's production.
 			print_line(
 				"\n    Risk:",
@@ -528,7 +528,7 @@ def see_rooms():
 
 		# Only rooms that can produce have assignments, with the exception
 		# of the trader.
-		if r.can_produce == True or r.name == "trader":
+		if r.can_produce or r.name == "trader":
 			r.see_assigned()
 
 def power_usage():  # Returns the total power needed by every room in the game.
@@ -806,7 +806,7 @@ def trade():  # Trading system. Uses no Action Points
 	global trader_caps
 	barter = player.barter
 	stop_trade = False
-	while stop_trade == False:  # "continue" lets trading go on , "break" stops trading
+	while not stop_trade:  # "continue" lets trading go on , "break" stops trading
 		print_line("")
 		print_line("Here are the traders' items: ")
 		see_inventory("trader")
@@ -840,7 +840,7 @@ def trade():  # Trading system. Uses no Action Points
 				print_line("You have to input 3 words. Buy/sell,amount,item")
 		elif len(a.split()) == 3:
 			let_trade = True
-		if let_trade == True:  # Messy conditional routine coming up.
+		if let_trade:  # Messy conditional routine coming up.
 			if a.split()[2] in all_items:
 				check = True
 				try:
@@ -848,7 +848,7 @@ def trade():  # Trading system. Uses no Action Points
 				except ValueError:
 					print_line("You have to input a number as the second word")
 					check = False
-				if check == True:
+				if check:
 					# Fetches cost of item by tempoarily creating it's object
 					# and retreiving it's value attribute
 					cost = Item(a.split()[2]).value
@@ -866,7 +866,7 @@ def trade():  # Trading system. Uses no Action Points
 						else:
 							count = count_item(a.split()[2], "trader")
 							if int(a.split()[1]) > count:
-								if count == False:
+								if not count:
 									print_line(
 										"The trader doesn't have any ", a.split()[2])
 								else:
@@ -890,7 +890,7 @@ def trade():  # Trading system. Uses no Action Points
 						else:
 							count = count_item(a.split()[2], "player")
 							if int(a.split()[1]) > count:
-								if count == False:
+								if not count:
 									print_line("You don't have any ", a.split()[2])
 								else:
 									print_line(
@@ -958,7 +958,7 @@ def choice():
 							# break #I don't break so the users will see
 							# everything they don't have.
 						checked.append(component)
-				if can_craft == True:
+				if can_craft:
 					print_line("You have built a", a.split()[1])
 					player=player
 					build(potential_room,player)
@@ -989,7 +989,7 @@ def choice():
 									a.split()[1])
 								can_craft = False
 							checked.append(component)
-					if can_craft == True:
+					if can_craft:
 						print_line("You have crafted a", a.split()[1])
 						craft(a.split()[1])
 
@@ -1032,9 +1032,9 @@ def choice():
 				print_line("This room doesn't exist.")
 			elif not check_built_room(potential_room):
 				print_line("You haven't built this room yet.")
-			elif Room(potential_room).can_rush == False:
+			elif Room(potential_room).can_rush:
 				print_line("This room cannot be rushed")
-			elif Room(potential_room).rushed == True:
+			elif Room(potential_room).rushed:
 				print_line("This room has already been rushed.")
 			else:
 				room = rooms[get_room_index(potential_room)]
@@ -1068,7 +1068,7 @@ def choice():
 				print_line("This room doesn't exist.")
 			elif not check_built_room(potential_room):
 				print_line("You haven't built this room yet.")
-			elif rooms[get_room_index(potential_room)].broken == False:
+			elif not rooms[get_room_index(potential_room)].broken:
 				print_line("This room isn't even broken. There's no need to fix it!")
 			else:
 				room = rooms[get_room_index(potential_room)]
@@ -1076,7 +1076,7 @@ def choice():
 				items_needed = []
 				for it in room.components:
 					chance = randint(0, 1)
-					if chance == True:
+					if chance:
 						items_needed.append(it)
 				checked_items = []
 				for it in items_needed:
@@ -1088,7 +1088,7 @@ def choice():
 								  "more", it, "to fix this room.")
 							can_fix = False
 						checked_items.append(it)
-				if can_fix == True:
+				if can_fix:
 					room.broken = False
 					for it in items_needed:
 						Item(it).destroy("player")
@@ -1302,7 +1302,7 @@ def choice():
 		elif a.split()[0] == "scavenge":
 			if a.split()[1] not in people:
 				print_line("This person doesn't exist.")
-			elif people(a.split()[1]).scavenging == True:
+			elif people(a.split()[1]).scavenging:
 				print_line("This person is already out scavenging.")
 			else:
 				cho = input(
@@ -1449,14 +1449,14 @@ def game():
 
 	# Loops the day while player is alive,still the overseer and doesn't
 	# decide to quit.
-	while end == False and position == "secure" and player_quit == False:
+	while not end and position == "secure" and not player_quit:
 		action_points = 50 # Resets the Action Points available every day
-		if overuse == True: # If player goes over their daily Action Points limit.
+		if overuse: # If player goes over their daily Action Points limit.
 			action_points = 50 - overuse_amount
 		load_time(300, "A new day dawns.")
 		print_line("Today is day " + str(day_count))
 
-		if auto_feed == True:
+		if auto_feed:
 			auto_feed_all()
 
 		# Trader inventory updates with new items and loses some items.
@@ -1480,7 +1480,7 @@ def game():
 			" power")
 
 		for r in rooms:  # Performs daily room checks.
-			if r.name != 'generator' and r.can_produce == True:
+			if r.name != 'generator' and r.can_produce:
 				if r.can_use_power():
 					r.use_power()
 					r.update_production()
@@ -1497,7 +1497,7 @@ def game():
 						r.name,
 						"supplied.")
 				# De-rushes every room that was rushed.
-				if r.can_rush == True and r.rushed == True:
+				if r.can_rush and r.rushed:
 					r.rushed = False
 
 		for person in people:  # Performs daily checks for all people.
@@ -1529,7 +1529,7 @@ def game():
 			check_xp(person.name, person.surname)
 			if person.name != player.name:  # Routines specific to NPCs.
 				# Scavenging games
-				if person.scavenging == True:
+				if person.scavenging:
 					if person.days_to_scavenge_for == person.days_scavenging:
 						# Now that they've finished scavenging, set everything
 						# to 0
@@ -1551,7 +1551,7 @@ def game():
 				if person.assigned_room != "":
 					# Can refer to room which character had been assigned to.
 					r = rooms[get_room_index(person.assigned_room)]
-					if r.can_produce == True:
+					if r.can_produce:
 						person.gain_xp(r.production // 10)
 
 		# A raid should happen once every 5 days.
@@ -1564,9 +1564,9 @@ def game():
 		if raid_chance > 4:
 			raid()
 
-		while action_points > 0 and overuse == False and player_quit == False:  # Loops player actions.
+		while action_points > 0 and  not overuse and not player_quit:  # Loops player actions.
 			choice()
-			if skip == True:
+			if skip:
 				break
 		skip = False
 
@@ -1584,7 +1584,7 @@ def game():
 		day_count += 1
 
 	else:  # Once game ends.
-		if end == True:
+		if end:
 			print_line("Too bad. You died.")
 		elif position == "lost":
 			print_line(

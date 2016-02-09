@@ -58,7 +58,7 @@ class Room(object):  # Basic class for the rooms in the game.
 		else:
 			print(
 				"Bug with room creation system. Please contact dev. Class specific bug.")
-		if self.can_produce == True:
+		if self.can_produce:
 			self.production = 0
 			self.can_rush = True
 			self.rushed = False
@@ -77,7 +77,7 @@ class Room(object):  # Basic class for the rooms in the game.
 	# Calculates production level based on number, and skills, of assigned
 	# people.
 	def update_production(self,player): # Calculates and returns prodcution value.
-		if self.broken == True:
+		if self.broken:
 			production = 0
 			print(self.name, "is broken and needs to be fixed.")
 		else:
@@ -121,7 +121,7 @@ class Room(object):  # Basic class for the rooms in the game.
 			if player.inspiration > 0:
 				production = production * \
 					(1 + (player.inspiration * 0.03))
-			if self.can_rush == True and self.rushed == True:
+			if self.can_rush and self.rushed:
 				production = production * 2
 			return production
 
