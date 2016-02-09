@@ -8,15 +8,15 @@ class Item(object):
 		# assigned by the following lines.
 		self.name = name
 		with open('items.json') as f:
-		    parsed = json.loads(f.read())
-		    try:
-		        item = parsed[self.name]
-		        self.value = item['value']
-		        self.weight = item['weight']
-		        self.components = item['components']
-		        self.rarity = item['rarity']
-		    except KeyError:
-		        print("Unknown item. This is a bug. Please contact the dev.")
+			parsed = json.loads(f.read())
+			try:
+				item = parsed[self.name]
+				self.value = item['value']
+				self.weight = item['weight']
+				self.components = item['components']
+				self.rarity = item['rarity']
+			except KeyError:
+				print("Unknown item. This is a bug. Please contact the dev.")
 		# Keeps track of whether item has been scrapped by player.
 		self.scrapped = 0
 

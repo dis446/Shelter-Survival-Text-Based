@@ -1,68 +1,68 @@
 {
-    "wood": {
-        "value": 10,
-        "weight": 5,
-        "components": [],
-        "rarity": 1
-    },
-    "steel": {
-        "value": 50,
-        "weight": 20,
-        "components": [],
-        "rarity": 4
-    },
-    "food": {
-        "value": 20,
-        "weight": 1,
-        "components": [],
-        "rarity": 2
-    },
-    "water": {
-        "value": 30,
-        "weight": 2,
-        "components": [],
-        "rarity": 3
-    },
-    "silicon": {
-        "value": 50,
-        "weight": 1,
-        "components": [],
-        "rarity": 6
-    },
-    "copper": {
-        "value": 20,
-        "weight": 1,
-        "components": [],
-        "rarity": 3
-    },
-    "watt": {
-        "value": 40,
-        "weight": 0,
-        "components": [],
-        "rarity": 4
-    },
-    "turret": {
-        "value": 20,
-        "weight": 20,
-        "components": ["steel", "steel", "steel", "chip", "steel", "steel"],
-        "rarity": 8
-    },
-    "chip": {
-        "value": 100,
-        "weight": 1,
-        "components": ["wire", "wire", "wire", "silicon"],
-        "rarity": 8
-    },
-    "wire": {
-        "value": 40,
-        "weight": 3,
-        "components": ["copper", "copper", "copper"],
-        "rarity": 4
-    },
-    "gun": {
-        "value": 100,
-        "weight": 5,
-        "components": ["steel", "copper"],
-        "rarity": 6
-    }
+	"wood": {
+		"value": 10,
+		"weight": 5,
+		"components": [],
+		"rarity": 1
+	},
+	"steel": {
+		"value": 50,
+		"weight": 20,
+		"components": [],
+		"rarity": 4
+	},
+	"food": {
+		"value": 20,
+		"weight": 1,
+		"components": [],
+		"rarity": 2
+	},
+	"water": {
+		"value": 30,
+		"weight": 2,
+		"components": [],
+		"rarity": 3
+	},
+	"silicon": {
+		"value": 50,
+		"weight": 1,
+		"components": [],
+		"rarity": 6
+	},
+	"copper": {
+		"value": 20,
+		"weight": 1,
+		"components": [],
+		"rarity": 3
+	},
+	"watt": {
+		"value": 40,
+		"weight": 0,
+		"components": [],
+		"rarity": 4
+	},
+	"turret": {
+		"value": 20,
+		"weight": 20,
+		"components": ["steel", "steel", "steel", "chip", "steel", "steel"],
+		"rarity": 8
+	},
+	"chip": {
+		"value": 100,
+		"weight": 1,
+		"components": ["wire", "wire", "wire", "silicon"],
+		"rarity": 8
+	},
+	"wire": {
+		"value": 40,
+		"weight": 3,
+		"components": ["copper", "copper", "copper"],
+		"rarity": 4
+	},
+	"gun": {
+		"value": 100,
+		"weight": 5,
+		"components": ["steel", "copper"],
+		"rarity": 6
+	}
 }

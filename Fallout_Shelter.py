@@ -9,14 +9,11 @@ from Player import Player
 from Room import Room
 from Item import Item
 
-
 # Information system!
 # Bunch of functions used by other functions to retrieve information about
 # the shelter, it's assigned, rooms and items.
 
-# If this is 1, loading screens are activated. If 0, no loading screens.
-load = 0
-
+load = 0 # If this is 1, loading screens are activated. If 0, no loading screens.
 
 # This is a fake loading screen. There's no loading happening, just
 # improves pacing of the game.
@@ -35,6 +32,39 @@ def print_line(*messages): #Function that replaces (print()). Allows breathing r
 		#sleep(0.5) #Normal value used.
 		sleep(0.1) #Only used while game is in development.
 		
+def print_help():
+	print_line("Commands: \n")
+	print_line("""Room actions:
+	see rooms           : View all rooms
+	build x             : Construct room 'x'
+	rush x              : Rush construction of room 'x'
+	upgrade x           : Upgrade room 'x'
+	fix x               : Fix damaged room 'x'
+	""")
+	print_line("""Inhabitant actions:
+	see people          : View all inhabitants
+	feed x              : Feed inhabitant 'x'
+	enable auto_feed    : Enable automatically feeding inhabitants
+	disable auto_feed   : Disable automatically feeding inhabitants
+	coitus x y          : Send inhabitants 'x' and 'y' to the love-house
+	scavenge x          : Send inhabitant 'x' to scavenge in the wasteland
+	heal x              : Heal inhabitant 'x'
+	heal all            : Heal all inhabitants
+	assign x y          : Assign inhabitant 'x' to room 'y'
+	auto assign         : Automatically assign unassigned inhabitants to rooms
+	""")
+	print_line("""Inventory actions:
+	see items           : View all held items
+	scrap x             : Destroy item and add its components to your inventory
+	trade               : Begin trading interaction
+	""")
+	print_line("""Other actions:
+	see day             : View day number
+	see resources       : View all resources available
+	skip                : Skip
+	end                 : Quit game
+	help                : See this help text
+	""")
 
 # Whenever player has to input an integer, this should be used. Catches errors.
 def input_int(s):
@@ -45,46 +75,11 @@ def input_int(s):
 			print_line("Invalid. Only integer numbers are accepted!")
 	return x
 
-
-# Counts total number of an item present in an inventory
-def count_item(item, target_inventory):
-	item = str(item)
-	if target_inventory == "player":
-		return inventory.count(item)
-	elif target_inventory == "trader":
-		return trader_inventory.count(item)
-	else:
-		print_line("Bug with item counting system. Please contact dev!")
-
-
-def count_weight():  # Calculates the sum of the weights of all items currently in the inventory,
-	count = 0
-	for x in inventory:
-		# Creates instances of class on the fly. If 5 wood present, tempoarily
-		# creates 5 wood, one by one, uses their weight and discards them
-		count += Item(x).weight
-	return count
-
-
 # Calculates how much weight player can store.  Used to check if player
 # can take any more items.
 def storage_capacity(all_rooms):
 	capacity = all_rooms("storage").production
 	return capacity
-
-
-def check_room(x):  # Checks if the room exists
-	if x in all_rooms:
-		return True
-	return False
-
-
-def check_built_room(x):  # Checks if room has been built yet
-	for r in rooms:
-		if x == r.name:
-			return True
-	return False
-
 
 def see_people():  # Displays everyone in the shelter.
 	for person in people:
@@ -100,38 +95,6 @@ def see_people():  # Displays everyone in the shelter.
 			person.thirst,
 			" Room:",
 			person.assigned_room)
-
-
-def see_rooms():
-	print_line("")
-	for r in rooms:
-		for word in r.name.split():
-			print_line(word[0].upper() + word[1:], end=" ") #Capitlaizes the first letter of the name and print_line's it out.
-		if r.can_produce == 1: 
-			r.update_production() #To get the most up-to-date data on it's production.
-			print_line(
-				"\n    Risk:",
-				r.risk * 10,
-				"%  Level:",
-				r.level,
-				"  Power:",
-				r.power_available,
-				"  Production:",
-				r.production)
-		else:
-			print_line(
-				"\n    Risk:",
-				r.risk,
-				"  Level:",
-				r.level,
-				"  Power:",
-				r.power_available)
-
-		# Only rooms that can produce have assignments, with the exception
-		# of the trader.
-		if r.can_produce == 1 or r.name == "trader":
-			r.see_assigned()
-
 
 # Displays all items in inventory in the form
 # (Log*5.Weight=5.Value=10.Components="Wood". Rarity=1).
@@ -182,20 +145,15 @@ def see_inventory(inven):
 	else:
 		print_line("Major bug with inventory information system. Please contact dev!")
 
-
-# Returns maximum number of inhabitants that can exist in the shelter,
-# depending on the level of the living room.
 def living_capacity():
 	room = rooms[get_room_index('living')]
 	print_line("Maximum number of inhabitants", 5 * room.level)
 	return (5 * room.level)
 
-
 def see_resources():
 	print_line("Food * ", count_item("food", "player"))
 	print_line("Water * ", count_item("water", "player"))
 	print_line("Power * ", count_item("watt", "player"))
-
 
 def get_person_index(first_name, surname):
 	for x in range(len(people)):
@@ -204,16 +162,10 @@ def get_person_index(first_name, surname):
 			return x
 
 
-def get_room_index(room):
-	room = str(room)
-	for r in range(0, len(rooms)):
-		#print_line("Room index scan is now",r)
-		if rooms[r].name == room:
-			#print_line("Room index fetch returns,",r)
-			return int(r)
 
 
-# Scavenging system.
+# Scavenging system:
+
 # Sends people on a scavenging mission.
 def scavenge(first_name, surname, var=None):
 	global people
@@ -231,8 +183,10 @@ def scavenge(first_name, surname, var=None):
 	use_points(10)
 
 
-# Construction system.
-# Builds a room once checks are done. Should append to (rooms) list.
+
+
+# Construction system:
+
 def build(r,player):
 	global rooms
 	global inventory
@@ -249,9 +203,6 @@ def build(r,player):
 	player.gain_xp(100)
 	use_points(10)
 
-
-# Crafts an item once checks are done. Just adds the name of an item to the
-# inventory list.
 def craft(x):
 	global inventory
 	load_time(5, ("Crafting ", x))
@@ -273,7 +224,10 @@ def craft(x):
 	use_points(5)
 
 
-# Human management system
+
+
+# Human management system:
+
 def get_player_gender():  # Asks player what gender they are.
 	gender = input("Please choose a gender(M/F): ")
 	if len(gender) > 0:
@@ -287,13 +241,11 @@ def get_player_gender():  # Asks player what gender they are.
 		print_line("No input detected!")
 		get_player_gender()
 
-
 def get_gender():  # Randomly generates a gender. For NPCs
 	if randint(0, 1) == 0:
 		return "m"
 	else:
 		return "f"
-
 
 def check_person(first_name, surname):  # Check if a person exists.
 	for per in people:
@@ -301,7 +253,6 @@ def check_person(first_name, surname):  # Check if a person exists.
 			return True
 	else:
 		return False
-
 
 def check_xp(name, surname):
 	global people
@@ -317,9 +268,7 @@ def check_xp(name, surname):
 		print_line(person.name, " has leveled up")
 		person.level_up()
 		print_line(person.name, "  is now level ", person.level)
-
-
-# Creates new NPC.
+		
 def birth(
 		parent_1_first_name,
 		parent_1_surname,
@@ -382,6 +331,7 @@ def birth(
 			parent_1_surname,
 			parent_2_first_name,
 			parent_2_surname)
+
 def death(first_name,last_name):
 	global end #Set to 1, if player died
 	global rooms
@@ -397,7 +347,6 @@ def death(first_name,last_name):
 			for r in rooms:
 				r.assigned=r.assigned[0:index]+r.assigned[index:] #Cut's out the index at the position
 		people.remove(self)
-
 
 def first_few():  # Runs once at beginning of game. Creates 4 new people. Costs no Action Points!
 	global people
@@ -445,8 +394,6 @@ def first_few():  # Runs once at beginning of game. Creates 4 new people. Costs 
 		used_names.append(names[num_1])
 		used_names.append(names[num_2])
 
-
-# Only ran at start of game. First inhabitant of vault should be the player.
 def create_player():
 	name = input("Choose a first name for yourself: ")
 	if len(name) > 0:
@@ -478,7 +425,35 @@ def create_player():
 	else:
 		print_line("You need a name!")
 		create_player()
+		
+def see_stats(first_name, surname): 
+	person = people[get_person_index(first_name, surname)]
+	print_line("Strength: ", person.strength)
+	print_line("Perception: ", person.perception)
+	print_line("Endurance: ", person.endurance)
+	print_line("Charisma: ", person.charisma)
+	print_line("Intelligence: ", person.intelligence)
+	print_line("Luck: ", person.luck)
+	if person.name == player.name:  # Player has extra stats
+		print_line("")
+		print_line("Medic: ", person.medic)
+		print_line("Crafting: ", person.crafting)
+		print_line("Tactician: ", person.tactician)
+		print_line("Cooking: ", person.cooking)
+		print_line("Inspiration: ", person.inspiration)
+		print_line("Scrapping: ", person.scrapper)
+		print_line("Bartering: ", person.barter)
+		print_line("Electricain: ", person.electrician)
 
+def auto_assign():  # Automatically assigns free inhabitants to rooms with space.
+	global people
+	global rooms
+	for person in people:
+		if person.assigned_room == "":
+			for r in rooms:
+				if r.count_assigned() < r.assigned_limit:
+					person.assign_to_room(r.name)
+					break
 
 def update_all_assignment():
 	global rooms
@@ -502,12 +477,64 @@ def update_all_assignment():
 			#print_line("This is what happened", r.assigned)
 
 
+
+
+#Room Management system:
+
+def get_room_index(room):
+	room = str(room)
+	for r in range(0, len(rooms)):
+		#print_line("Room index scan is now",r)
+		if rooms[r].name == room:
+			#print_line("Room index fetch returns,",r)
+			return int(r)
+
+def check_room(x):  # Checks if the room exists
+	if x in all_rooms:
+		return True
+	return False
+
+def check_built_room(x):  # Checks if room has been built yet
+	for r in rooms:
+		if x == r.name:
+			return True
+	return False
+
+def see_rooms():
+	print_line("")
+	for r in rooms:
+		for word in r.name.split():
+			print_line(word[0].upper() + word[1:], end=" ") #Capitlaizes the first letter of the name and print_line's it out.
+		if r.can_produce == 1: 
+			r.update_production() #To get the most up-to-date data on it's production.
+			print_line(
+				"\n    Risk:",
+				r.risk * 10,
+				"%  Level:",
+				r.level,
+				"  Power:",
+				r.power_available,
+				"  Production:",
+				r.production)
+		else:
+			print_line(
+				"\n    Risk:",
+				r.risk,
+				"  Level:",
+				r.level,
+				"  Power:",
+				r.power_available)
+
+		# Only rooms that can produce have assignments, with the exception
+		# of the trader.
+		if r.can_produce == 1 or r.name == "trader":
+			r.see_assigned()
+
 def power_usage():  # Returns the total power needed by every room in the game.
 	total = 0
 	for r in rooms:
 		total += r.power_usage
 	return total
-
 
 def power_production():
 	total = 0
@@ -517,38 +544,10 @@ def power_production():
 	return total
 
 
-def auto_assign():  # Automatically assigns free inhabitants to rooms
-	global people
-	global rooms
-	for person in people:
-		if person.assigned_room == "":
-			for r in rooms:
-				if r.count_assigned() < r.assigned_limit:
-					person.assign_to_room(r.name)
-					break
 
 
-def see_stats(first_name, surname):
-	person = people[get_person_index(first_name, surname)]
-	print_line("Strength: ", person.strength)
-	print_line("Perception: ", person.perception)
-	print_line("Endurance: ", person.endurance)
-	print_line("Charisma: ", person.charisma)
-	print_line("Intelligence: ", person.intelligence)
-	print_line("Luck: ", person.luck)
-	if person.name == player.name:  # Player has extra stats
-		print_line("")
-		print_line("Medic: ", person.medic)
-		print_line("Crafting: ", person.crafting)
-		print_line("Tactician: ", person.tactician)
-		print_line("Cooking: ", person.cooking)
-		print_line("Inspiration: ", person.inspiration)
-		print_line("Scrapping: ", person.scrapper)
-		print_line("Bartering: ", person.barter)
-		print_line("Electricain: ", person.electrician)
+# Inventory managment system:
 
-
-# Inventory managment system!
 def rand_item(target_inventory):
 	# Following lines randomly choose an item, based on rarity
 	num = randint(1, 1024)
@@ -578,12 +577,28 @@ def rand_item(target_inventory):
 		else:
 			print_line("Bug with random item system. Please contact dev!")
 
+# Counts total number of an item present in an inventory
+def count_item(item, target_inventory):
+	item = str(item)
+	if target_inventory == "player":
+		return inventory.count(item)
+	elif target_inventory == "trader":
+		return trader_inventory.count(item)
+	else:
+		print_line("Bug with item counting system. Please contact dev!")
+
+def count_weight():  # Calculates the sum of the weights of all items currently in the inventory,
+	count = 0
+	for x in inventory:
+		# Creates instances of class on the fly. If 5 wood present, tempoarily
+		# creates 5 wood, one by one, uses their weight and discards them
+		count += Item(x).weight
+	return count
 
 # Finds x items randomly and adds it to an inventory.
 def find_rand_item(inven, times):
 	for x in range(0, times + 1):
 		rand_item(inven)  # passes iven to rand_item function
-
 
 # Adds (x) (number) times to (inven) inventory. E.g. wood,5,player
 def add_to_inven(x, number, inven):
@@ -603,7 +618,6 @@ def add_to_inven(x, number, inven):
 			for y in range(number):
 				trader_inventory.append(x)
 
-
 def lose_items(inven, number):  # Randomly deletes multiple items from the target_inventory
 	global inventory
 	global trader_inventory
@@ -621,7 +635,6 @@ def lose_items(inven, number):  # Randomly deletes multiple items from the targe
 	else:
 		print_line("Major bug in item losing system. Please contact dev!")
 
-
 def scrap(it):
 	global inventory
 	if it not in all_items:
@@ -636,7 +649,10 @@ def scrap(it):
 	use_points(2)
 
 
-# Raiding system.
+
+
+# Raiding system:
+
 def raid():
 	global people
 	update_defense()
@@ -669,9 +685,6 @@ def raid():
 		person.gain_xp(attack_power * 10)
 	use_points(30)
 
-
-# Updates the defense rating of the shelter, according to the presence of
-# defensive items.
 def update_defense():
 	global defense
 	player = player[0]
@@ -691,7 +704,9 @@ def update_defense():
 		defense = defense * (1 + (player.inspiration * 0.03))
 
 
-# Happiness System.
+
+# Happiness System:
+
 def avg_hunger():  # Calculates average hunger level.
 	total = 0
 	for x in people:
@@ -699,14 +714,12 @@ def avg_hunger():  # Calculates average hunger level.
 	avg = total // len(people)
 	return avg
 
-
 def avg_thirst():  # Calculates average thirst level
 	total = 0
 	for x in people:
 		total += x.thirst
 	avg = total // len(people)
 	return avg
-
 
 def feed(first_name, surname, amount):  # Reduces the hunger level of a person.
 	# This needs to reduce the thirst level aswell.
@@ -718,7 +731,6 @@ def feed(first_name, surname, amount):  # Reduces the hunger level of a person.
 		person.hunger = 0
 	Item('food').destroy('player')
 
-
 def drink(first_name, surname, amount):
 	global inventory
 	global people
@@ -727,7 +739,6 @@ def drink(first_name, surname, amount):
 	if person.thirst < 0:
 		person.thirst = 0
 	Item('water').destroy('player')
-
 
 def auto_feed_all():
 	global people
@@ -742,7 +753,6 @@ def auto_feed_all():
 		for person in people:
 			drink(person.name, person.surname, 1)
 			water_count -= 1
-
 
 # Depending on hunger or thirst level, reduces general happiness level.
 def happiness_loss():
@@ -763,7 +773,10 @@ def happiness_loss():
 			happiness)
 
 
-# Action Point usage system.
+
+
+# Action Point usage system:
+
 def use_points(point):
 	global action_points
 	global overuse
@@ -780,7 +793,10 @@ def use_points(point):
 			action_points = action_points - usage
 
 
-# Trading system.
+
+
+# Trading system:
+
 def trade():  # Trading system. Uses no Action Points
 	load_time(100, "Initializing trading system.")
 	global inventory
@@ -894,7 +910,10 @@ def trade():  # Trading system. Uses no Action Points
 	load_time(100, "Ending trade")
 
 
-# Choice system!
+
+
+# Choice system:
+
 def choice():
 	global auto_feed
 	global people
@@ -1324,40 +1343,6 @@ def choice():
 		print_line("You have to choose something!")
 
 
-def print_help():
-	print_line("Commands: \n")
-	print_line("""Room actions:
-	see rooms           : View all rooms
-	build x             : Construct room 'x'
-	rush x              : Rush construction of room 'x'
-	upgrade x           : Upgrade room 'x'
-	fix x               : Fix damaged room 'x'
-	""")
-	print_line("""Inhabitant actions:
-	see people          : View all inhabitants
-	feed x              : Feed inhabitant 'x'
-	enable auto_feed    : Enable automatically feeding inhabitants
-	disable auto_feed   : Disable automatically feeding inhabitants
-	coitus x y          : Send inhabitants 'x' and 'y' to the love-house
-	scavenge x          : Send inhabitant 'x' to scavenge in the wasteland
-	heal x              : Heal inhabitant 'x'
-	heal all            : Heal all inhabitants
-	assign x y          : Assign inhabitant 'x' to room 'y'
-	auto assign         : Automatically assign unassigned inhabitants to rooms
-	""")
-	print_line("""Inventory actions:
-	see items           : View all held items
-	scrap x             : Destroy item and add its components to your inventory
-	trade               : Begin trading interaction
-	""")
-	print_line("""Other actions:
-	see day             : View day number
-	see resources       : View all resources available
-	skip                : Skip
-	end                 : Quit game
-	help                : See this help text
-	""")
-
 
 # Game system.
 def game():
@@ -1381,7 +1366,6 @@ def game():
 	global used_names
 	global player_quit
 	global skip
-	global player
 	load_time(300, "Initializing game.")
 
 	day_count = 1

@@ -76,7 +76,7 @@ class Room(object):  # Basic class for the rooms in the game.
 	
 	# Calculates production level based on number, and skills, of assigned
 	# people.
-	def update_production(self): # Calculates and returns prodcution value.
+	def update_production(self,player): # Calculates and returns prodcution value.
 		if self.broken == 1:
 			production = 0
 			print(self.name, "is broken and needs to be fixed.")
@@ -125,8 +125,6 @@ class Room(object):  # Basic class for the rooms in the game.
 				production = production * 2
 			return production
 
-	def upgrade(self):
-		self.level += 1
 
 	def count_assigned(self):
 		count = 0
