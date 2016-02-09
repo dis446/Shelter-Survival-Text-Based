@@ -462,7 +462,7 @@ def create_player():
 							parent_1,
 							parent_2,
 							21,
-							get_player_gender()))
+							get_player_gender())
 					return player
 				else:
 					print_line("Only single word inputs are accepted.")
@@ -1324,7 +1324,7 @@ def choice():
 
 def print_help():
 	print_line("Commands: \n")
-	print_line(""" Room actions:
+	print_line("""Room actions:
 	see rooms           : View all rooms
 	build x             : Construct room 'x'
 	rush x              : Rush construction of room 'x'
