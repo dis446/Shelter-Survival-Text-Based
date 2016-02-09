@@ -27,11 +27,11 @@ def load_time(x, message): #Where x is how long loading should happen and 'messa
 		print(str(message))
 		sleep(x / 10000)
 
-def print_line(message): #Function that replaces (print()). Allows breathing room for the user between lines printed 
-	for line in message.splitlines():
+def print_line(*messages): #Function that replaces (print()). Allows breathing room for the user between lines printed 
+	for message in messages:
+		print(message)
 		#sleep(0.5) #Normal value used.
 		sleep(0.1) #Only used while game is in development.
-		print(str(line))
 		
 
 # Whenever player has to input an integer, this should be used. Catches errors.
