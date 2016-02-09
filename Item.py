@@ -18,7 +18,7 @@ class Item(object):
 			except KeyError:
 				print("Unknown item. This is a bug. Please contact the dev.")
 		# Keeps track of whether item has been scrapped by player.
-		self.scrapped = 0
+		self.scrapped = False
 
 	def count_component(self, component):
 		return self.components.count(str(component))
@@ -37,7 +37,7 @@ class Item(object):
 			print("You scrapper skill has allowed you to gain more components!")
 			for item in self.components:
 				inventory.append(item)
-		self.scrapped = 1  # Differentiate between whether item has been scrapped or just destroyed
+		self.scrapped = True  # Differentiate between whether item has been scrapped or just destroyed
 		self.destroy("player")
 
 	def destroy(self, target_inventory):

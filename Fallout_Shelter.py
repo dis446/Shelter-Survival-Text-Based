@@ -13,12 +13,12 @@ from Item import Item
 # Bunch of functions used by other functions to retrieve information about
 # the shelter, it's assigned, rooms and items.
 
-load = 0 # If this is 1, loading screens are activated. If 0, no loading screens.
+load = False # If this is True, loading screens are activated. If False, no loading screens.
 
 # This is a fake loading screen. There's no loading happening, just
 # improves pacing of the game.
 def load_time(x, message): #Where x is how long loading should happen and 'message' is what it should print_line out to the screen 
-	if load == 1:
+	if load == True:
 		print_line(str(message))
 		for x in tqdm(range(0, x)):
 			sleep(0.01)
@@ -173,7 +173,7 @@ def scavenge(first_name, surname, var=None):
 		print_line("Error with scavenging system. Please contact dev!")
 	else:
 		person = people[get_person_index(first_name, surname)]
-		person.scavenging = 1
+		person.scavenging = True
 		if var == "days":  # If player chooses to send player for certain number of days, or until health drops below 20.
 			day_choice = input_int("How many days do you want to send this person out?")
 			person.days_to_scavenge_for = day_choice
@@ -505,7 +505,7 @@ def see_rooms():
 	for r in rooms:
 		for word in r.name.split():
 			print_line(word[0].upper() + word[1:], end=" ") #Capitlaizes the first letter of the name and print_line's it out.
-		if r.can_produce == 1: 
+		if r.can_produce == True: 
 			r.update_production() #To get the most up-to-date data on it's production.
 			print_line(
 				"\n    Risk:",
@@ -527,7 +527,7 @@ def see_rooms():
 
 		# Only rooms that can produce have assignments, with the exception
 		# of the trader.
-		if r.can_produce == 1 or r.name == "trader":
+		if r.can_produce == True or r.name == "trader":
 			r.see_assigned()
 
 def power_usage():  # Returns the total power needed by every room in the game.
@@ -785,10 +785,10 @@ def use_points(point):
 		print_line("Bug with point usage system. It's trying to use more than 50, please note this and contact dev.")
 	else:
 		usage = action_points - point
-		overuse = 0
+		overuse = False
 		if usage < 0:  # If overuse occurs. i.e. if overuse is negative
 			overuse_amount = 0 - usage
-			overuse = 1
+			overuse = True
 		else:  # If normal usage occurs.
 			action_points = action_points - usage
 
@@ -804,8 +804,8 @@ def trade():  # Trading system. Uses no Action Points
 	global caps
 	global trader_caps
 	barter = player.barter
-	stop_trade = 0
-	while stop_trade == 0:  # "continue" lets trading go on , "break" stops trading
+	stop_trade = False
+	while stop_trade == False:  # "continue" lets trading go on , "break" stops trading
 		print_line("")
 		print_line("Here are the traders' items: ")
 		see_inventory("trader")
@@ -822,32 +822,32 @@ def trade():  # Trading system. Uses no Action Points
 			continue
 
 		# Following lines are checks.
-		let_trade = 0
+		let_trade = False
 		if len(a.split()) != 3:
 			if len(a.split()) == 2:  # a is in the form (buy x) or (sell x)
 				if a.split()[1] in all_items:
 					if a.split()[0] == "buy" or a.split()[0] == "sell":
 						a = "%s %s %s" % (a.split()[0], 1, a.split()[1])
-						let_trade = 1
+						let_trade = True
 					else:
 						print_line("Invalid input. You can (buy) or (sell)")
 				else:
 					print_line("This item doesn't exist")
 			elif a.split()[0] == 'end' or a.split()[0] == 'stop':
-				stop_trade = 1
+				stop_trade = True
 			else:
 				print_line("You have to input 3 words. Buy/sell,amount,item")
 		elif len(a.split()) == 3:
-			let_trade = 1
-		if let_trade == 1:  # Messy conditional routine coming up.
+			let_trade = True
+		if let_trade == True:  # Messy conditional routine coming up.
 			if a.split()[2] in all_items:
-				check = 1
+				check = True
 				try:
 					a.split()[1] = int(a.split()[1])
 				except ValueError:
 					print_line("You have to input a number as the second word")
-					check = 0
-				if check == 1:
+					check = False
+				if check == True:
 					# Fetches cost of item by tempoarily creating it's object
 					# and retreiving it's value attribute
 					cost = Item(a.split()[2]).value
@@ -865,7 +865,7 @@ def trade():  # Trading system. Uses no Action Points
 						else:
 							count = count_item(a.split()[2], "trader")
 							if int(a.split()[1]) > count:
-								if count == 0:
+								if count == False:
 									print_line(
 										"The trader doesn't have any ", a.split()[2])
 								else:
@@ -889,7 +889,7 @@ def trade():  # Trading system. Uses no Action Points
 						else:
 							count = count_item(a.split()[2], "player")
 							if int(a.split()[1]) > count:
-								if count == 0:
+								if count == False:
 									print_line("You don't have any ", a.split()[2])
 								else:
 									print_line(
@@ -943,7 +943,7 @@ def choice():
 			else:
 				room = Room(potential_room,player)
 				checked = []  # Stores components already checked. Useful. If there's 5 pieces of wood in the components list, the loop is only run once, instead of 5 times
-				can_craft = 1
+				can_craft = True
 				for component in room.components:
 					if component not in checked:  # Only runs check if item hasn't been encountered before
 						if room.count_component(component) > count_item(
@@ -953,11 +953,11 @@ def choice():
 								component,
 								"to build",
 								potential_room)
-							can_craft = 0
+							can_craft = False
 							# break #I don't break so the users will see
 							# everything they don't have.
 						checked.append(component)
-				if can_craft == 1:
+				if can_craft == True:
 					print_line("You have built a", a.split()[1])
 					player=player
 					build(potential_room,player)
@@ -967,7 +967,7 @@ def choice():
 			if a.split()[1] not in all_items:
 				print_line("Invalid item. Try again.")
 			else:
-				can_craft = 1
+				can_craft = True
 				# Creates an instance of the item, so it's attributes can be
 				# fetched.
 				actual_item = Item(a.split()[1])
@@ -986,9 +986,9 @@ def choice():
 									component,
 									"to craft",
 									a.split()[1])
-								can_craft = 0
+								can_craft = False
 							checked.append(component)
-					if can_craft == 1:
+					if can_craft == True:
 						print_line("You have crafted a", a.split()[1])
 						craft(a.split()[1])
 
@@ -1031,9 +1031,9 @@ def choice():
 				print_line("This room doesn't exist.")
 			elif not check_built_room(potential_room):
 				print_line("You haven't built this room yet.")
-			elif Room(potential_room).can_rush == 0:
+			elif Room(potential_room).can_rush == False:
 				print_line("This room cannot be rushed")
-			elif Room(potential_room).rushed == 1:
+			elif Room(potential_room).rushed == True:
 				print_line("This room has already been rushed.")
 			else:
 				room = rooms[get_room_index(potential_room)]
@@ -1041,7 +1041,7 @@ def choice():
 				chance = randint(0, 9)
 				if room.risk > chance:
 					print_line(room.name, " has failed to rush and is broken!")
-					room.broken = 1
+					room.broken = True
 				else:
 					check = input(
 						"Are you sure?",
@@ -1067,15 +1067,15 @@ def choice():
 				print_line("This room doesn't exist.")
 			elif not check_built_room(potential_room):
 				print_line("You haven't built this room yet.")
-			elif rooms[get_room_index(potential_room)].broken == 0:
+			elif rooms[get_room_index(potential_room)].broken == False:
 				print_line("This room isn't even broken. There's no need to fix it!")
 			else:
 				room = rooms[get_room_index(potential_room)]
-				can_fix = 1
+				can_fix = True
 				items_needed = []
 				for it in room.components:
 					chance = randint(0, 1)
-					if chance == 1:
+					if chance == True:
 						items_needed.append(it)
 				checked_items = []
 				for it in items_needed:
@@ -1085,10 +1085,10 @@ def choice():
 						if needed > available:
 							print_line("You need", needed - available,
 								  "more", it, "to fix this room.")
-							can_fix = 0
+							can_fix = False
 						checked_items.append(it)
-				if can_fix == 1:
-					room.broken = 0
+				if can_fix == True:
+					room.broken = False
 					for it in items_needed:
 						Item(it).destroy("player")
 					print_line(
@@ -1258,7 +1258,7 @@ def choice():
 						1):  # The higher the level, the more components needed to upgrade
 					for component in items_needed:
 						items_needed.append(component)
-				can_up = 1 #1 if can upgrade. 0 if can't
+				can_up = True #1 if can upgrade. 0 if can't
 				for ite in all_items:
 					needed = 0
 					for comp in items_needed:
@@ -1267,14 +1267,14 @@ def choice():
 					# Counts number of component available to the player
 					available = count_item(ite, "player")
 					if available < needed:  # Not enough
-						can_up = 0
+						can_up = False
 						print_line(
 							"You don't have enough",
 							ite,
 							"to upgrade your ",
 							r.name)
 						break
-				if can_up == 1:
+				if can_up =True:
 					for component in items_needed:
 						inventory.remove(component)
 					r.upgrade()
@@ -1285,7 +1285,7 @@ def choice():
 
 		elif a.split()[0] == "disable":
 			if a.split()[1] == "auto_feed":
-				auto_feed = 0
+				auto_feed = False
 				print_line(
 					"Warning. You have disabled the auto_feed feature. Be careful, your people may starve!")
 			else:
@@ -1293,7 +1293,7 @@ def choice():
 
 		elif a.split()[0] == "enable":
 			if a.split()[1] == "auto_feed":
-				auto_feed = 1
+				auto_feed = True
 				print_line("Auto-feed system is working optimally.")
 			else:
 				print_line("Invalid Input. You can enable the (auto_feed) system.")
@@ -1301,7 +1301,7 @@ def choice():
 		elif a.split()[0] == "scavenge":
 			if a.split()[1] not in people:
 				print_line("This person doesn't exist.")
-			elif people(a.split()[1]).scavenging == 1:
+			elif people(a.split()[1]).scavenging == True:
 				print_line("This person is already out scavenging.")
 			else:
 				cho = input(
@@ -1328,13 +1328,13 @@ def choice():
 						people(a.split()[1]).heal(heal_amount)
 		elif a.split()[0] == "skip":
 			global skip
-			skip = 1
+			skip = True
 		elif a.split()[0] == "end":
 			global player_quit
 			confirm = input("Are you sure? All unsaved data will be lost! ")
 			confirm = confirm[0].lower()
 			if confirm == "y":
-				player_quit = 1
+				player_quit = True
 		elif a.split()[0] == "help":
 			print_line_help()
 		else:
@@ -1369,10 +1369,10 @@ def game():
 	load_time(300, "Initializing game.")
 
 	day_count = 1
-	skip = 0  # Keeps track of when player is skipping a day.
-	end = 0  # Can lose position or die.
+	skip = False  # Keeps track of when player is skipping a day.
+	end = False  # Can lose position or die.
 	position = "secure"  # Changed to "lost" when happiness drops below 5.
-	player_quit = 0  # Allows player to quit the game.
+	player_quit = False  # Allows player to quit the game.
 	
 	people = []  # All the people alive in the shelter. Objects!
 	used_names = []# Names that have been used in the game. Ensures no two people have the same name.
@@ -1432,8 +1432,8 @@ def game():
 	# Initializes trader inventory with 20 random items.
 	find_rand_item("trader", 20)
 	defense = 0
-	overuse = 0 # Keeps track of whether or not player has used too many action points.
-	auto_feed = 1# Can be set to 0 by player to conserve food.  Recomended to only do so during food emergencies.
+	overuse = False # Keeps track of whether or not player has used too many action points.
+	auto_feed = True# Can be set to 0 by player to conserve food.  Recomended to only do so during food emergencies.
 	
 	print_line("Welcome to the text-based fallout shelter game!")
 	print_line("Welcome, great Overseer!")
@@ -1447,14 +1447,14 @@ def game():
 
 	# Loops the day while player is alive,still the overseer and doesn't
 	# decide to quit.
-	while end == 0 and position == "secure" and player_quit == 0:
+	while end == False and position == "secure" and player_quit == False:
 		action_points = 50 # Resets the Action Points available every day
-		if overuse == 1: # If player goes over their daily Action Points limit.
+		if overuse == True: # If player goes over their daily Action Points limit.
 			action_points = 50 - overuse_amount
 		load_time(300, "A new day dawns.")
 		print_line("Today is day " + str(day_count))
 
-		if auto_feed == 1:
+		if auto_feed == True:
 			auto_feed_all()
 
 		# Trader inventory updates with new items and loses some items.
@@ -1478,7 +1478,7 @@ def game():
 			" power")
 
 		for r in rooms:  # Performs daily room checks.
-			if r.name != 'generator' and r.can_produce == 1:
+			if r.name != 'generator' and r.can_produce == True:
 				if r.can_use_power():
 					r.use_power()
 					r.update_production()
@@ -1495,8 +1495,8 @@ def game():
 						r.name,
 						"supplied.")
 				# De-rushes every room that was rushed.
-				if r.can_rush == 1 and r.rushed == 1:
-					r.rushed = 0
+				if r.can_rush == True and r.rushed == True:
+					r.rushed = False
 
 		for person in people:  # Performs daily checks for all people.
 			# Hunger Games.
@@ -1527,11 +1527,11 @@ def game():
 			check_xp(person.name, person.surname)
 			if person.name != player.name:  # Routines specific to NPCs.
 				# Scavenging games
-				if person.scavenging == 1:
+				if person.scavenging == True:
 					if person.days_to_scavenge_for == person.days_scavenging:
 						# Now that they've finished scavenging, set everything
 						# to 0
-						person.Scavenging = 0
+						person.Scavenging = False
 						person.days_to_scavenge_for = 0
 						person.days_scavenging = 0
 					else:
@@ -1542,14 +1542,14 @@ def game():
 						person.take_damage(health_loss)
 						person.gain_xp(randint(10, 200))
 					if person.health < 20:
-						person.scavenging = 0
+						person.scavenging = False
 						person.days_to_scavenge_for = 0
 						person.days_scavenging = 0
 				# Experience games
 				if person.assigned_room != "":
 					# Can refer to room which character had been assigned to.
 					r = rooms[get_room_index(person.assigned_room)]
-					if r.can_produce == 1:
+					if r.can_produce == True:
 						person.gain_xp(r.production // 10)
 
 		# A raid should happen once every 5 days.
@@ -1562,11 +1562,11 @@ def game():
 		if raid_chance > 4:
 			raid()
 
-		while action_points > 0 and overuse == 0 and player_quit == 0:  # Loops player actions.
+		while action_points > 0 and overuse == False and player_quit == False:  # Loops player actions.
 			choice()
-			if skip == 1:
+			if skip == True:
 				break
-		skip = 0
+		skip = False
 
 		print_line(
 			"Due to your shelter's happiness level you have gained ",
@@ -1582,7 +1582,7 @@ def game():
 		day_count += 1
 
 	else:  # Once game ends.
-		if end == 1:
+		if end == True:
 			print_line("Too bad. You died.")
 		elif position == "lost":
 			print_line(

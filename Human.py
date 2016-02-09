@@ -18,7 +18,7 @@ class Human(object):  # Basic class for all the Humans present in the game.
 		self.luck = 1
 
 		self.assigned_room = ""  # Keeps track of where person is working.
-		self.can_mate = 0  # Keeps track of mating ablility
+		self.can_mate = False  # Keeps track of mating ablility
 		self.children = []  # List of all children
 		self.partner = "" # Keeps track of partner of person. Only partners can have coitus.
 		self.level = 1 #Determines production 
@@ -180,14 +180,14 @@ class Human(object):  # Basic class for all the Humans present in the game.
 	# player inputs coitus, once for each proposed parent.
 	
 	def can_mate_check(self):
-		self.can_mate = 1
+		self.can_mate = True
 		if self.age < 18:
-			self.can_mate = 0
+			self.can_mate = False
 		if len(self.children) > 5:  # Upper limit of children is 5
-			self.can_mate = 0
+			self.can_mate = False
 		# Have to wait for a year before parent can have child again.
 		for child in self.children:
 			if people(child).age < 1:
-				self.can_mate = 0
+				self.can_mate = False
 
 	

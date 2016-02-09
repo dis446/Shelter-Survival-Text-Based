@@ -6,8 +6,8 @@ class Room(object):  # Basic class for the rooms in the game.
 	 
 		# Determines the production level, max assigned limit etc.
 		self.level = 1
-		self.risk = 0  # Risk of breaking down, when rushed.
-		self.broken = 0
+		self.risk = False  # Risk of breaking down, when rushed.
+		self.broken = False
 		# 'On' if there is enough power for the room, 'Off' otherwise.
 		self.power_available = "On"
 		# Living rooms have no "assigned". Number of living rooms just limits
@@ -15,42 +15,42 @@ class Room(object):  # Basic class for the rooms in the game.
 		if self.name == "living":
 			# Stores whether or not room actually produces anything.
 			# self.components=["wood",] #Need to add components.
-			self.can_produce = 0
+			self.can_produce = False
 			self.assigned_limit = 0  # No-one can be assigned to the living room
 			self.components = ["wood", "wood", "wood",
 							   "wood"]  # Required to build this room
 			self.power_usage = 5
 		elif self.name == "generator":
 			self.risk = 2
-			self.can_produce = 1
+			self.can_produce = True
 			self.components = ["steel", "steel", "steel", "steel"]
 			# Max number of workers that can work in the room at one time.
 			self.assigned_limit = 3
 			self.power_usage = 0
 		elif self.name == "storage":
-			self.can_produce = 0
+			self.can_produce = False
 			self.assigned_limit = 0
 			self.components = ["steel", "steel"]
 			self.power_usage = 1
 		elif self.name == "kitchen":
 			self.risk = 1
-			self.can_produce = 1
+			self.can_produce = True
 			self.assigned_limit = 3
 			self.components = ["wood", "wood", "wood"]
 			self.power_usage = 10
 		elif self.name == "trader":
-			self.can_produce = 0
+			self.can_produce = False
 			self.assigned_limit = 1
 			self.components = ["wood", "wood", "steel", "steel", "wood"]
 			self.power_usage = 2
 		elif self.name == "water works":
 			self.risk = 2
-			self.can_produce = 1
+			self.can_produce = True
 			self.assigned_limit = 3
 			self.components = ["wood", "wood", "steel"]
 			self.power_usage = 10
 		elif self.name == "radio":
-			self.can_produce = 0
+			self.can_produce = False
 			self.assigned_limit = 2
 			self.components = ["wood", "wood", "steel", "steel", "wood"]
 			self.power_usage = 15
@@ -58,12 +58,12 @@ class Room(object):  # Basic class for the rooms in the game.
 		else:
 			print(
 				"Bug with room creation system. Please contact dev. Class specific bug.")
-		if self.can_produce == 1:
+		if self.can_produce == True:
 			self.production = 0
-			self.can_rush = 1
-			self.rushed = 0
+			self.can_rush = True
+			self.rushed = False
 		else:
-			self.can_rush = 0
+			self.can_rush = False
 
 	def rush(self):
 		global rooms
@@ -77,7 +77,7 @@ class Room(object):  # Basic class for the rooms in the game.
 	# Calculates production level based on number, and skills, of assigned
 	# people.
 	def update_production(self,player): # Calculates and returns prodcution value.
-		if self.broken == 1:
+		if self.broken == True:
 			production = 0
 			print(self.name, "is broken and needs to be fixed.")
 		else:
@@ -121,7 +121,7 @@ class Room(object):  # Basic class for the rooms in the game.
 			if player.inspiration > 0:
 				production = production * \
 					(1 + (player.inspiration * 0.03))
-			if self.can_rush == 1 and self.rushed == 1:
+			if self.can_rush == True and self.rushed == True:
 				production = production * 2
 			return production
 

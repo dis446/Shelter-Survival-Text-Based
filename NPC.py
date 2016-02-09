@@ -1,7 +1,7 @@
 class NPC(Human):
 	def __init__(self, first_name, day_of_birth, parent_1, parent_2, age, gender):
 		Human.___init__(self, first_name, day_of_birth, parent_1, parent_2, age, gender)
-		self.scavenging = 0
+		self.scavenging = False
 		self.days_scavenging = 0
 		self.days_to_scavenge_for = 0
 	def die(self):
