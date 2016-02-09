@@ -4,72 +4,16 @@ class Item(object):
 		# Just needs to get the name, all other attributes are automatically
 		# assigned by the following lines.
 		self.name = name
-		if self.name == "wood":
-			self.value = 10
-			self.weight = 5
-			# This is a basic item and cannot be scrapped.
-			self.components = []
-			self.rarity = 1  # Determines chance of it showing up during scavenging or in the trader's inventory
-		elif self.name == "steel":
-			self.value = 50
-			self.weight = 20
-			self.components = []
-			self.rarity = 4
-		elif self.name == "turret":
-			self.value = 200
-			self.weight = 20
-			self.components = [
-				"steel",
-				"steel",
-				"steel",
-				"chip",
-				"steel",
-				"steel"]
-			self.rarity = 8
-		elif self.name == "food":
-			self.value = 20
-			self.weight = 1
-			self.components = []
-			self.rarity = 2
-		elif self.name == "water":
-			self.value = 30
-			self.weight = 2
-			self.components = []
-			self.rarity = 3
-		elif self.name == "chip":
-			self.value = 100
-			self.weight = 1
-			self.components = ["wire", "wire", "wire", "silicon"]
-			self.rarity = 8
-		elif self.name == "wire":
-			self.value = 40
-			self.weight = 3
-			self.components = ['copper', 'copper', 'copper']
-			self.rarity = 4
-		elif self.name == "silicon":
-			self.value = 50
-			self.weight = 1
-			self.components = []
-			self.rarity = 6
-		elif self.name == "copper":
-			self.value = 20
-			self.weight = 1
-			self.components = []
-			self.rarity = 3
-		elif self.name == "gun":
-			self.value = 100
-			self.weight = 5
-			self.components = ["steel", "copper"]
-			self.rarity = 6
-		elif self.name == "watt":
-			self.value = 40
-			self.weight = 0
-			self.components = []
-			self.rarity = 4
-
-		else:
-			print(
-				"Item doesn't exist. Bug with item creation system. Please contact dev.")
+		with open('items.json') as f:
+		    parsed = json.loads(f.read())
+		    try:
+		        item = parsed[self.name]
+		        self.value = item['value']
+		        self.weight = item['weight']
+		        self.components = item['components']
+		        self.rarity = item['rarity']
+		    except KeyError:
+		        print("Unknown item. This is a bug. Please contact the dev.")
 		# Keeps track of whether item has been scrapped by player.
 		self.scrapped = 0
 
