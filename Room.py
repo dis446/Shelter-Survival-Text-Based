@@ -1,6 +1,7 @@
 """Module containing Room class."""
 
 from general_funcs import print_line
+from Item import Item
 
 
 class Room(object):  # Basic class for the rooms in the game.
@@ -174,8 +175,6 @@ class Room(object):  # Basic class for the rooms in the game.
         int -- amount of component required to build Room
         """
         return self.components.count(str(component))
-
-
 
     def use_power(self):
         """Consume player's power."""

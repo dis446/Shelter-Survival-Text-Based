@@ -1,7 +1,7 @@
 """Text-based Fallout Shelter game developed by T.G."""
 from random import randint
 
-from Human import Human, Player, NPC
+from Human import Player, NPC
 from Room import Room
 from Item import Item
 
@@ -270,18 +270,18 @@ def check_person(first_name, surname):
         return False
 
 
-    def gain_xp(first_name,last_name, amount):
-        """Add experience to Human.
+def gain_xp(first_name, last_name, amount):
+    """Add experience to Human.
 
-        Arguments:
-        amount -- amount of experience to add
-        """
-        global people
-        person=people[
-            get_person_index(
-                first_name,
-                last_name)]
-        person.XP += amount
+    Arguments:
+    amount -- amount of experience to add
+    """
+    global people
+    person = people[
+        get_person_index(
+            first_name,
+            last_name)]
+    person.XP += amount
 
 
 def check_xp(first_name, surname):
@@ -292,10 +292,10 @@ def check_xp(first_name, surname):
     surname -- surname of inhabitant to check
     """
     global people
-    person=people[
+    person = people[
             get_person_index(
                 first_name,
-                last_name )]
+                last_name)]
     # Xp needed to level up increases exponentially
     xp_needed = 1000 + (3**person.level)
     if person.XP + 1 > xp_needed:
@@ -348,8 +348,6 @@ def birth(
                         parent_2.surname,
                         age,
                         get_gender()))
-                # Following lines let parent's know about their children and their
-                # partners.
                 parent_1.children.append(str(name + " " + parent_1_surname))
                 parent_2.children.append(str(name + " " + parent_1_surname))
                 parent_1.partner = parent_2.name + " " + parent_2.surname
@@ -362,7 +360,7 @@ def birth(
                 use_points(25)
                 used_names.append(name)
                 load_time(5, (name, " is being born!"))
-                break 
+                break
             else:
                 print_line("Someone already has that name.")
                 birth(
@@ -377,7 +375,7 @@ def birth(
                 parent_1_surname,
                 parent_2_first_name,
                 parent_2_surname)
-            
+
 
 def death(first_name, surname):
     """Kill inhabitant.
@@ -402,13 +400,13 @@ def death(first_name, surname):
         people.remove(self)
 
 
-def mature(first_name,last_name):
+def mature(first_name, last_name):
     """Increment Human's age."""
     global people
-    person=people[
+    person = people[
             get_person_index(
                 first_name,
-                last_name )]
+                last_name)]
     person.age += 1
     print_line(
         person.name + " has matured and is now ",
@@ -422,10 +420,10 @@ def take_damage(self, amount):
     amount -- amount of health to take
     """
     global people
-    person=people[
+    person = people[
         get_person_index(
             first_name,
-            last_name )]
+            last_name)]
     person.defense = person.strength * 10
     damage_taken = amount - person.defense
     if damage_taken < 1:
@@ -434,6 +432,7 @@ def take_damage(self, amount):
         person.HP -= damage_taken
         if person.HP < 1:
             person.die()
+
 
 def first_few():
     """Create first few inhabitants with random names."""
@@ -468,7 +467,7 @@ def first_few():
             continue
         # First few inhabitants all have the same mother.
         people.append(
-            NPC (
+            NPC(
                 names[num_1],
                 day_count,
                 names[num_2],
@@ -674,8 +673,8 @@ def can_use_power(room):
         return True
     else:
         return False
-        
-        
+
+
 def power_usage():
     """Check total power needed.
 
