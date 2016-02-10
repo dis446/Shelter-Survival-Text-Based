@@ -911,22 +911,40 @@ def update_defense():
 
 # Happiness System:
 
-def avg_hunger():  # Calculates average hunger level.
+def avg_hunger():
+    """Calculate average hunger level of all inhabitants.
+
+    Returns:
+    avg -- average hunger level
+    """
     total = 0
     for x in people:
         total += x.hunger
     avg = total // len(people)
     return avg
 
-def avg_thirst():  # Calculates average thirst level
+
+def avg_thirst():
+    """Calculate average thirst level of all inhabitants.
+
+    Returns:
+    avg -- average thirst level
+    """
     total = 0
     for x in people:
         total += x.thirst
     avg = total // len(people)
     return avg
 
-def feed(first_name, surname, amount):  # Reduces the hunger level of a person.
-    # This needs to reduce the thirst level aswell.
+
+def feed(first_name, surname, amount):
+    """Reduce hunger level of inhabitant.
+
+    Arguments:
+    first_name -- first name of inhabitant to feed
+    surname -- surname of inhabitant to feed
+    amount -- how much to feed inhabitant
+    """
     global people
     global inventory
     person = people[get_person_index(first_name, surname)]
@@ -935,7 +953,15 @@ def feed(first_name, surname, amount):  # Reduces the hunger level of a person.
         person.hunger = 0
     Item('food').destroy('player')
 
+
 def drink(first_name, surname, amount):
+    """Reduce thirst level of inhabitant.
+
+    Arguments:
+    first_name -- first name of inhabitant to feed
+    surname -- surname of inhabitant to feed
+    amount -- how much to feed inhabitant
+    """
     global inventory
     global people
     person = people[get_person_index(first_name, surname)]
@@ -944,7 +970,9 @@ def drink(first_name, surname, amount):
         person.thirst = 0
     Item('water').destroy('player')
 
+
 def auto_feed_all():
+    """Automatically feed all inhabitants."""
     global people
     food_count = count_item("food", "player")
     water_count = count_item("water", "player")
@@ -958,8 +986,9 @@ def auto_feed_all():
             drink(person.name, person.surname, 1)
             water_count -= 1
 
-# Depending on hunger or thirst level, reduces general happiness level.
+
 def happiness_loss():
+    """Decrease overall happiness level based on overall hunger and thirst."""
     global happiness
     loss = 0
     for y in range(30, 101, 10):
@@ -973,20 +1002,27 @@ def happiness_loss():
     if loss > 0:
         happiness -= loss
         print_line(
-            "Due to your inhabitants being hungry and/or thirsty the shelter's overall happiness has dropped to ",
+            "Due to your inhabitants being hungry and/or thirsty the " +
+            "shelter's overall happiness has dropped to ",
             happiness)
-
-
 
 
 # Action Point usage system:
 
 def use_points(point):
+    """Remove action points from total.
+
+    Arguments:
+    point -- how many points to remove
+    """
     global action_points
     global overuse
     global overuse_amount
     if point > 50:
-        print_line("Bug with point usage system. It's trying to use more than 50, please note this and contact dev.")
+        print_line(
+            "Bug with point usage system. ",
+            "It's trying to use more than 50, " +
+            "please note this and contact dev.")
     else:
         usage = action_points - point
         overuse = False
@@ -997,19 +1033,18 @@ def use_points(point):
             action_points = action_points - usage
 
 
-
-
 # Trading system:
 
-def trade():  # Trading system. Uses no Action Points
+def trade():
+    """Trading system."""
     load_time(100, "Initializing trading system.")
     global inventory
     global trader_inventory
     global caps
     global trader_caps
-    barter = player.barter
+    # barter = player.barter
     stop_trade = False
-    while not stop_trade:  # "continue" lets trading go on , "break" stops trading
+    while not stop_trade:
         print_line("")
         print_line("Here are the traders' items: ")
         see_inventory("trader")
@@ -1019,7 +1054,9 @@ def trade():  # Trading system. Uses no Action Points
         see_inventory("player")
         print_line("\nYou have ", caps, " caps.")
 
-        print_line("\nFor instance, input (buy 5 food) if you want to buy 5 units of food. Or input (end) to stop trading.")
+        print_line(
+            "\nFor instance, input (buy 5 food) if you want to buy 5 " +
+            "units of food. Or input (end) to stop trading.")
         a = input("What trade would you like to make? ")
         if len(a) < 1:
             print_line("You have to input something")
@@ -1071,7 +1108,8 @@ def trade():  # Trading system. Uses no Action Points
                             if int(a.split()[1]) > count:
                                 if not count:
                                     print_line(
-                                        "The trader doesn't have any ", a.split()[2])
+                                        "The trader doesn't have any " +
+                                        a.split()[2])
                                 else:
                                     print_line(
                                         "The trader doesn't have ",
@@ -1094,11 +1132,13 @@ def trade():  # Trading system. Uses no Action Points
                             count = count_item(a.split()[2], "player")
                             if int(a.split()[1]) > count:
                                 if not count:
-                                    print_line("You don't have any ", a.split()[2])
+                                    print_line(
+                                        "You don't have any " +
+                                        a.split()[2])
                                 else:
                                     print_line(
-                                        "You don't have ", int(
-                                            a.split()[1]), " of ", a.split()[2])
+                                        "You don't have " + int(a.split()[1]) +
+                                        " of ", a.split()[2])
                             else:
                                 for x in range(int(a.split()[1])):
                                     inventory.remove(str(a.split()[2]))
@@ -1106,7 +1146,9 @@ def trade():  # Trading system. Uses no Action Points
                                 trader_caps -= total_cost
                                 caps += total_cost
                     else:
-                        print_line("Invalid Input. (buy) and (sell) are accepted")
+                        print_line(
+                            "Invalid Input.",
+                            "Only 'buy' and 'sell' are accepted")
                 else:
                     print_line("Only numbers are accepted")
             else:
@@ -1114,11 +1156,8 @@ def trade():  # Trading system. Uses no Action Points
     load_time(100, "Ending trade")
 
 
-
-
-# Choice system:
-
 def choice():
+    """Choice/Command input system."""
     global auto_feed
     global people
     global rooms
@@ -1136,22 +1175,24 @@ def choice():
                     potential_room = x
                 else:
                     potential_room = potential_room + " " + x
-            #print_line("The potential room is",potential_room)
+            # print_line("The potential room is",potential_room)
             if len(a.split()) < 2:
-                print_line("You have to input 2 or more words to build a room.")
+                print_line(
+                    "You have to input 2 or more " +
+                    "words to build a room.")
             elif not check_room(potential_room):
                 print_line("Checking for room:", potential_room)
                 print_line("This room doesn't exist.")
             elif check_built_room(potential_room):
                 print_line("You've already built this room.")
             else:
-                room = Room(potential_room,player)
-                checked = []  # Stores components already checked. Useful. If there's 5 pieces of wood in the components list, the loop is only run once, instead of 5 times
+                room = Room(potential_room, player)
+                checked = []
                 can_craft = True
                 for component in room.components:
-                    if component not in checked:  # Only runs check if item hasn't been encountered before
-                        if room.count_component(component) > count_item(
-                                component, "player"):  # If player doesn't have enough
+                    if component not in checked:
+                        if room.count_component(component) > \
+                                count_item(component, "player"):
                             print_line(
                                 "You don't have enough",
                                 component,
@@ -1163,8 +1204,8 @@ def choice():
                         checked.append(component)
                 if can_craft:
                     print_line("You have built a", a.split()[1])
-                    player=player
-                    build(potential_room,player)
+                    player = player
+                    build(potential_room, player)
 
         elif a.split()[0] == "craft":
             # Checks to see if crafting possible.
@@ -1176,7 +1217,9 @@ def choice():
                 # fetched.
                 actual_item = Item(a.split()[1])
                 if len(actual_item.components) == 0:
-                    print_line("This is a basic item and so cannot be crafted.")
+                    print_line(
+                        "This is a basic item and " +
+                        "so cannot be crafted.")
                 else:
                     checked = []
                     for component in actual_item.components:
@@ -1215,14 +1258,20 @@ def choice():
                                 scrap(a.split()[2])
                         else:
                             print_line(
-                                "You don't have enough of these items to scrap that many times.")
+                                "You don't have enough of these items " +
+                                "to scrap that many times.")
                     else:
                         print_line("This item doesn't exist.")
                 else:
                     print_line(
-                        "Invalid input. You can scrap an item up to 99 times (If you have that many).")
+                        "Invalid input.",
+                        "You can scrap an item up to 99 times " +
+                        "(If you have that many).")
             else:
-                print_line("Invalid Input. Either enter (scrap wood) or (scrap 5 wood)")
+                print_line(
+                    "Invalid Input.",
+                    "Either enter (scrap wood) " +
+                    "or (scrap 5 wood)")
 
         elif a.split()[0] == "rush":  # Speeds up room tempoarily.
             potential_room = ''
@@ -1272,7 +1321,9 @@ def choice():
             elif not check_built_room(potential_room):
                 print_line("You haven't built this room yet.")
             elif not rooms[get_room_index(potential_room)].broken:
-                print_line("This room isn't even broken. There's no need to fix it!")
+                print_line(
+                    "This room isn't even broken. " +
+                    "There's no need to fix it!")
             else:
                 room = rooms[get_room_index(potential_room)]
                 can_fix = True
@@ -1287,8 +1338,9 @@ def choice():
                         available = count_item(it, 'player')
                         needed = room.count_component(it)
                         if needed > available:
-                            print_line("You need", needed - available,
-                                  "more", it, "to fix this room.")
+                            print_line(
+                                "You need", needed - available,
+                                "more", it, "to fix this room.")
                             can_fix = False
                         checked_items.append(it)
                 if can_fix:
@@ -1312,35 +1364,49 @@ def choice():
                 see_resources()
             else:
                 print_line(
-                    "Incorrect input. You can (see people),(see inventory), (see rooms) or (see resources)")
+                    "Incorrect input.",
+                    "You can (see people), (see inventory), " +
+                    "(see rooms) or (see resources)")
 
-        elif a.split()[0] == "coitus":  # Allows player to create new inhabitants
+        elif a.split()[0] == "coitus":
             if len(a.split()) != 5:
                 print_line(
-                    "You need to input 2 mature people of opposite genders in the form (coitus Alex Marshall Mallus Cumberland)")
+                    "You need to input 2 mature people of opposite genders " +
+                    "in the form (coitus Alex Marshall Mallus Cumberland)")
             elif not check_person(a.split()[1], a.split()[2]):
                 print_line("No such", a.split()[1], a.split()[2], " exists!")
             elif not check_person(a.split()[3], a.split()[4]):
                 print_line("No such", a.split()[2], a.split()[4], " exists!")
             elif len(people) == living_capacity():
                 print_line(
-                    "You've reached the vault's maximum capacity. Upgrade your living room to hold more people")
+                    "You've reached the vault's maximum capacity.",
+                    "Upgrade your living room to hold more people")
             else:
-                #print_line("Person_1 index",get_person_index(a.split()[1],a.split()[2]))
-                #print_line("Person_2 index",get_person_index(a.split()[3],a.split()[4]))
+                # print_line("Person_1 index" +
+                    # get_person_index(a.split()[1],a.split()[2]))
+                # print_line("Person_2 index" +
+                    # get_person_index(a.split()[3],a.split()[4]))
                 person_1 = people[get_person_index(a.split()[1], a.split()[2])]
                 person_2 = people[get_person_index(a.split()[3], a.split()[4])]
-                if (person_1.partner == "" and person_2.partner ==
-                        "") or person_1.partner == person_2.name + " " + person_2.surname:
+                if (person_1.partner == "" and person_2.partner == "") or \
+                        person_1.partner == person_2.name + " " + \
+                        person_2.surname:
                     if person_1.age < 18:
-                        print_line(a.split()[1], " isn't old enough to copulate.")
+                        print_line(
+                            a.split()[1] +
+                            " isn't old enough to copulate.")
                     elif person_2.age < 18:
-                        print_line(a.split()[2], " isn't old enough to copulate.")
+                        print_line(
+                            a.split()[2] +
+                            " isn't old enough to copulate.")
                     elif person_1.surname == person_2.surname:
-                        print_line("Sorry. Incest isn't allowed. At least be ethical!")
+                        print_line(
+                            "Sorry. Incest isn't allowed. " +
+                            "At least be ethical!")
                     elif person_1.gender == person_2.gender:
                         print_line(
-                            "The people need to be different genders! COME ON MAN CAN U EVEN BIOLOGY!?")
+                            "The people need to be different genders! " +
+                            "COME ON MAN CAN U EVEN BIOLOGY!?")
                     else:
                         # Pass these love birds to the birthing system
                         birth(
@@ -1378,11 +1444,11 @@ def choice():
         elif a.split()[0] == "feed":
             if len(choice) > 0:
                 # Counts how much food is available for feeding
-                food_count = count_item("food")
+                # food_count = count_item("food")
                 if avg_hunger() < 2:
                     print_line("Your people are working on full bellies boss!")
-                elif len(a.split()) == 2:  # If player wants to feed only one person
-                    if a.split()[1] not in people:  # Checks if chosen Human exists
+                elif len(a.split()) == 2:
+                    if a.split()[1] not in people:
                         print_line("This person doesn't exist.")
                     else:
                         # Fetches hunger level of selected Human
@@ -1397,7 +1463,8 @@ def choice():
                             feed(a.split()[1], amount)
                 else:
                     print_line(
-                        "Invalid input! Can only feed one person like this. Use the auto_feed system to feed everyone.")
+                        "Invalid input! Can only feed one person like this. ",
+                        "Use the auto_feed system to feed everyone.")
             else:
                 print_line("Invalid input. Who do you want to feed?")
         elif a.split()[0] == "trade":
@@ -1405,7 +1472,8 @@ def choice():
                 print_line("You haven't built a trader room yet!")
             elif '1' not in str(rooms[get_room_index('trader')].assigned):
                 print_line(
-                    "No one has been assigned to this room! You can't trade untill then.")
+                    "No one has been assigned to this room!",
+                    "You can't trade until then.")
             else:
                 trade()
 
@@ -1419,7 +1487,8 @@ def choice():
 
             if len(a.split()) < 5:
                 print_line(
-                    "You have to input 4 or more words. E.g. assign Thomas Marc to living")
+                    "You have to input 4 or more words.",
+                    "E.g. assign Thomas Marc to living")
             # Capitalizes first character of first and last name so player
             # doesn't have to.
             elif not check_person(a.split()[1], a.split()[2]):
@@ -1428,10 +1497,12 @@ def choice():
                 print_line("This room doesn't exist.")
             elif not check_built_room(potential_room):
                 print_line("You haven't built this room yet")
-            elif rooms[get_room_index(potential_room)].assigned_limit == rooms[get_room_index(potential_room)].count_assigned():
+            elif rooms[get_room_index(potential_room)].assigned_limit == \
+                    rooms[get_room_index(potential_room)].count_assigned():
                 print_line("This room is full.")
                 print_line(
-                    "You can assign someone in the room to another room to create space.")
+                    "You can assign someone in the room to " +
+                    "another room to create space.")
             else:
                 person_index = get_person_index(
                     a.split()[1][0].upper() +
@@ -1457,12 +1528,10 @@ def choice():
                 # Tempoarily fetches room so it's attributes can be used
                 r = rooms[get_room_index(a.split()[1])]
                 items_needed = r.components
-                for x in range(
-                        r.level -
-                        1):  # The higher the level, the more components needed to upgrade
+                for x in range(r.level - 1):
                     for component in items_needed:
                         items_needed.append(component)
-                can_up = True #1 if can upgrade. 0 if can't
+                can_up = True
                 for ite in all_items:
                     needed = 0
                     for comp in items_needed:
@@ -1491,16 +1560,21 @@ def choice():
             if a.split()[1] == "auto_feed":
                 auto_feed = False
                 print_line(
-                    "Warning. You have disabled the auto_feed feature. Be careful, your people may starve!")
+                    "Warning. You have disabled the auto_feed feature. " +
+                    "Be careful, your people may starve!")
             else:
-                print_line("Invalid input. You can disable the (auto_feed) system.")
+                print_line(
+                    "Invalid input.",
+                    "You can disable the 'auto_feed' system.")
 
         elif a.split()[0] == "enable":
             if a.split()[1] == "auto_feed":
                 auto_feed = True
                 print_line("Auto-feed system is working optimally.")
             else:
-                print_line("Invalid Input. You can enable the (auto_feed) system.")
+                print_line(
+                    "Invalid Input.",
+                    "You can enable the 'auto_feed' system.")
 
         elif a.split()[0] == "scavenge":
             if a.split()[1] not in people:
@@ -1509,7 +1583,8 @@ def choice():
                 print_line("This person is already out scavenging.")
             else:
                 cho = input(
-                    "Would you like to scavenge for a certain number of days or until their health gets low?(D/H) ")
+                    "Would you like to scavenge for a certain number of " +
+                    "days or until their health gets low?(D/H) ")
                 cho = cho[0].lower()
                 if cho == "d":
                     scavenge(a.split()[1], "days")
@@ -1517,7 +1592,8 @@ def choice():
                     scavenge(a.split()[1])
                 else:
                     print_line(
-                        "Let's just assume you wanted them to go out until their health gets low.")
+                        "Let's just assume you wanted them to go out " +
+                        "until their health gets low.")
                     scavenge(a.split()[1])
 
         elif a.split()[0] == "heal":
@@ -1547,9 +1623,8 @@ def choice():
         print_line("You have to choose something!")
 
 
-
-# Game system.
 def game():
+    """Game system."""
     global action_points
     global end
     global position
@@ -1580,21 +1655,24 @@ def game():
     player_quit = False  # Allows player to quit the game.
 
     people = []  # All the people alive in the shelter. Objects!
-    used_names = []# Names that have been used in the game. Ensures no two people have the same name.
-    inventory = ['turret'] # All items that belong to the player. Just string names
+    used_names = []  # Names that have been used in the game.
+    # Ensures no two people have the same name.
+    inventory = ['turret']  # All items that belong to the player.
+    # Just string names.
 
     player = create_player()
     load_time(100, "Creating player.")
     first_few()  # Creates the first five inhabitants.
     load_time(200, "Populating Vault with 5 random inhabitants")
 
-    rooms =[Room('generator',player),
-            Room('living',player),
-            Room('kitchen',player),
-            Room('water works',player),
-            Room('trader',player)]  # List of built rooms. Objects!
+    rooms = [
+            Room('generator', player),
+            Room('living', player),
+            Room('kitchen', player),
+            Room('water works', player),
+            Room('trader', player)]  # List of built rooms. Objects!
 
-    all_items = [ # Stores every possible item in the inventory. Strings.
+    all_items = [  # Stores every possible item in the inventory. Strings.
         "wood",
         "steel",
         "turret",
@@ -1606,7 +1684,7 @@ def game():
         "watt",
         "copper",
         "gun"]
-    all_rooms = [ # Stores every possible room in the game. Strings.
+    all_rooms = [  # Stores every possible room in the game. Strings.
         "living",
         "bath",
         "generator",
@@ -1614,35 +1692,37 @@ def game():
         "trader",
         "storage",
         "water works"]
-    all_attributes = [ #Not sure if this is needed anymore
-         "strength",
-        "perception",
-        "endurance",
-        "charisma",
-        "intelligence",
-        "luck",
-        "medic",
-        "science",
-        "tactitian",
-        "cook",
-        "inspiration",
-        "scrapper",
-        "barter",
-        "electrician"]
+    # all_attributes = [  # Not sure if this is needed anymore
+    #      "strength",
+    #      "perception",
+    #      "endurance",
+    #      "charisma",
+    #      "intelligence",
+    #      "luck",
+    #      "medic",
+    #      "science",
+    #      "tactitian",
+    #      "cook",
+    #      "inspiration",
+    #      "scrapper",
+    #      "barter",
+    #      "electrician"]
 
     caps = 100  # Basic currency
-    trader_caps = 400 # Trader's money.
-    happiness = 100 #General happiness of the vault.
+    trader_caps = 400  # Trader's money.
+    happiness = 100  # General happiness of the vault.
     trader_inventory = []
     # Initializes trader inventory with 20 random items.
     find_rand_item("trader", 20)
     defense = 0
-    overuse = False # Keeps track of whether or not player has used too many action points.
-    auto_feed = True# Can be set to 0 by player to conserve food.  Recomended to only do so during food emergencies.
+    overuse = False  # True if player has used too many action points.
+    auto_feed = True
 
     print_line("Welcome to the text-based fallout shelter game!")
     print_line("Welcome, great Overseer!")
-    print_line("It is your great duty to increase the population of your vault and keep your inhabitants happy.")
+    print_line(
+        "It is your great duty to increase the population of your vault " +
+        "and keep your inhabitants happy.")
 
     print_line("\n You have been given 100 caps to start your journey.")
     action_points = 50
@@ -1653,8 +1733,8 @@ def game():
     # Loops the day while player is alive,still the overseer and doesn't
     # decide to quit.
     while not end and position == "secure" and not player_quit:
-        action_points = 50 # Resets the Action Points available every day
-        if overuse: # If player goes over their daily Action Points limit.
+        action_points = 50  # Resets the Action Points available every day
+        if overuse:  # If player goes over their daily Action Points limit.
             action_points = 50 - overuse_amount
         load_time(300, "A new day dawns.")
         print_line("Today is day " + str(day_count))
@@ -1676,7 +1756,7 @@ def game():
             rooms[
                 get_room_index('generator')].production,
             "player")
-        print_line_line(
+        print_line(
             "Producing",
             rooms[
                 get_room_index('generator')].production,
@@ -1723,8 +1803,9 @@ def game():
                 print_line(person.name, person.surname, " has died of thirst")
                 person.die()
             elif person.hunger > 80:
-                print_line("Warning!", person.name, person.surname,
-                      " is extremely thirsty and may die soon.")
+                print_line(
+                    "Warning!", person.name, person.surname,
+                    " is extremely thirsty and may die soon.")
             elif person.hunger > 50:
                 print_line(person.name, person.surname, " is thirsty.")
             # Level Up games
@@ -1767,7 +1848,7 @@ def game():
         if raid_chance > 4:
             raid()
 
-        while action_points > 0 and  not overuse and not player_quit:  # Loops player actions.
+        while action_points > 0 and not overuse and not player_quit:
             choice()
             if skip:
                 break
@@ -1781,7 +1862,10 @@ def game():
         if happiness < 5:
             position = "lost"
         elif happiness < 25:
-            print_line("Warning. Your people are unhappy. You could lose your position if you don't improve the situation soon.")
+            print_line(
+                "Warning. Your people are unhappy.",
+                "You could lose your position if you don't " +
+                "improve the situation soon.")
         happiness_loss()
 
         day_count += 1
@@ -1791,7 +1875,8 @@ def game():
             print_line("Too bad. You died.")
         elif position == "lost":
             print_line(
-                "Too bad. You lost your position because of your poor leadership skills.")
+                "Too bad. You lost your position because " +
+                "of your poor leadership skills.")
         again = input("Want to play again? ")
         if again[0].lower() == "y":
             game()
