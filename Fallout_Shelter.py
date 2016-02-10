@@ -854,7 +854,7 @@ def raid():
                 possible_deaths = people[1, len(people) - 1]
                 death_number = randint(len(possible_deaths))
                 print_line(
-                    possible_deaths[death_number],
+                    possible_deaths[death_number] +
                     " has been killed in a raid")
                 possible_deaths[death_number].die()
     for person in people:
