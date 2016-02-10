@@ -1,6 +1,6 @@
 """Module containing all Item classes."""
 
-from Fallout_Shelter import print_line
+from general_funcs import print_line
 import json
 
 

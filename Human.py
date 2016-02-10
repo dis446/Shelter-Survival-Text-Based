@@ -1,6 +1,6 @@
 """Module containing all Human classes."""
 
-from Fallout_Shelter import get_room_index, print_line
+from general_funcs import print_line
 
 
 class Human(object):

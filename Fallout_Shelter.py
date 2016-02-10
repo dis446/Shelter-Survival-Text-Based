@@ -6,6 +6,8 @@ from Human import Human, Player, NPC
 from Room import Room
 from Item import Item
 
+from general_funcs import print_line
+
 
 load = False  # Enables/disables loading screens.
 if load:
@@ -26,19 +28,6 @@ def load_time(x, message):
     else:
         print(str(message))
         sleep(x / 10000)
-
-
-def print_line(*messages):
-    """Replace print() with artificial line spacing.
-
-    Arguments:
-    *messages -- any number of arguments to print
-    """
-    for message in messages:
-        for line in message.splitlines():
-            sleep(0.5)  # Normal value used.
-            # sleep(0.1) # Only used while game is in development.
-            print(line)
 
 
 def print_help():

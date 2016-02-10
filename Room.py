@@ -1,6 +1,6 @@
 """Module containing Room class."""
 
-from Fallout_Shelter import print_line, count_item
+from general_funcs import print_line
 
 
 class Room(object):  # Basic class for the rooms in the game.
