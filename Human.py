@@ -236,7 +236,7 @@ class NPC(Human):
         age -- age of NPC
         gender -- gender of NPC
         """
-        Human.___init__(
+        Human.__init__(
             self, first_name, day_of_birth,
             parent_1, parent_2, age, gender)
         self.scavenging = False

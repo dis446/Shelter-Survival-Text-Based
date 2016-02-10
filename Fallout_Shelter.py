@@ -1654,7 +1654,6 @@ def game():
     # Just string names.
 
     player = create_player()
-    people.append(player)
     load_time(100, "Creating player.")
     first_few()  # Creates the first five inhabitants.
     load_time(200, "Populating Vault with 5 random inhabitants")
