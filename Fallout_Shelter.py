@@ -144,17 +144,11 @@ def see_inventory(inven):
                 if count > 0:  # Only print if item is in inventory.
                     it = Item(x)
                     print_line(
-                        x,
-                        "*",
-                        count,
-                        ". Weight: ",
-                        it.weight,
-                        ". Value: ",
-                        it.value,
-                        ". Components: ",
-                        it.components,
-                        ". Rarity: ",
-                        it.rarity)
+                        x + "*" + count,
+                        "| Weight: " + it.weight,
+                        "| Value: " + it.value,
+                        "| Components: " + it.components,
+                        "| Rarity: " + it.rarity)
                     seen_items.append(x)
     elif inven == "trader":
         for x in trader_inventory:
@@ -163,17 +157,11 @@ def see_inventory(inven):
                 if count > 0:  # Only print if item is in inventory.
                     it = Item(x)
                     print_line(
-                        x,
-                        "*",
-                        count,
-                        ". Weight: ",
-                        it.weight,
-                        ". Value: ",
-                        it.value,
-                        ". Components: ",
-                        it.components,
-                        ". Rarity: ",
-                        it.rarity)
+                        x + "*" + count,
+                        "| Weight: " + it.weight,
+                        "| Value: " + it.value,
+                        "| Components: " + it.components,
+                        "| Rarity: " + it.rarity)
                     seen_items.append(x)
     else:
         print_line("Bug with inventory system. Please contact dev!")
@@ -230,7 +218,7 @@ def scavenge(first_name, surname, days=0):
     else:
         person = people[get_person_index(first_name, surname)]
         person.scavenging = True
-        if not (isinstance(days,int)) or days <= 0:
+        if not (isinstance(days, int)) or days <= 0:
             person.days_to_scavenge_for = 100
         else:
             person.days_to_scavenge_for = days
@@ -1586,7 +1574,7 @@ def choice():
                     cho = int(cho)
                 except:
                     pass
-                scavenge(a.split()[1],cho)
+                scavenge(a.split()[1], cho)
 
         elif a.split()[0] == "heal":
             if a.split()[1] == "all":
