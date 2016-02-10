@@ -1584,7 +1584,7 @@ def choice():
             if confirm == "y":
                 player_quit = True
         elif a.split()[0] == "help":
-            print_line_help()
+            print_help()
         else:
             print_line("Invalid Input. Try again.")
     else:
