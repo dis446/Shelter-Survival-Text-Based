@@ -282,8 +282,8 @@ class Player(Human):
         gender -- gender of player
         """
         Human.__init__(
-                self, first_name, day_of_birth,
-                parent_1, parent_2, age, gender)
+            self, first_name, day_of_birth,
+            parent_1, parent_2, age, gender)
 
         self.medic = 0  # Improves healing capabilities of stimpacks
         self.crafting = 0  # Chance to not use components when crafting.

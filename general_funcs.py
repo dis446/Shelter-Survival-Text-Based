@@ -25,17 +25,19 @@ def input_int(s):
     return x
 
 
-def print_line(*messages):
+def print_line(*messages, fast=False):
     """Replace print() with artificial line spacing.
 
     Arguments:
     *messages -- any number of arguments to print
     """
     for message in messages:
-        message=str(message)
+        message = str(message)
         for line in message.splitlines():
-            #sleep(0.5)  # Normal value used.
-            sleep(0.1) # Only used while game is in development.
+            if fast:
+                sleep(0.1)  # Only used while game is in development.
+            else:
+                sleep(0.5)  # Normal value used.
             print(line)
 
 
@@ -55,3 +57,20 @@ def load_time(x, message):
         sleep(x / 10000)
 
 
+def count_item(item, target_inventory):
+    """Count total number of specified item in inventory.
+
+    Arguments:
+    item -- item to count
+    target_inventory -- inventory to count in
+
+    Returns:
+    int -- count of item in inventory
+    """
+    item = str(item)
+    if target_inventory == "player":
+        return inventory.count(item)
+    elif target_inventory == "trader":
+        return trader_inventory.count(item)
+    else:
+        print_line("Bug with item counting system. Please contact dev!")

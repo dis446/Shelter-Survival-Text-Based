@@ -76,15 +76,16 @@ def see_inventory(inven):
 
 def print_help():
     """Print list of commands available to player."""
-    print_line("Commands: \n")
-    print_line("""Room actions:
+    print_line("""Commands:
+
+    Room actions:
     see rooms           : View all rooms
     build x             : Construct room 'x'
     rush x              : Rush construction of room 'x'
     upgrade x           : Upgrade room 'x'
     fix x               : Fix damaged room 'x'
-    """)
-    print_line("""Inhabitant actions:
+
+    Inhabitant actions:
     see people          : View all inhabitants
     feed x              : Feed inhabitant 'x'
     enable auto_feed    : Enable automatically feeding inhabitants
@@ -95,19 +96,19 @@ def print_help():
     heal all            : Heal all inhabitants
     assign x y          : Assign inhabitant 'x' to room 'y'
     auto assign         : Automatically assign unassigned inhabitants to rooms
-    """)
-    print_line("""Inventory actions:
+
+    Inventory actions:
     see items           : View all held items
     scrap x             : Destroy item and add its components to your inventory
     trade               : Begin trading interaction
-    """)
-    print_line("""Other actions:
+
+    Other actions:
+    skip                : Skip current day
     see day             : View day number
     see resources       : View all resources available
-    skip                : Skip
     end                 : Quit game
     help                : See this help text
-    """)
+    """, fast=True)
 
 
 def living_capacity():
@@ -293,9 +294,9 @@ def check_xp(first_name, surname):
     """
     global people
     person = people[
-            get_person_index(
-                first_name,
-                last_name)]
+        get_person_index(
+            first_name,
+            last_name)]
     # Xp needed to level up increases exponentially
     xp_needed = 1000 + (3**person.level)
     if person.XP + 1 > xp_needed:
@@ -387,10 +388,10 @@ def death(first_name, surname):
     global end  # Set to 1, if player died
     global rooms
     index = get_person_index(
-            first_name,
-            surname)
+        first_name,
+        surname)
     person = people[index]
-    print(first_name, surname, " has died!")
+    print_line(first_name, surname, " has died!")
     if isinstance(person, Player):  # If player has died.
         end = 1
     else:
@@ -404,9 +405,9 @@ def mature(first_name, last_name):
     """Increment Human's age."""
     global people
     person = people[
-            get_person_index(
-                first_name,
-                last_name)]
+        get_person_index(
+            first_name,
+            last_name)]
     person.age += 1
     print_line(
         person.name + " has matured and is now ",
@@ -1638,11 +1639,11 @@ def game():
     load_time(200, "Populating Vault with 5 random inhabitants")
 
     rooms = [
-            Room('generator', player),
-            Room('living', player),
-            Room('kitchen', player),
-            Room('water works', player),
-            Room('trader', player)]  # List of built rooms. Objects!
+        Room('generator', player),
+        Room('living', player),
+        Room('kitchen', player),
+        Room('water works', player),
+        Room('trader', player)]  # List of built rooms. Objects!
 
     all_items = [  # Stores every possible item in the inventory. Strings.
         "wood",
@@ -1696,7 +1697,7 @@ def game():
         "It is your great duty to increase the population of your vault " +
         "and keep your inhabitants happy.")
 
-    print_line("\n You have been given 100 caps to start your journey.")
+    print_line("\nYou have been given 100 caps to start your journey.")
     action_points = 50
     update_all_assignment()
 

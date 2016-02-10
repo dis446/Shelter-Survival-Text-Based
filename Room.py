@@ -118,7 +118,7 @@ class Room(object):  # Basic class for the rooms in the game.
                 for person_index in str(self.assigned):
                     if person_index == '1':
                         production += people[int(person_index)].intelligence \
-                                    * 10
+                            * 10
                 if player.cooking > 0:
                     production = production * \
                         (1 + (player.cooking * 0.05))
@@ -180,22 +180,3 @@ class Room(object):  # Basic class for the rooms in the game.
         """Consume player's power."""
         for x in range(0, self.power_usage):
             Item('watt').destroy("player")
-
-
-def count_item(item, target_inventory):
-    """Count total number of specified item in inventory.
-
-    Arguments:
-    item -- item to count
-    target_inventory -- inventory to count in
-
-    Returns:
-    int -- count of item in inventory
-    """
-    item = str(item)
-    if target_inventory == "player":
-        return inventory.count(item)
-    elif target_inventory == "trader":
-        return trader_inventory.count(item)
-    else:
-        print_line("Bug with item counting system. Please contact dev!")
