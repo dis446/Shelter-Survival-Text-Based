@@ -13,8 +13,8 @@ class Human(object):
         Arguments:
         first_name -- first name of Human
         day_of_birth -- day Human was born
-        parent_1 -- Human's father
-        parent_2 -- Human's mother
+        parent_1 -- name of Human's father
+        parent_2 -- name of Human's mother
         age -- age of Human
         gender -- gender of Human
         """
