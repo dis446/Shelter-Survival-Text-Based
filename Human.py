@@ -36,7 +36,6 @@ class Human(object):
         self.luck = 1
 
         self.assigned_room = ""  # Keeps track of where person is working.
-        self.can_mate = False  # Keeps track of mating ablility
         self.children = []  # List of all children
         self.partner = ""
         self.level = 1  # Determines production efficiency
@@ -44,14 +43,6 @@ class Human(object):
     
     def __str__(self):
         return "{} {}".format(self.firstname, self.surname)
-
-    def gain_xp(self, amount):
-        """Add experience to Human.
-
-        Arguments:
-        amount -- amount of experience to add
-        """
-        self.XP += amount
 
     def level_up(self):
         """Level up Human and ask player for input on what stat to level up."""
@@ -111,27 +102,8 @@ class Human(object):
                 self.level -= 1
                 self.level_up()
 
-    def mature(self):
-        """Increment Human's age."""
-        self.age += 1
-        print_line(
-            self.name + " has matured and is now ",
-            self.age + " years old!")
 
-    def take_damage(self, amount):
-        """Take health from Human.
 
-        Arguments:
-        amount -- amount of health to take
-        """
-        self.defense = self.strength * 10
-        damage_taken = amount - self.defense
-        if damage_taken < 1:
-            damage_taken = 0
-        else:
-            self.HP -= damage_taken
-            if self.HP < 1:
-                self.die()
 
     def heal(self, amount):
         """Heal Human.
@@ -234,14 +206,11 @@ class Human(object):
             self.name + " " + self.surname +
             "has been assigned to " + chosen_room)
 
-    # Checks if person can have coitus and have children. Perfomed twice when
-    # player inputs coitus, once for each proposed parent.
-
     def can_mate(self):
         """Check if Human meets requirements to have children.
         
         Returns:
-            can_mate -- True/False
+            bool -- whether or not human can mate
         """
         if self.age < 18:
             return False
@@ -256,8 +225,7 @@ class Human(object):
 class NPC(Human):
     """NPC class, inherits Human attributes."""
 
-    def __init__(self, first_name, day_of_birth,
-                 parent_1, parent_2, age, gender):
+    def __init__(self, first_name, day_of_birth, parent_1, parent_2, age, gender):
         """NPC class constructor.
 
         Arguments:
@@ -307,9 +275,8 @@ class Player(Human):
         age -- age of player
         gender -- gender of player
         """
-        Human.___init__(
-            self, first_name, day_of_birth,
-            parent_1, parent_2, age, gender)
+        Human.__init__( self, first_name, day_of_birth, parent_1, parent_2, age, gender)
+        
         self.medic = 0  # Improves healing capabilities of stimpacks
         self.crafting = 0  # Chance to not use components when crafting.
         self.tactician = 0  # Boosts defense.

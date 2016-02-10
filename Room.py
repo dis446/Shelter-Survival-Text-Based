@@ -167,16 +167,7 @@ class Room(object):  # Basic class for the rooms in the game.
         """
         return self.components.count(str(component))
 
-    def can_use_power(self):
-        """Determine whether the room may use power or not.
 
-        Returns:
-        bool -- whether room may use power
-        """
-        if count_item('watt', 'player') > self.power_usage:
-            return True
-        else:
-            return False
 
     def use_power(self):
         """Consume player's power."""

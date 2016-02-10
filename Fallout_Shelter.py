@@ -271,6 +271,20 @@ def check_person(first_name, surname):
         return False
 
 
+    def gain_xp(first_name,last_name, amount):
+        """Add experience to Human.
+
+        Arguments:
+        amount -- amount of experience to add
+        """
+        global people
+        person=people[
+            get_person_index(
+                first_name,
+                last_name)]
+        person.XP += amount
+
+
 def check_xp(first_name, surname):
     """Check experience of inhabitant.
 
@@ -279,11 +293,10 @@ def check_xp(first_name, surname):
     surname -- surname of inhabitant to check
     """
     global people
-    # Fetches index of person in the people list.
-    person_index = get_person_index(first_name, surname)
-    # Fetches person object and stores it locally. So now (person) is a
-    # shortcut to the person.
-    person = people[person_index]
+    person=people[
+            get_person_index(
+                first_name,
+                last_name )]
     # Xp needed to level up increases exponentially
     xp_needed = 1000 + (3**person.level)
     if person.XP + 1 > xp_needed:
@@ -307,63 +320,65 @@ def birth(
     parent_2_surname -- surname of parent 2
     """
     global people
-    name = input("Choose a first name for the new child: ")
-    if len(name.split()) == 1:  # Player can only input one word
-        if name not in used_names:
-            name = name[0].upper() + name[1:]  # Capitalizes first letter_
-            parent_1 = people[
-                get_person_index(
-                    parent_1_first_name,
-                    parent_1_surname)]
-            parent_2 = people[
-                get_person_index(
-                    parent_2_first_name,
-                    parent_2_surname)]
-            if parent_2.gender == "m":
-                parent_1, parent_2 = parent_2, parent_1
+    while True:
+        name = input("Choose a first name for the new child: ")
+        if len(name.split()) == 1:  # Player can only input one word
+            if name not in used_names:
+                name = name[0].upper() + name[1:]  # Capitalizes first letter_
+                parent_1 = people[
+                    get_person_index(
+                        parent_1_first_name,
+                        parent_1_surname)]
+                parent_2 = people[
+                    get_person_index(
+                        parent_2_first_name,
+                        parent_2_surname)]
+                if parent_2.gender == "m":
+                    parent_1, parent_2 = parent_2, parent_1
 
-            # First 5 people will be 21 years old, so they can mate.
-            if len(people) < 5 and day_count < 3:
-                age = 21
+                # First 5 people will be 21 years old, so they can mate.
+                if len(people) < 5 and day_count < 3:
+                    age = 21
+                else:
+                    age = 0
+                people.append(
+                    NPC(
+                        name,
+                        day_count,
+                        parent_1.surname,
+                        parent_2.surname,
+                        age,
+                        get_gender()))
+                # Following lines let parent's know about their children and their
+                # partners.
+                parent_1.children.append(str(name + " " + parent_1_surname))
+                parent_2.children.append(str(name + " " + parent_1_surname))
+                parent_1.partner = parent_2.name + " " + parent_2.surname
+                parent_2.partner = parent_1.name + " " + parent_1.surname
+                see_people()
+                update_all_assignment()
+                if day_count > 2:  # First few births cost no points
+                    use_points(50)
+                player.gain_xp(100)
+                use_points(25)
+                used_names.append(name)
+                load_time(5, (name, " is being born!"))
+                break 
             else:
-                age = 0
-            people.append(
-                NPC(
-                    name,
-                    day_count,
-                    parent_1.surname,
-                    parent_2.surname,
-                    age,
-                    get_gender()))
-            # Following lines let parent's know about their children and their
-            # partners.
-            parent_1.children.append(str(name + " " + parent_1_surname))
-            parent_2.children.append(str(name + " " + parent_1_surname))
-            parent_1.partner = parent_2.name + " " + parent_2.surname
-            parent_2.partner = parent_1.name + " " + parent_1.surname
-            see_people()
-            update_all_assignment()
-            if day_count < 2:  # First few births cost no points
-                use_points(50)
-            player.gain_xp(100)
-            use_points(25)
-            used_names.append(name)
-            load_time(5, (name, " is being born!"))
+                print_line("Someone already has that name.")
+                birth(
+                    parent_1_first_name,
+                    parent_1_surname,
+                    parent_2_first_name,
+                    parent_2_surname)
         else:
-            print_line("Someone already has that name.")
+            print_line("You have to input a single word!")
             birth(
                 parent_1_first_name,
                 parent_1_surname,
                 parent_2_first_name,
                 parent_2_surname)
-    else:
-        print_line("You have to input a single word!")
-        birth(
-            parent_1_first_name,
-            parent_1_surname,
-            parent_2_first_name,
-            parent_2_surname)
-
+            
 
 def death(first_name, surname):
     """Kill inhabitant.
@@ -387,6 +402,39 @@ def death(first_name, surname):
                 r.assigned = r.assigned[0:index] + r.assigned[index:]
         people.remove(self)
 
+
+def mature(first_name,last_name):
+    """Increment Human's age."""
+    global people
+    person=people[
+            get_person_index(
+                first_name,
+                last_name )]
+    person.age += 1
+    print_line(
+        person.name + " has matured and is now ",
+        person.age + " years old!")
+
+
+def take_damage(self, amount):
+    """Take health from Human.
+
+    Arguments:
+    amount -- amount of health to take
+    """
+    global people
+    person=people[
+        get_person_index(
+            first_name,
+            last_name )]
+    person.defense = person.strength * 10
+    damage_taken = amount - person.defense
+    if damage_taken < 1:
+        damage_taken = 0
+    else:
+        person.HP -= damage_taken
+        if person.HP < 1:
+            person.die()
 
 def first_few():
     """Create first few inhabitants with random names."""
@@ -421,7 +469,7 @@ def first_few():
             continue
         # First few inhabitants all have the same mother.
         people.append(
-            Human(
+            NPC (
                 names[num_1],
                 day_count,
                 names[num_2],
@@ -600,7 +648,7 @@ def see_rooms():
         for word in r.name.split():
             print_line(word[0].upper() + word[1:], end=" ")
         if r.can_produce:
-            r.update_production()
+            r.update_production(player)
             print_line(
                 "\n    Risk:" + r.risk * 10 + "%",
                 "    Level:" + r.level,
@@ -616,6 +664,19 @@ def see_rooms():
             r.see_assigned()
 
 
+def can_use_power(room):
+    """
+    Determine whether the room may use power or not.
+
+    Returns:
+    bool -- whether room may use power
+    """
+    if count_item('watt', 'player') > room.power_usage:
+        return True
+    else:
+        return False
+        
+        
 def power_usage():
     """Check total power needed.
 
@@ -795,10 +856,9 @@ def scrap(it):
 
 # Raiding system:
 
-def raid():
+def raid(player):
     """Force raid on shelter."""
-    global people
-    update_defense()
+    update_defense(player)
     raiders = ["Super Mutant", "Raider", "Synth", "Feral Ghoul"]
     raider_index = randint(0, len(raiders))
     raider = raiders[raider_index]  # Randomly chooses a raider party.
@@ -829,10 +889,9 @@ def raid():
     use_points(30)
 
 
-def update_defense():
+def update_defense(player):
     """Update defense of shelter based on guns and turrets in inventory."""
     global defense
-    player = player[0]
     defense = 0
     turret_count = count_item("turret", "player")
     defense += 10 * turret_count
@@ -1685,7 +1744,7 @@ def game():
         number = randint(0, len(trader_inventory) // 5)
         find_rand_item("trader", number)  # Finds random number of items.
 
-        rooms[get_room_index('generator')].update_production()
+        rooms[get_room_index('generator')].update_production(player)
         add_to_inven(
             "watt",
             rooms[
@@ -1699,9 +1758,9 @@ def game():
 
         for r in rooms:  # Performs daily room checks.
             if r.name != 'generator' and r.can_produce:
-                if r.can_use_power():
+                if can_use_power(r):
                     r.use_power()
-                    r.update_production()
+                    r.update_production(player)
                     if r.name == "kitchen":
                         add_to_inven("food", r.production, 'player')
                         print_line("Cooking", r.production, " food.")
@@ -1779,9 +1838,9 @@ def game():
             raid_chance = 1  # No raids should happen in the early days.
         if day_count == 5:
             print_line("Test raid!")
-            raid()
+            raid(player)
         if raid_chance > 4:
-            raid()
+            raid(player)
 
         while action_points > 0 and not overuse and not player_quit:
             choice()
