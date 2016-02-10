@@ -635,22 +635,15 @@ def see_rooms():
         if r.can_produce:
             r.update_production()
             print_line(
-                "\n    Risk:",
-                r.risk * 10,
-                "%  Level:",
-                r.level,
-                "  Power:",
-                r.power_available,
-                "  Production:",
-                r.production)
+                "\n    Risk:" + r.risk * 10 + "%",
+                "    Level:" + r.level,
+                "    Power:" + r.power_available,
+                "    Production:" + r.production)
         else:
             print_line(
-                "\n    Risk:",
-                r.risk,
-                "  Level:",
-                r.level,
-                "  Power:",
-                r.power_available)
+                "\n    Risk:" + r.risk + "%",
+                "    Level:" + r.level,
+                "    Power:" + r.power_available)
 
         if r.can_produce or r.name == "trader":
             r.see_assigned()
