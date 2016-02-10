@@ -450,7 +450,7 @@ def first_few():
     for person in people:
         used_names.append(person.name)
         used_names.append(person.surname)
-    while len(people) < 8:
+    while len(people) < 5:
         num_1 = randint(0, len(names) - 1)
         num_2 = randint(0, len(names) - 1)
         if num_1 == num_2:
@@ -471,37 +471,55 @@ def first_few():
 
 
 def create_player():
-    """Create player inhabitant."""
-    name = input("Choose a first name for yourself: ")
-    if len(name) > 0:
-        name = name[0].upper() + name[1:len(name)]
-        if len(name.split()) == 1:  # Names can only be one word long
-            parent_1 = input("What is the surname of your father?")
-            if len(parent_1.split()) == 1:
-                parent_1 = parent_1[0].upper() + parent_1[1:len(parent_1)]
-                parent_2 = input("What is the surname of your mother?")
-                if len(parent_2.split()) == 1:
-                    parent_2 = parent_2[0].upper() + parent_2[2:len(parent_2)]
-                    player = Human(
-                        name,
-                        day_count,
-                        parent_1,
-                        parent_2,
-                        21,
-                        get_player_gender())
-                    return player
-                else:
-                    print_line("Only single word inputs are accepted.")
-                    create_player()
-            else:
-                print_line("Only single word inputs are accepted.")
-                create_player()
-        else:
+    """Create player inhabitant.
+
+    Returns:
+    Player -- player object
+    """
+    while True:
+        name = input("Choose a first name for yourself: ")
+        if len(name) <= 0:
+            print_line("You need a name!")
+        elif len(name.split()) != 1:
             print_line("Only single word inputs are accepted.")
-            create_player()
-    else:
-        print_line("You need a name!")
-        create_player()
+        else:
+            name = name[0].upper() + name[1:len(name)]
+            break
+    while True:
+        parent_1 = input("What is the surname of your father? ")
+        if len(parent_1) <= 0:
+            print_line("Your father needs a surname!")
+        elif len(parent_1.split()) != 1:
+            print_line("Only single word inputs are accepted.")
+        else:
+            parent_1 = parent_1[0].upper() + parent_1[1:]
+            break
+    while True:
+        parent_2 = input("What is the surname of your mother? ")
+        if len(parent_2) <= 0:
+            print_line("Your mother needs a surname!")
+        elif len(parent_2.split()) != 1:
+            print_line("Only single word inputs are accepted.")
+        else:
+            parent_2 = parent_2[0].upper() + parent_2[1:]
+            break
+    while True:
+        gender = input("What is your gender?(m/f) ")
+        if len(gender) == 0:
+            print_line("You need a gender.")
+        elif gender not in ("m", "f"):
+            print_line("Invalid input. Only accepts 'm' or 'f'.")
+        else:
+            gender = gender.lower()
+            break
+
+    return Player(
+        name,
+        day_count,
+        parent_1,
+        parent_2,
+        21,
+        gender)
 
 
 def see_stats(first_name, surname):
@@ -1601,7 +1619,6 @@ def game():
     global player_quit
     global skip
     load_time(300, "Initializing game.")
-    print_help()
 
     day_count = 1
     skip = False  # Keeps track of when player is skipping a day.
@@ -1616,6 +1633,7 @@ def game():
     # Just string names.
 
     player = create_player()
+    people.append(player)
     load_time(100, "Creating player.")
     first_few()  # Creates the first five inhabitants.
     load_time(200, "Populating Vault with 5 random inhabitants")

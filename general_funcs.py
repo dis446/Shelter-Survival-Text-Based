@@ -14,5 +14,3 @@ def print_line(*messages):
             sleep(0.5)  # Normal value used.
             # sleep(0.1) # Only used while game is in development.
             print(line)
-
-
