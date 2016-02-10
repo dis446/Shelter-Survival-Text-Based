@@ -1,6 +1,5 @@
 """Text-based Fallout Shelter game developed by T.G."""
 from random import randint
-from time import sleep
 
 from Human import Human, Player, NPC
 from Room import Room
@@ -182,7 +181,7 @@ def build(r, player):
     global inventory
     built_room = Room(str(r), player)  # creates a room.
     rooms.append(built_room)  # Stores the room in memory.
-    load_time(5, ("Building ", r))
+    load_time(5, "Building " + r)
     for y in built_room.components:  # Does this for each component
         for x in inventory:
             if y == x:  # If it matches, delete this.
@@ -677,25 +676,6 @@ def rand_item(target_inventory):
             add_to_inven(actual_item, 1, 'trader')
         else:
             print_line("Bug with random item system. Please contact dev!")
-
-
-def count_item(item, target_inventory):
-    """Count total number of specified item in inventory.
-
-    Arguments:
-    item -- item to count
-    target_inventory -- inventory to count in
-
-    Returns:
-    int -- count of item in inventory
-    """
-    item = str(item)
-    if target_inventory == "player":
-        return inventory.count(item)
-    elif target_inventory == "trader":
-        return trader_inventory.count(item)
-    else:
-        print_line("Bug with item counting system. Please contact dev!")
 
 
 def count_weight():

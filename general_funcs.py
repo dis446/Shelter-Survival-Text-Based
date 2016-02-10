@@ -6,6 +6,7 @@ load = False  # Enables/disables loading screens.
 if load:
     from tqdm import tqdm
 
+
 def input_int(s):
     """Allow user to input integers while catching errors.
 
@@ -18,6 +19,7 @@ def input_int(s):
     while True:
         try:
             x = int(input(s))
+            break
         except:
             print_line("Invalid. Only integer numbers are accepted!")
     return x
@@ -37,8 +39,8 @@ def print_line(*messages):
 
 
 def load_time(x, message):
-    """Loading bars:
-    
+    """Loading bars.
+
     Arguments:
     x -- length of loading bar in seconds
     message -- message to print before loading bar
@@ -50,6 +52,5 @@ def load_time(x, message):
     else:
         print(str(message))
         sleep(x / 10000)
-
 
 

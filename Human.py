@@ -41,8 +41,13 @@ class Human(object):
         self.partner = ""
         self.level = 1  # Determines production efficiency
         self.XP = 0
-    
+
     def __str__(self):
+        """String representation of object, first name and last name.
+
+        Returns:
+        str -- "Firstname Lastname"
+        """
         return "{} {}".format(self.firstname, self.surname)
 
     def gain_xp(self, amount):
@@ -239,7 +244,7 @@ class Human(object):
 
     def can_mate(self):
         """Check if Human meets requirements to have children.
-        
+
         Returns:
             can_mate -- True/False
         """
@@ -249,9 +254,10 @@ class Human(object):
             return False
         # Have to wait for a year before parent can have child again.
         for child in self.children:
-            if people(child).age < 1: #This line doesn't work. Need a better way of referencing people.
+            if people(child).age < 1:
                 return False
         return True
+
 
 class NPC(Human):
     """NPC class, inherits Human attributes."""

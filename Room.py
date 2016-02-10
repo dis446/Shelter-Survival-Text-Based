@@ -77,6 +77,14 @@ class Room(object):  # Basic class for the rooms in the game.
         else:
             self.can_rush = False
 
+    def __str__(self):
+        """String representation of object.
+
+        Returns:
+        self.name -- eg. "Living Room"
+        """
+        return "{}{} Room".format(self.name[0].upper(), self.name[1:])
+
     def rush(self):
         """Rush building of Room."""
         global rooms
@@ -182,3 +190,22 @@ class Room(object):  # Basic class for the rooms in the game.
         """Consume player's power."""
         for x in range(0, self.power_usage):
             Item('watt').destroy("player")
+
+
+def count_item(item, target_inventory):
+    """Count total number of specified item in inventory.
+
+    Arguments:
+    item -- item to count
+    target_inventory -- inventory to count in
+
+    Returns:
+    int -- count of item in inventory
+    """
+    item = str(item)
+    if target_inventory == "player":
+        return inventory.count(item)
+    elif target_inventory == "trader":
+        return trader_inventory.count(item)
+    else:
+        print_line("Bug with item counting system. Please contact dev!")
