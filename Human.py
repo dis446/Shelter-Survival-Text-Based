@@ -238,17 +238,20 @@ class Human(object):
     # player inputs coitus, once for each proposed parent.
 
     def can_mate(self):
-        """Check if Human meets requirements to have children."""
-        self.can_mate = True
+        """Check if Human meets requirements to have children.
+        
+        Returns:
+            can_mate -- True/False
+        """
         if self.age < 18:
-            self.can_mate = False
+            return False
         if len(self.children) > 5:  # Upper limit of children is 5
-            self.can_mate = False
+            return False
         # Have to wait for a year before parent can have child again.
         for child in self.children:
-            if people(child).age < 1:
-                self.can_mate = False
-
+            if people(child).age < 1: #This line doesn't work. Need a better way of referencing people.
+                return False
+        return True
 
 class NPC(Human):
     """NPC class, inherits Human attributes."""
