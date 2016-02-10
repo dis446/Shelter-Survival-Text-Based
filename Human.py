@@ -41,6 +41,9 @@ class Human(object):
         self.partner = ""
         self.level = 1  # Determines production efficiency
         self.XP = 0
+    
+    def __str__(self):
+        return "{} {}".format(self.firstname, self.surname)
 
     def gain_xp(self, amount):
         """Add experience to Human.
@@ -234,7 +237,7 @@ class Human(object):
     # Checks if person can have coitus and have children. Perfomed twice when
     # player inputs coitus, once for each proposed parent.
 
-    def can_mate_check(self):
+    def can_mate(self):
         """Check if Human meets requirements to have children."""
         self.can_mate = True
         if self.age < 18:

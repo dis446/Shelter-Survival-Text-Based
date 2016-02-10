@@ -6,81 +6,7 @@ from Human import Human, Player, NPC
 from Room import Room
 from Item import Item
 
-from general_funcs import print_line
-
-
-load = False  # Enables/disables loading screens.
-if load:
-    from tqdm import tqdm
-
-
-def load_time(x, message):
-    """Loading bars.
-
-    Arguments:
-    x -- length of loading bar in seconds
-    message -- message to print before loading bar
-    """
-    if load:
-        print_line(str(message))
-        for x in tqdm(range(0, x)):
-            sleep(0.01)
-    else:
-        print(str(message))
-        sleep(x / 10000)
-
-
-def print_help():
-    """Print list of commands available in game."""
-    print_line("Commands: \n")
-    print_line("""Room actions:
-    see rooms           : View all rooms
-    build x             : Construct room 'x'
-    rush x              : Rush construction of room 'x'
-    upgrade x           : Upgrade room 'x'
-    fix x               : Fix damaged room 'x'
-    """)
-    print_line("""Inhabitant actions:
-    see people          : View all inhabitants
-    feed x              : Feed inhabitant 'x'
-    enable auto_feed    : Enable automatically feeding inhabitants
-    disable auto_feed   : Disable automatically feeding inhabitants
-    coitus x y          : Send inhabitants 'x' and 'y' to the love-house
-    scavenge x          : Send inhabitant 'x' to scavenge in the wasteland
-    heal x              : Heal inhabitant 'x'
-    heal all            : Heal all inhabitants
-    assign x y          : Assign inhabitant 'x' to room 'y'
-    auto assign         : Automatically assign unassigned inhabitants to rooms
-    """)
-    print_line("""Inventory actions:
-    see items           : View all held items
-    scrap x             : Destroy item and add its components to your inventory
-    trade               : Begin trading interaction
-    """)
-    print_line("""Other actions:
-    see day             : View day number
-    see resources       : View all resources available
-    skip                : Skip
-    end                 : Quit game
-    help                : See this help text
-    """)
-
-
-def input_int(s):
-    """Allow user to input integers while catching errors.
-
-    Arguments:
-    s -- string to print as a prompt
-
-    Returns:
-    x -- integer inputted by user
-    """
-    while True:
-        try:
-            x = int(input(s))
-        except:
-            print_line("Invalid. Only integer numbers are accepted!")
-    return x
+from general_funcs import *
 
 
 def storage_capacity(all_rooms):
@@ -147,6 +73,42 @@ def see_inventory(inven):
                     seen_items.append(x)
     else:
         print_line("Bug with inventory system. Please contact dev!")
+
+
+def print_help():
+    """Print list of commands available to player."""
+    print_line("Commands: \n")
+    print_line("""Room actions:
+    see rooms           : View all rooms
+    build x             : Construct room 'x'
+    rush x              : Rush construction of room 'x'
+    upgrade x           : Upgrade room 'x'
+    fix x               : Fix damaged room 'x'
+    """)
+    print_line("""Inhabitant actions:
+    see people          : View all inhabitants
+    feed x              : Feed inhabitant 'x'
+    enable auto_feed    : Enable automatically feeding inhabitants
+    disable auto_feed   : Disable automatically feeding inhabitants
+    coitus x y          : Send inhabitants 'x' and 'y' to the love-house
+    scavenge x          : Send inhabitant 'x' to scavenge in the wasteland
+    heal x              : Heal inhabitant 'x'
+    heal all            : Heal all inhabitants
+    assign x y          : Assign inhabitant 'x' to room 'y'
+    auto assign         : Automatically assign unassigned inhabitants to rooms
+    """)
+    print_line("""Inventory actions:
+    see items           : View all held items
+    scrap x             : Destroy item and add its components to your inventory
+    trade               : Begin trading interaction
+    """)
+    print_line("""Other actions:
+    see day             : View day number
+    see resources       : View all resources available
+    skip                : Skip
+    end                 : Quit game
+    help                : See this help text
+    """)
 
 
 def living_capacity():
