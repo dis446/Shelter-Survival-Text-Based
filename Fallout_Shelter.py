@@ -114,16 +114,11 @@ def see_people():
     for person in people:
         print_line(person.name, person.surname)
         print_line(
-            "    Age:",
-            person.age,
-            " Gender:",
-            person.gender.upper(),
-            " Hunger:",
-            person.hunger,
-            " Thirst:",
-            person.thirst,
-            " Room:",
-            person.assigned_room)
+            "    Age:" + person.age,
+            " Gender:" + person.gender.upper(),
+            " Hunger:" + person.hunger,
+            " Thirst:" + person.thirst,
+            "   Room:" + person.assigned_room)
 
 
 # (Log*5.Weight=5.Value=10.Components="Wood". Rarity=1)
