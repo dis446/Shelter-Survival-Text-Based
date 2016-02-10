@@ -216,13 +216,13 @@ def get_person_index(first_name, surname):
 # Scavenging system:
 
 # Sends people on a scavenging mission.
-def scavenge(first_name, surname, var=None):
+def scavenge(first_name, surname, days=0):
     """Send inhabitant on scavenging mission.
 
     Arguments:
     first_name -- first name of inhabitant to send
     surname -- surname of inhabitant to send
-    var -- Ask user for number of days if this is 'days'.
+    days -- ask user for number of days if this is 'days'.
     """
     global people
     if not check_person(first_name, surname):
@@ -230,13 +230,10 @@ def scavenge(first_name, surname, var=None):
     else:
         person = people[get_person_index(first_name, surname)]
         person.scavenging = True
-        if var == "days":
-            day_choice = input_int("How many days do you want to " +
-                                   "send this person out?")
-            person.days_to_scavenge_for = day_choice
-        else:
-            # Their health will drop below 20 before 100 days, so this is fine.
+        if not (isinstance(days,int)) or days <= 0:
             person.days_to_scavenge_for = 100
+        else:
+            person.days_to_scavenge_for = days
     use_points(10)
 
 
@@ -1584,17 +1581,12 @@ def choice():
             else:
                 cho = input(
                     "Would you like to scavenge for a certain number of " +
-                    "days or until their health gets low?(D/H) ")
-                cho = cho[0].lower()
-                if cho == "d":
-                    scavenge(a.split()[1], "days")
-                elif cho == "h":
-                    scavenge(a.split()[1])
-                else:
-                    print_line(
-                        "Let's just assume you wanted them to go out " +
-                        "until their health gets low.")
-                    scavenge(a.split()[1])
+                    "days or until their health gets low?(1-100/H) ")
+                try:
+                    cho = int(cho)
+                except:
+                    pass
+                scavenge(a.split()[1],cho)
 
         elif a.split()[0] == "heal":
             if a.split()[1] == "all":
