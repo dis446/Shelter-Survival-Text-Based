@@ -2,9 +2,7 @@
 from random import randint
 from time import sleep
 
-from Human import Human
-from NPC import NPC
-from Player import Player
+from Human import Human, Player, NPC
 from Room import Room
 from Item import Item
 
