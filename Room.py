@@ -1,6 +1,7 @@
 """Module containing Room class."""
 
 from general_funcs import print_line
+from Item import Item
 
 
 class Room(object):  # Basic class for the rooms in the game.
@@ -77,6 +78,14 @@ class Room(object):  # Basic class for the rooms in the game.
         else:
             self.can_rush = False
 
+    def __str__(self):
+        """String representation of object.
+
+        Returns:
+        self.name -- eg. "Living Room"
+        """
+        return "{}{} Room".format(self.name[0].upper(), self.name[1:])
+
     def rush(self):
         """Rush building of Room."""
         global rooms
@@ -109,7 +118,7 @@ class Room(object):  # Basic class for the rooms in the game.
                 for person_index in str(self.assigned):
                     if person_index == '1':
                         production += people[int(person_index)].intelligence \
-                                    * 10
+                            * 10
                 if player.cooking > 0:
                     production = production * \
                         (1 + (player.cooking * 0.05))
@@ -166,8 +175,6 @@ class Room(object):  # Basic class for the rooms in the game.
         int -- amount of component required to build Room
         """
         return self.components.count(str(component))
-
-
 
     def use_power(self):
         """Consume player's power."""

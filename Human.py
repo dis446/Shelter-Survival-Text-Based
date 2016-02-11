@@ -6,8 +6,9 @@ from general_funcs import print_line
 class Human(object):
     """Basic class for all humans in game."""
 
-    def __init__(self, first_name, day_of_birth,
-                 parent_1, parent_2, age, gender):
+    def __init__(
+            self, first_name, day_of_birth,
+            parent_1, parent_2, age, gender):
         """Constructor for Human class.
 
         Arguments:
@@ -40,8 +41,13 @@ class Human(object):
         self.partner = ""
         self.level = 1  # Determines production efficiency
         self.XP = 0
-    
+
     def __str__(self):
+        """String representation of object, first name and last name.
+
+        Returns:
+        str -- "Firstname Lastname"
+        """
         return "{} {}".format(self.firstname, self.surname)
 
     def level_up(self):
@@ -101,9 +107,6 @@ class Human(object):
                 print_line("\nInvalid choice.\n")
                 self.level -= 1
                 self.level_up()
-
-
-
 
     def heal(self, amount):
         """Heal Human.
@@ -208,7 +211,7 @@ class Human(object):
 
     def can_mate(self):
         """Check if Human meets requirements to have children.
-        
+
         Returns:
             bool -- whether or not human can mate
         """
@@ -218,14 +221,17 @@ class Human(object):
             return False
         # Have to wait for a year before parent can have child again.
         for child in self.children:
-            if people(child).age < 1: #This line doesn't work. Need a better way of referencing people.
+            if people(child).age < 1:
                 return False
         return True
+
 
 class NPC(Human):
     """NPC class, inherits Human attributes."""
 
-    def __init__(self, first_name, day_of_birth, parent_1, parent_2, age, gender):
+    def __init__(
+            self, first_name, day_of_birth,
+            parent_1, parent_2, age, gender):
         """NPC class constructor.
 
         Arguments:
@@ -275,8 +281,10 @@ class Player(Human):
         age -- age of player
         gender -- gender of player
         """
-        Human.__init__( self, first_name, day_of_birth, parent_1, parent_2, age, gender)
-        
+        Human.__init__(
+            self, first_name, day_of_birth,
+            parent_1, parent_2, age, gender)
+
         self.medic = 0  # Improves healing capabilities of stimpacks
         self.crafting = 0  # Chance to not use components when crafting.
         self.tactician = 0  # Boosts defense.

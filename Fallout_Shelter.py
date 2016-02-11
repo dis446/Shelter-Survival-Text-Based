@@ -1,8 +1,7 @@
 """Text-based Fallout Shelter game developed by T.G."""
 from random import randint
-from time import sleep
 
-from Human import Human, Player, NPC
+from Human import Player, NPC
 from Room import Room
 from Item import Item
 
@@ -77,15 +76,16 @@ def see_inventory(inven):
 
 def print_help():
     """Print list of commands available to player."""
-    print_line("Commands: \n")
-    print_line("""Room actions:
+    print_line("""Commands:
+
+    Room actions:
     see rooms           : View all rooms
     build x             : Construct room 'x'
     rush x              : Rush construction of room 'x'
     upgrade x           : Upgrade room 'x'
     fix x               : Fix damaged room 'x'
-    """)
-    print_line("""Inhabitant actions:
+
+    Inhabitant actions:
     see people          : View all inhabitants
     feed x              : Feed inhabitant 'x'
     enable auto_feed    : Enable automatically feeding inhabitants
@@ -96,19 +96,19 @@ def print_help():
     heal all            : Heal all inhabitants
     assign x y          : Assign inhabitant 'x' to room 'y'
     auto assign         : Automatically assign unassigned inhabitants to rooms
-    """)
-    print_line("""Inventory actions:
+
+    Inventory actions:
     see items           : View all held items
     scrap x             : Destroy item and add its components to your inventory
     trade               : Begin trading interaction
-    """)
-    print_line("""Other actions:
+
+    Other actions:
+    skip                : Skip current day
     see day             : View day number
     see resources       : View all resources available
-    skip                : Skip
     end                 : Quit game
     help                : See this help text
-    """)
+    """, fast=True)
 
 
 def living_capacity():
@@ -182,7 +182,7 @@ def build(r, player):
     global inventory
     built_room = Room(str(r), player)  # creates a room.
     rooms.append(built_room)  # Stores the room in memory.
-    load_time(5, ("Building ", r))
+    load_time(5, "Building " + r)
     for y in built_room.components:  # Does this for each component
         for x in inventory:
             if y == x:  # If it matches, delete this.
@@ -271,18 +271,18 @@ def check_person(first_name, surname):
         return False
 
 
-    def gain_xp(first_name,last_name, amount):
-        """Add experience to Human.
+def gain_xp(first_name, last_name, amount):
+    """Add experience to Human.
 
-        Arguments:
-        amount -- amount of experience to add
-        """
-        global people
-        person=people[
-            get_person_index(
-                first_name,
-                last_name)]
-        person.XP += amount
+    Arguments:
+    amount -- amount of experience to add
+    """
+    global people
+    person = people[
+        get_person_index(
+            first_name,
+            last_name)]
+    person.XP += amount
 
 
 def check_xp(first_name, surname):
@@ -293,10 +293,10 @@ def check_xp(first_name, surname):
     surname -- surname of inhabitant to check
     """
     global people
-    person=people[
-            get_person_index(
-                first_name,
-                last_name )]
+    person = people[
+        get_person_index(
+            first_name,
+            last_name)]
     # Xp needed to level up increases exponentially
     xp_needed = 1000 + (3**person.level)
     if person.XP + 1 > xp_needed:
@@ -306,33 +306,70 @@ def check_xp(first_name, surname):
         print_line(person.first_name, "  is now level ", person.level)
 
 
-def birth(
-        parent_1_first_name,
-        parent_1_surname,
-        parent_2_first_name,
-        parent_2_surname):
+def level_up(person:
+    """Level up Human and ask player for input on what stat to level up.
+    Arguments:
+    person -- Person object at level x 
+    Returns:
+    person -- Person object at level x+1
+    """
+    see_stats()
+    self.level += 1
+    if self.name == people[0].name:  # If player has leveled up
+        print_line("\n")
+        choice = input("Please choose an attribute to level up: ")
+        choice.lower()
+        if choice == "strength":
+            self.strength += 1
+        elif choice == "perception":
+            self.perception += 1
+        elif choice == "endurance":
+            self.endurance += 1
+        elif choice == "charisma":
+            self.charisma += 1
+        elif choice == "intelligence":
+            self.intelligence += 1
+        elif choice == "luck":
+            self.luck += 1
+        elif choice == "medic":
+            self.medic += 1
+        elif choice == "crafting":
+            self.crafting += 1
+        elif choice == "tactitian":
+            self.tactitian += 1
+        elif choice == "cooking":
+            self.cooking += 1
+        elif choice == "inspiration":
+            self.inspiration += 1
+        elif choice == "scrapper":
+            self.scrapper += 1
+        elif choice == "barter":
+            self.barter += 1
+        elif choice == "electrician":
+            self.electrician += 1
+        else:
+            print_line("Invalid choice")
+            self.level -= 1
+            self.level_up()
+
+
+def create_NPC(
+        parent_1,
+        parent_2):
     """Create new child inhabitant.
 
     Arguments:
-    parent_1_first_name -- first name of parent 1
-    parent_1_surname -- surname of parent 1
-    parent_2_first_name -- first name of parent 2
-    parent_2_surname -- surname of parent 2
+    parent_1 -- parent of new child
+    parent_2 -- parent of new child
+    
+    Returns:
+    person -- New NPC
     """
-    global people
     while True:
         name = input("Choose a first name for the new child: ")
         if len(name.split()) == 1:  # Player can only input one word
             if name not in used_names:
                 name = name[0].upper() + name[1:]  # Capitalizes first letter_
-                parent_1 = people[
-                    get_person_index(
-                        parent_1_first_name,
-                        parent_1_surname)]
-                parent_2 = people[
-                    get_person_index(
-                        parent_2_first_name,
-                        parent_2_surname)]
                 if parent_2.gender == "m":
                     parent_1, parent_2 = parent_2, parent_1
 
@@ -341,16 +378,15 @@ def birth(
                     age = 21
                 else:
                     age = 0
-                people.append(
+                person=
                     NPC(
                         name,
                         day_count,
                         parent_1.surname,
                         parent_2.surname,
                         age,
-                        get_gender()))
-                # Following lines let parent's know about their children and their
-                # partners.
+                        get_gender())
+                #Next few lines need some work.
                 parent_1.children.append(str(name + " " + parent_1_surname))
                 parent_2.children.append(str(name + " " + parent_1_surname))
                 parent_1.partner = parent_2.name + " " + parent_2.surname
@@ -363,70 +399,74 @@ def birth(
                 use_points(25)
                 used_names.append(name)
                 load_time(5, (name, " is being born!"))
-                break 
+                return person
             else:
                 print_line("Someone already has that name.")
-                birth(
-                    parent_1_first_name,
-                    parent_1_surname,
-                    parent_2_first_name,
-                    parent_2_surname)
+                create_NPC(
+                    parent_1,
+                    parent_2)
         else:
             print_line("You have to input a single word!")
-            birth(
-                parent_1_first_name,
-                parent_1_surname,
-                parent_2_first_name,
-                parent_2_surname)
-            
+            create_NPC(
+                parent_1,
+                parent_2)
 
-def death(first_name, surname):
+
+def death(person):
     """Kill inhabitant.
 
     Arguments:
-    first_name -- first name of inhabitant to kill
-    surname -- surname of inhabitant to kill
+    person -- Person who's dying
+    
+    Returns:
+    person -- Dead now
     """
     global end  # Set to 1, if player died
     global rooms
-    index = get_person_index(
-            first_name,
-            surname)
-    person = people[index]
-    print(first_name, surname, " has died!")
+    print_line(person.name, person.surname , " has died!")
     if isinstance(person, Player):  # If player has died.
         end = 1
     else:
         if person.assigned_room != "":
             for r in rooms:
                 r.assigned = r.assigned[0:index] + r.assigned[index:]
-        people.remove(self)
+    return None
 
 
-def mature(first_name,last_name):
-    """Increment Human's age."""
-    global people
-    person=people[
-            get_person_index(
-                first_name,
-                last_name )]
+<<<<<<< 98a419a836dd0548b42d4ccbc3590b116524e53e
+def mature(person):
+    """Increment Human's age.
+    
+    Arguments:
+    person -- Human who's aging
+    
+    Returns:
+    person -- Human with one more year
+    """
     person.age += 1
     print_line(
         person.name + " has matured and is now ",
         person.age + " years old!")
+    return person
 
 
-def take_damage(self, amount):
+def take_damage(person, amount):
     """Take health from Human.
 
     Arguments:
+    person -- Human who's taking damage
     amount -- amount of health to take
+    
+    Returns:
+    person -- Human who has taken damage
     """
+<<<<<<< 98a419a836dd0548b42d4ccbc3590b116524e53e
     global people
-    person=people[
+    person = people[
         get_person_index(
             first_name,
-            last_name )]
+            last_name)]
+
     person.defense = person.strength * 10
     damage_taken = amount - person.defense
     if damage_taken < 1:
@@ -434,7 +474,11 @@ def take_damage(self, amount):
     else:
         person.HP -= damage_taken
         if person.HP < 1:
-            person.die()
+            person = death(person)
+        else:
+            return person
+
+
 
 def first_few():
     """Create first few inhabitants with random names."""
@@ -469,7 +513,7 @@ def first_few():
             continue
         # First few inhabitants all have the same mother.
         people.append(
-            NPC (
+            NPC(
                 names[num_1],
                 day_count,
                 names[num_2],
@@ -532,14 +576,12 @@ def create_player():
         gender)
 
 
-def see_stats(first_name, surname):
+def see_stats(person):
     """Check stats of inhabitant.
 
     Arguments:
-    first_name -- first name of inhabitant to check
-    surname -- surname of inhabitant to check
+    person - Person who's stats are being viewed
     """
-    person = people[get_person_index(first_name, surname)]
     print_line("Strength: ", person.strength)
     print_line("Perception: ", person.perception)
     print_line("Endurance: ", person.endurance)
@@ -571,7 +613,7 @@ def auto_assign():
 
 
 def update_all_assignment():
-    """???."""
+    """When vault population increases, updates length of the assignement variable """
     global rooms
     for r in rooms:
         current_count = len(r.assigned)  # Count's how many digits exist
@@ -612,31 +654,31 @@ def get_room_index(room):
             return r
 
 
-def check_room(x):
+def check_room(room):
     """Check if room exists.
 
     Arguments:
-    x -- room to check for
+    room -- room to check for
 
     Returns:
     bool -- whether room exists or not
     """
-    if x in all_rooms:
+    if room in all_rooms:
         return True
     return False
 
 
-def check_built_room(x):
+def check_built_room(room):
     """Check if room has been built yet.
 
     Arguments:
-    x -- room to check for
+    room -- room to check for
 
     Returns:
     bool -- whether room has been built or not
     """
     for r in rooms:
-        if x == r.name:
+        if room == r.name:
             return True
     return False
 
@@ -675,8 +717,8 @@ def can_use_power(room):
         return True
     else:
         return False
-        
-        
+
+
 def power_usage():
     """Check total power needed.
 
@@ -693,13 +735,10 @@ def power_production():
     """Check total power being produced.
 
     Returns:
-    total -- total amount of power being produced
+    production -- total amount of power being produced
     """
-    total = 0
     generator = rooms[get_room_index('generator')]
-    for x in range(generator.production):
-        total += x
-    return total
+    return generator.production
 
 
 # Inventory managment system:
@@ -738,25 +777,6 @@ def rand_item(target_inventory):
             add_to_inven(actual_item, 1, 'trader')
         else:
             print_line("Bug with random item system. Please contact dev!")
-
-
-def count_item(item, target_inventory):
-    """Count total number of specified item in inventory.
-
-    Arguments:
-    item -- item to count
-    target_inventory -- inventory to count in
-
-    Returns:
-    int -- count of item in inventory
-    """
-    item = str(item)
-    if target_inventory == "player":
-        return inventory.count(item)
-    elif target_inventory == "trader":
-        return trader_inventory.count(item)
-    else:
-        print_line("Bug with item counting system. Please contact dev!")
 
 
 def count_weight():
@@ -1381,10 +1401,6 @@ def choice():
                     "You've reached the vault's maximum capacity.",
                     "Upgrade your living room to hold more people")
             else:
-                # print_line("Person_1 index" +
-                    # get_person_index(a.split()[1],a.split()[2]))
-                # print_line("Person_2 index" +
-                    # get_person_index(a.split()[3],a.split()[4]))
                 person_1 = people[get_person_index(a.split()[1], a.split()[2])]
                 person_2 = people[get_person_index(a.split()[3], a.split()[4])]
                 if (person_1.partner == "" and person_2.partner == "") or \
@@ -1400,7 +1416,7 @@ def choice():
                             " isn't old enough to copulate.")
                     elif person_1.surname == person_2.surname:
                         print_line(
-                            "Sorry. Incest isn't allowed. " +
+                            "Incest isn't allowed. " +
                             "At least be ethical!")
                     elif person_1.gender == person_2.gender:
                         print_line(
@@ -1408,11 +1424,10 @@ def choice():
                             "COME ON MAN CAN U EVEN BIOLOGY!?")
                     else:
                         # Pass these love birds to the birthing system
-                        birth(
-                            person_1.name,
-                            person_1.surname,
-                            person_2.name,
-                            person_2.surname)
+                        person = create_NPC(
+                            person_1
+                            person_2)
+                        people.append(person)
                 else:
                     print_line("Infedility shall not be allowed!!!")
                     if person_1.partner != "":
@@ -1659,11 +1674,11 @@ def game():
     load_time(200, "Populating Vault with 5 random inhabitants")
 
     rooms = [
-            Room('generator', player),
-            Room('living', player),
-            Room('kitchen', player),
-            Room('water works', player),
-            Room('trader', player)]  # List of built rooms. Objects!
+        Room('generator', player),
+        Room('living', player),
+        Room('kitchen', player),
+        Room('water works', player),
+        Room('trader', player)]  # List of built rooms. Objects!
 
     all_items = [  # Stores every possible item in the inventory. Strings.
         "wood",
@@ -1717,7 +1732,7 @@ def game():
         "It is your great duty to increase the population of your vault " +
         "and keep your inhabitants happy.")
 
-    print_line("\n You have been given 100 caps to start your journey.")
+    print_line("\nYou have been given 100 caps to start your journey.")
     action_points = 50
     update_all_assignment()
 
