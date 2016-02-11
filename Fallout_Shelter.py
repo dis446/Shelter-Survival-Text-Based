@@ -1,11 +1,113 @@
 """Text-based Fallout Shelter game developed by T.G."""
 from random import randint
 
-from Human import Player, NPC
+from Game import Game
+from Human import Human, Player, NPC
 from Room import Room
 from Item import Item
 
 from general_funcs import *
+
+class Game(object):
+    """
+    Main game class
+    """
+    def __init__(self):
+        self.player = Player() # Instantiates a player object
+        self.inventory = {} 
+        #self.people = [self.player] # Add the player as the first person
+        self.caps = 100
+        self.happiness = 100
+        self.action_points = 50
+        self.security = "secure" #Is this the player's job security?
+        self.days = 1
+        self.action_points = {} # What is this?
+    
+    
+    def validate_name(self, name):
+        if len(name) > 0:
+            if len(name.split()) == 1:
+                return True
+        return False
+    
+    
+     def add_action(self, name, action):
+        self.actions[name] = action
+    
+    
+    def setup_player(self):
+        name = input("Choose a first name for yourself: ")
+        if self.validate_name(name):
+            fathers_name = input("What is the surname of your father? ")
+            mothers_name = input("What is the surname of your mother? ")
+            if self.validate_name(fathers_name) and self.validate_name(mothers_name):
+                self.player.father = Human(surname=fathers_name)
+                self.player.mother = Human(surname=mothers_name)
+            else:
+                print("Invalid surname entered.")
+            gender = input("Please enter your gender (M/F): ")
+            self.player.gender = gender.upper()
+            self.player.name = name
+        else:
+            print_line("Invalid player name entered: {}".format(name))
+            
+    def run(self, debug=False):
+        self.setup_player()
+        while True and self.player.alive:
+            if self.action_points < 50:
+                self.action_points += 50
+            print_line("A new day dawns. It is now day {} in the vault".format(self.days))
+            
+            for room in self.rooms:
+                 if self.inventory['watt'] > room.wattage:
+                    resource, production = room.production()
+                    self.inventory['watt'] -= room.wattage
+                    self.inventory[resource] += production
+                else:
+                    print("Not enough power to operate room: {}".format(room.name))
+
+                if room.rushed:
+                    room.rushed = False
+            
+            for person in self.people:
+                person.increase_hunger()
+                if person.hunger > 99:
+                    person.kill("hunger")
+                elif person.hunger > 80:
+                    print("Warning! {} is starving and may die soon".format(person))
+                elif person.hunger > 50:
+                    print("{} is hungry".format(person))
+                person.increase_thirst()
+                if person.thirst > 99:
+                    person.kill("thirst")
+                elif person.thirst > 80:
+                    print("Warning! {} is extremely thristy and may die soon.".format(person))
+                elif person.thirst > 50:
+                    print("{} is thirsty".format(person))
+                if person.current_activity == "scavenging":
+                    pass
+                elif person.current_activity == "guarding":
+                    pass
+                if person.days_active == person.activity_limit:
+                    person.current_activity = "none"
+                    person.active_days = 0
+                    person.activity_limit = 0
+                else:
+                    person.days_active += 1
+                
+                while self.action_points > 0:
+                    a = input("Choose an action: ")
+                    if len(a) > 0:
+                        action, *args = a.split()
+                        if action.lower() == "skip":
+                            continue
+                        try:
+                            self.actions[action](self, *args)
+                        except KeyError:
+                            print("Invalid action selected. Try again.")
+                            continue
+                    else:
+                        print("You have to choose a valid action.")
 
 
 def storage_capacity(all_rooms):
@@ -1632,8 +1734,9 @@ def choice():
         print_line("You have to choose something!")
 
 
+"""
+    #Old Game system.    
 def game():
-    """Game system."""
     global action_points
     global end
     global position
@@ -1890,6 +1993,7 @@ def game():
             game()
         else:
             print_line("Okay. Thanks for playing!!!")
-
+"""
 if __name__ == '__main__':
-    game()
+    game = Game()
+    game.run()
