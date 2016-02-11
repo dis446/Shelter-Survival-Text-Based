@@ -25,7 +25,7 @@ def input_int(s):
     return x
 
 
-def print_line(*messages, fast=False):
+def print_line(*messages, fast=True):
     """Replace print() with artificial line spacing.
 
     Arguments:
