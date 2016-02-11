@@ -105,17 +105,22 @@ class Game(object):
                     print("Warning! {} is extremely thristy and may die soon.".format(person))
                 elif person.thirst > 50:
                     print("{} is thirsty".format(person))
-                if person.current_activity == "scavenging":
-                    pass
-                elif person.current_activity == "guarding":
-                    pass
-                if person.days_active == person.activity_limit:
-                    person.current_activity = "none"
-                    person.active_days = 0
-                    person.activity_limit = 0
-                else:
-                    person.days_active += 1
-                
+                if person.current_activity != "":
+                    if person.current_activity == "scavenging":
+                        person = take_damage(person,randint(0,30))
+                        if person.health < 20:
+                            pass #Need to end scavenging.
+                    elif person.current_activity == "guarding":
+                        pass
+                    if person.days_active == person.activity_limit:
+                        if person.current_activity == "scavenging":
+                            print_line(" Someone has come back from scavenging and has found these items") #Need to print name and items found.
+                        person.current_activity = ""
+                        person.active_days = 0
+                        person.activity_limit = 0
+                    else:
+                        person.days_active += 1
+                    
                 while self.action_points > 0:
                     a = input("Choose an action: ")
                     if len(a) > 0:
@@ -269,25 +274,21 @@ def get_person_index(first_name, surname):
 # Scavenging system:
 
 # Sends people on a scavenging mission.
-def scavenge(game,days=0):
+def scavenge(game,person,days=0):
     """Send inhabitant on scavenging mission.
 
     Arguments:
     game -- Main game object
     days -- ask user for number of days if this is 'days'.
     """
-    global people
-    if not check_person(first_name, surname):
-        print_line("Error with scavenging system. Please contact dev!")
+    person = game.people[str(person)]
+    person.current_activity = "scavenging"
+    if not (isinstance(days, int)) or days <= 0:
+        person.days_to_scavenge_for = 100
     else:
-        person = people[get_person_index(first_name, surname)]
-        person.scavenging = True
-        if not (isinstance(days, int)) or days <= 0:
-            person.days_to_scavenge_for = 100
-        else:
-            person.days_to_scavenge_for = days
+        person.days_to_scavenge_for = days
     use_points(10)
-
+    return game
 
 # Construction system:
 
@@ -534,25 +535,25 @@ def create_NPC(
                 parent_2)
 
 
-def death(person):
+def death(game,person_name):
     """Kill inhabitant.
 
     Arguments:
-    person -- Person who's dying
+    game -- main game object
+    person -- Name of person dying
     
     Returns:
-    None
+    game -- with one less inhabitant
     """
-    global end  # Set to 1, if player died
-    global rooms
+    person = game.people[str(person_name)]
     print_line(person.name, person.surname , " has died!")
     if isinstance(person, Player):  # If player has died.
-        end = 1
+        game.end = 1
     else:
         if person.assigned_room != "":
-            for r in rooms:
-                r.assigned = r.assigned[0:index] + r.assigned[index:]
-    return None
+            for r in game.rooms:
+                r.assigned = r.assigned[0:index] + r.assigned[index:] #Remove 
+    return game
 
 
 def mature(person):
@@ -911,7 +912,7 @@ def find_rand_item(game,inven, num):
     """
     for x in range(num):
         # Following lines randomly choose an item, based on rarity
-        num = randint(1, 1024)
+        num = randint(1, 1024) #Much more likely to find common items than rare.
         lst = [2**a for a in range(0, 11)]
         count = 0
         for chance in lst:
@@ -930,7 +931,6 @@ def find_rand_item(game,inven, num):
             number = randint(0, len(possible_items) - 1)
             actual_item = possible_items[number]
             # Following lines actually store the item in memory
-            
             if target_inventory == "player" or target_inventory == "trader":
                 if target_inventory == "player":
                     game = add_to_inven(game,actual_item, 1, 'inventory')
@@ -949,54 +949,46 @@ def add_to_inven(game,item, number, inven):
     number -- amount of item to add to inventory
     inven -- inventory to add item to
     """
-    global trader_inventory
-    global inventory
-    x = str(x)
+    item = str(item)
     inven = str(inven)
-    if x not in all_items:
-        # Should never happen, since all checks should be done before this
-        # function is called.
-        print_line(
-            "Item doesn't exist in the game's databases. ",
-            "Major bug with inventory adding system. Please contact dev.")
-    else:
-        if inven == "player":
-            for y in range(number):
-                inventory.append(x)
-        elif inven == "trader":
-            for y in range(number):
-                trader_inventory.append(x)
+    if inven == "player":
+        for y in range(number):
+            pass # Need to add to inven dict
+    elif inven == "trader":
+        for y in range(number):
+            pass # Same as previous comment
+    return player
 
-
-def lose_items(inven, number):
+def lose_items(game,inven, number):
     """Randomly delete multiple items from inventory.
 
     Arguments:
+    game -- main game object
     inven -- inventory to delete items from
     number -- amount of items to delete
+    
+    Returns:
+    game -- with less items in selected inventory
     """
-    global inventory
-    global trader_inventory
     if inven == "trader":
         for x in range(number):
             rand_number = randint(0, len(trader_inventory) - 1)
-            trader_inventory.remove(trader_inventory[rand_number])
+            pass #Need to remove an item at index rand_number
     elif inven == "player":
-        print_line("The raid made off with these items!")
-        for x in range(number):
-            rand_number = randint(0, len(inventory) - 1)
-            e = iventory[rand_number]
-            print_line(inventory[e])
-            inventory.remove(inventory[e])
+        pass #Need to remove from player's inventory
     else:
         print_line("Major bug in item losing system. Please contact dev!")
 
 
-def scrap(it):
+def scrap(game, it):
     """Scrap item and recieve its components.
 
     Arguments:
+    game -- main game object
     it -- item to scrap
+    
+    Returns:
+    game -- with the item removed and it's components added to the 
     """
     global inventory
     if it not in all_items:
@@ -1015,14 +1007,19 @@ def scrap(it):
 
 # Raiding system:
 
-def raid(player):
-    """Force raid on shelter."""
-    update_defense(player)
+def raid(game):
+    """Force raid on shelter.
+    Arguments:
+    game -- main game object
+    
+    Returns:
+    game -- after raid"""
+    game = update_defense(game,player)
     raiders = ["Super Mutant", "Raider", "Synth", "Feral Ghoul"]
     raider_index = randint(0, len(raiders))
     raider = raiders[raider_index]  # Randomly chooses a raider party.
-    increasing_attack = day_count // 5
-    attack_power = randint(1, increasing_attack)
+    max_attack = day_count // 5
+    attack_power = randint(1, max_attack)
     load_time(10, ("There was a " + raider + " raid on your shelter!"))
     print_line("The total enemy power was", attack_power)
     print_line("Your total defenses are", defense)
@@ -1037,15 +1034,17 @@ def raid(player):
             if death_chance < dice:
                 # Death
                 # The player can't die in a raid!
-                possible_deaths = people[1, len(people) - 1]
+                possible_deaths = people[1, len(game.people) - 1]
                 death_number = randint(len(possible_deaths))
                 print_line(
                     possible_deaths[death_number] +
                     " has been killed in a raid")
-                possible_deaths[death_number].die()
-    for person in people:
+                dead_person = game.people[death_number]
+                game = death(game, dead.person.name)
+    for person in game.people: #Survivor gain xp
         person.gain_xp(attack_power * 10)
-    use_points(30)
+    game = use_points(30)
+    return game
 
 
 def update_defense(player):
@@ -1167,42 +1166,37 @@ def happiness_loss():
 
 # Action Point usage system:
 
-def use_points(point):
+def use_points(game,point):
     """Remove action points from total.
 
     Arguments:
+    game -- main game object
     point -- how many points to remove
+    
+    Returns:
+    game -- with less action points
     """
-    global action_points
-    global overuse
-    global overuse_amount
     if point > 50:
         print_line(
             "Bug with point usage system. ",
             "It's trying to use more than 50, " +
             "please note this and contact dev.")
     else:
-        usage = action_points - point
-        overuse = False
+        usage = game.action_points - point
+        game.overuse = False
         if usage < 0:  # If overuse occurs. i.e. if overuse is negative
             overuse_amount = 0 - usage
-            overuse = True
+            game.overuse = True
         else:  # If normal usage occurs.
             action_points = action_points - usage
-
+        return game
 
 # Trading system:
 
-def trade():
+def trade(game):
     """Trading system."""
     load_time(100, "Initializing trading system.")
-    global inventory
-    global trader_inventory
-    global caps
-    global trader_caps
-    # barter = player.barter
-    stop_trade = False
-    while not stop_trade:
+    while True:
         print_line("")
         print_line("Here are the traders' items: ")
         see_inventory("trader")
@@ -1233,7 +1227,7 @@ def trade():
                 else:
                     print_line("This item doesn't exist")
             elif a.split()[0] == 'end' or a.split()[0] == 'stop':
-                stop_trade = True
+                break
             else:
                 print_line("You have to input 3 words. Buy/sell,amount,item")
         elif len(a.split()) == 3:
@@ -1311,15 +1305,12 @@ def trade():
                     print_line("Only numbers are accepted")
             else:
                 print_line("Sorry. ", a.split()[2], " doesn't exist!")
-    load_time(100, "Ending trade")
+    print_line("Ending trade")
+    return game
 
 
-def choice():
+def choice(): #Need to move these commands into Game() class
     """Choice/Command input system."""
-    global auto_feed
-    global people
-    global rooms
-    global player
     a = input("Choose what to do: ")
     # From here on out, a.split()[0] is used to cut out the first word of the
     # input and compare it individually.
@@ -1770,267 +1761,6 @@ def choice():
     else:
         print_line("You have to choose something!")
 
-
-"""
-    #Old Game system.    
-def game():
-    global action_points
-    global end
-    global position
-    global people
-    global day_count
-    global inventory
-    global rooms
-    global caps
-    global trader_caps
-    global trader_inventory
-    global all_rooms
-    global all_items
-    global defense
-    global overuse
-    global overuse_amount
-    global happiness
-    global auto_feed
-    global used_names
-    global player_quit
-    global skip
-    load_time(300, "Initializing game.")
-
-    day_count = 1
-    skip = False  # Keeps track of when player is skipping a day.
-    end = False  # Can lose position or die.
-    position = "secure"  # Changed to "lost" when happiness drops below 5.
-    player_quit = False  # Allows player to quit the game.
-
-    people = []  # All the people alive in the shelter. Objects!
-    used_names = []  # Names that have been used in the game.
-    # Ensures no two people have the same name.
-    inventory = ['turret']  # All items that belong to the player.
-    # Just string names.
-
-    player = create_player()
-    load_time(100, "Creating player.")
-    first_few()  # Creates the first five inhabitants.
-    load_time(200, "Populating Vault with 5 random inhabitants")
-
-    rooms = [
-        Room('generator', player),
-        Room('living', player),
-        Room('kitchen', player),
-        Room('water works', player),
-        Room('trader', player)]  # List of built rooms. Objects!
-
-    all_items = [  # Stores every possible item in the inventory. Strings.
-        "wood",
-        "steel",
-        "turret",
-        "food",
-        "water",
-        "wire",
-        "silicon",
-        "chip",
-        "watt",
-        "copper",
-        "gun"]
-    all_rooms = [  # Stores every possible room in the game. Strings.
-        "living",
-        "bath",
-        "generator",
-        "kitchen",
-        "trader",
-        "storage",
-        "water works"]
-    # all_attributes = [  # Not sure if this is needed anymore
-    #      "strength",
-    #      "perception",
-    #      "endurance",
-    #      "charisma",
-    #      "intelligence",
-    #      "luck",
-    #      "medic",
-    #      "science",
-    #      "tactitian",
-    #      "cook",
-    #      "inspiration",
-    #      "scrapper",
-    #      "barter",
-    #      "electrician"]
-
-    caps = 100  # Basic currency
-    trader_caps = 400  # Trader's money.
-    happiness = 100  # General happiness of the vault.
-    trader_inventory = []
-    # Initializes trader inventory with 20 random items.
-    find_rand_item("trader", 20)
-    defense = 0
-    overuse = False  # True if player has used too many action points.
-    auto_feed = True
-
-    print_line("Welcome to the text-based fallout shelter game!")
-    print_line("Welcome, great Overseer!")
-    print_line(
-        "It is your great duty to increase the population of your vault " +
-        "and keep your inhabitants happy.")
-
-    print_line("\nYou have been given 100 caps to start your journey.")
-    action_points = 50
-    update_all_assignment()
-
-    print_help()
-
-    # Loops the day while player is alive,still the overseer and doesn't
-    # decide to quit.
-    while not end and position == "secure" and not player_quit:
-        action_points = 50  # Resets the Action Points available every day
-        if overuse:  # If player goes over their daily Action Points limit.
-            action_points = 50 - overuse_amount
-        load_time(300, "A new day dawns.")
-        print_line("Today is day " + str(day_count))
-
-        if auto_feed:
-            auto_feed_all()
-
-        # Trader inventory updates with new items and loses some items.
-        # Loses a random number of items
-        number = randint(0, (len(trader_inventory) // 5))
-        lose_items("trader", number)
-        # Finds another random number.
-        number = randint(0, len(trader_inventory) // 5)
-        find_rand_item("trader", number)  # Finds random number of items.
-
-        rooms[get_room_index('generator')].update_production(player)
-        add_to_inven(
-            "watt",
-            rooms[
-                get_room_index('generator')].production,
-            "player")
-        print_line(
-            "Producing",
-            rooms[
-                get_room_index('generator')].production,
-            " power")
-
-        for r in rooms:  # Performs daily room checks.
-            if r.name != 'generator' and r.can_produce:
-                if can_use_power(r):
-                    r.use_power()
-                    r.update_production(player)
-                    if r.name == "kitchen":
-                        add_to_inven("food", r.production, 'player')
-                        print_line("Cooking", r.production, " food.")
-                    elif r.name == "water works":
-                        add_to_inven("water", r.production, 'player')
-                        print_line("Pumping", r.production, "water.")
-                    # Add more cases for each production capable room.
-                else:
-                    print_line(
-                        "You don't have enough power to keep the",
-                        r.name,
-                        "supplied.")
-                # De-rushes every room that was rushed.
-                if r.can_rush and r.rushed:
-                    r.rushed = False
-
-        for person in people:  # Performs daily checks for all people.
-            # Hunger Games.
-            person.hunger += 10
-            if person.hunger > 99:
-                print_line(person.name, person.surname, " has died of hunger")
-                person.die()
-            elif person.hunger > 80:
-                print_line(
-                    "Warning!",
-                    person.name,
-                    person.surname,
-                    " is starving and may die soon.")
-            elif person.hunger > 50:
-                print_line(person.name, person.surname, " is hungry.")
-            # Thirsty games.
-            person.thirst += 10
-            if person.thirst > 99:
-                print_line(person.name, person.surname, " has died of thirst")
-                person.die()
-            elif person.hunger > 80:
-                print_line(
-                    "Warning!", person.name, person.surname,
-                    " is extremely thirsty and may die soon.")
-            elif person.hunger > 50:
-                print_line(person.name, person.surname, " is thirsty.")
-            # Level Up games
-            # Checks if person has enough xp to level up.
-            check_xp(person.name, person.surname)
-            if person.name != player.name:  # Routines specific to NPCs.
-                # Scavenging games
-                if person.scavenging:
-                    if person.days_to_scavenge_for == person.days_scavenging:
-                        # Now that they've finished scavenging, set everything
-                        # to 0
-                        person.Scavenging = False
-                        person.days_to_scavenge_for = 0
-                        person.days_scavenging = 0
-                    else:
-                        person.days_scavenging += 1
-                        # Randomly finds an item
-                        rand_item("player")
-                        health_loss = randint(0, 50)
-                        person.take_damage(health_loss)
-                        person.gain_xp(randint(10, 200))
-                    if person.health < 20:
-                        person.scavenging = False
-                        person.days_to_scavenge_for = 0
-                        person.days_scavenging = 0
-                # Experience games
-                if person.assigned_room != "":
-                    # Can refer to room which character had been assigned to.
-                    r = rooms[get_room_index(person.assigned_room)]
-                    if r.can_produce:
-                        person.gain_xp(r.production // 10)
-
-        # A raid should happen once every 5 days.
-        raid_chance = randint(1, 5)
-        if day_count < 11:
-            raid_chance = 1  # No raids should happen in the early days.
-        if day_count == 5:
-            print_line("Test raid!")
-            raid(player)
-        if raid_chance > 4:
-            raid(player)
-
-        while action_points > 0 and not overuse and not player_quit:
-            choice()
-            if skip:
-                break
-        skip = False
-
-        print_line(
-            "Due to your shelter's happiness level you have gained ",
-            happiness // 10,
-            " experience")
-        player.gain_xp(happiness // 10)
-        if happiness < 5:
-            position = "lost"
-        elif happiness < 25:
-            print_line(
-                "Warning. Your people are unhappy.",
-                "You could lose your position if you don't " +
-                "improve the situation soon.")
-        happiness_loss()
-
-        day_count += 1
-
-    else:  # Once game ends.
-        if end:
-            print_line("Too bad. You died.")
-        elif position == "lost":
-            print_line(
-                "Too bad. You lost your position because " +
-                "of your poor leadership skills.")
-        again = input("Want to play again? ")
-        if again[0].lower() == "y":
-            game()
-        else:
-            print_line("Okay. Thanks for playing!!!")
-"""
 if __name__ == '__main__':
     game = Game()
     game.run()

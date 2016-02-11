@@ -245,6 +245,9 @@ class NPC(Human):
         Human.__init__(
             self, first_name, day_of_birth,
             parent_1, parent_2, age, gender)
+        self.current_activity = ""
+        person.days_active = 0
+        person.activity_limit = 0
         self.scavenging = False
         self.days_scavenging = 0
         self.days_to_scavenge_for = 0
@@ -284,7 +287,6 @@ class Player(Human):
         Human.__init__(
             self, first_name, day_of_birth,
             parent_1, parent_2, age, gender)
-
         self.medic = 0  # Improves healing capabilities of stimpacks
         self.crafting = 0  # Chance to not use components when crafting.
         self.tactician = 0  # Boosts defense.
