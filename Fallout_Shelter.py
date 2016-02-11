@@ -532,14 +532,14 @@ def death(game,person_name):
     Returns:
     game -- with one less inhabitant
     """
-    person = game.people[str(person_name)]
-    print_line(person.name, person.surname , " has died!")
+    print_line(person_name , " has died!")
     if isinstance(person, Player):  # If player has died.
         game.end = 1
     else:
+        person = game.people[str(person_name)]
         if person.assigned_room != "":
-            for r in game.rooms:
-                r.assigned = r.assigned[0:index] + r.assigned[index:] #Remove 
+            pass # Person should be removed from the room's list.
+    del game.people[str(person_name)
     return game
 
 
