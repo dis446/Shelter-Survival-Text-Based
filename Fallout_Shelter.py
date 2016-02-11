@@ -17,7 +17,10 @@ class Game(object):
         Initilizes main game system. Set's default values local to the object 
         """
         self.player = Player() # Instantiates a player object
-        self.inventory = {}
+        self.inventory = {
+            'wood': 0,
+            'water': 0,
+            } #Add more items here
         self.rooms = {}
         self.people = {}
         #self.people = [self.player] # Don't know If I want to add the player into the people list
@@ -29,10 +32,16 @@ class Game(object):
         self.action_points = {} # What is this?
     
     
-     def add_action(self, name, action):
+     def add_action(self, name, action): #I don't understand what this method is for
          """
         Adds entries to the actions dictionary with the key `name` and the
         value `action`, where action is any Python function.
+        
+        Arguments:
+        name -- 
+        action -- 
+        
+        
          """
         self.actions[name] = action
     
@@ -56,16 +65,13 @@ class Game(object):
         else:
             print_line("Invalid player name entered: {}".format(name))
     
-    def storage_capacity(all_rooms):
+    def storage_capacity(self):
     """Calculate max inventory capacity of player.
-
-    Arguments:
-    all_rooms -- list of currently built rooms
 
     Returns:
     capacity -- max inventory capacity of player
     """
-    capacity = all_rooms("storage").production
+    capacity = self.rooms["storage"].production
     return capacity
      
             
@@ -153,20 +159,16 @@ def see_people(game):
             "   Room:" + person.assigned_room)
 
 
-# (Log*5.Weight=5.Value=10.Components="Wood". Rarity=1)
 def see_inventory(game,inven):
-    """Display all items in inventory.
+    """Display all items in an inventory.
 
     Arguments:
     game -- Main game object
     inven -- inventory to show, 'player' or 'trader'
     """
     inven = str(inven)
-    # Stores item types already seen, so if 5 units of wood are present, they
-    # are all shown in bulk in one go, instead of each one individualy.
-    seen_items = []
     if inven == "player":
-        for x in inventory:
+        for x in game.inventory:
             if x not in seen_items:
                 count = count_item(x, "player")
                 if count > 0:  # Only print if item is in inventory.
@@ -179,7 +181,7 @@ def see_inventory(game,inven):
                         "| Rarity: " + it.rarity)
                     seen_items.append(x)
     elif inven == "trader":
-        for x in trader_inventory:
+        for x in game.trader_inventory:
             if x not in seen_items:
                 count = count_item(x, "trader")
                 if count > 0:  # Only print if item is in inventory.
@@ -235,6 +237,9 @@ def print_help():
 def living_capacity(game):
     """Get maximum inhabitant capacity of shelter.
 
+    Arguments:
+    game -- main game object
+    
     Returns:
     int -- maximum capacity of shelter
     """
@@ -249,27 +254,9 @@ def see_resources(game):
     Arguments:
     game -- Main game object
     """
-    print_line("Food * ", count_item(game,"food", "player"))
-    print_line("Water * ", count_item(game,"water", "player"))
-    print_line("Power * ", count_item(game,"watt", "player"))
-
-""" #Should be no need for this function anymore
-def get_person_index(first_name, surname):
-    
-    Get index of inhabitant in list of all inhabitants.
-
-    Arguments:
-    first_name -- first name of inhabitant to search for
-    surname -- surname of inhabitant to search for
-
-    Returns:
-    x -- index of person in list
-    
-    for x in range(len(people)):
-        if people[x].name == first_name[0].upper() + first_name[1:] \
-                and people[x].surname == surname[0].upper() + surname[1:]:
-            return x
-"""
+    print_line("Food * ", game.inventory["food"])
+    print_line("Water * ", game.inventory["water"])
+    print_line("Power * ", game.inventory["watt"])
 
 # Scavenging system:
 
@@ -394,37 +381,37 @@ def check_person(game, first_name, last_name):
         return False
 
 
-def gain_xp(game, person, amount):
+def gain_xp(game, person_name, amount):
     """Add experience to Human.
 
     Arguments:
     game -- Main game object
-    person -- person to gain experience
+    person_name -- name of person to gain experience
     amount -- amount of experience to add
+    
+    Returns:
+    game -- with one more experienced person
     """
-    global people
-    person = people[
-        get_person_index(
-            first_name,
-            last_name)]
+    person = game.people[
     person.XP += amount
 
 
-def check_xp(game, person):
+def check_xp(game, person_name):
     """Check experience of inhabitant.
 
     Arguments:
     game -- Main game object
-    """
+    person_name -- name of person
     
+    Returns:
+    bool -- Whether inhabitant can level up
+    """
+    person = game.people[str(person_name)]
     # Xp needed to level up increases exponentially
-    xp_needed = 1000 + (3**person.level)
+    xp_needed = 100 + (3**person.level)
     if person.XP + 1 > xp_needed:
-        print_line(person.first_name, " has", person.XP, " XP")
-        print_line(person.first_name, " has leveled up")
-        person.level_up()
-        print_line(person.first_name, "  is now level ", person.level)
-
+        person = level_up(person)
+    return game
 
 def level_up(person):
     """Level up Human and ask player for input on what stat to level up.
@@ -437,44 +424,44 @@ def level_up(person):
     """
     
     see_stats(person)
-    person.level += 1
     if isinstance(person,Player):  # If player has leveled up
         print_line("\n")
-        choice = input("Please choose an attribute to level up: ")
-        choice.lower()
-        if choice == "strength":
-            person.strength += 1
-        elif choice == "perception":
-            person.perception += 1
-        elif choice == "endurance":
-            person.endurance += 1
-        elif choice == "charisma":
-            person.charisma += 1
-        elif choice == "intelligence":
-            person.intelligence += 1
-        elif choice == "luck":
-            person.luck += 1
-        elif choice == "medic":
-            person.medic += 1
-        elif choice == "crafting":
-            person.crafting += 1
-        elif choice == "tactitian":
-            person.tactitian += 1
-        elif choice == "cooking":
-            person.cooking += 1
-        elif choice == "inspiration":
-            person.inspiration += 1
-        elif choice == "scrapper":
-            person.scrapper += 1
-        elif choice == "barter":
-            person.barter += 1
-        elif choice == "electrician":
-            person.electrician += 1
-        else:
-            print_line("Invalid choice")
-            person.level -= 1
-            level_up(person)
-
+        done = False
+        while done == False:
+            done = True
+            choice = input("Please choose an attribute to level up: ").lower()
+            if choice == "strength":
+                person.strength += 1
+            elif choice == "perception":
+                person.perception += 1
+            elif choice == "endurance":
+                person.endurance += 1
+            elif choice == "charisma":
+                person.charisma += 1
+            elif choice == "intelligence":
+                person.intelligence += 1
+            elif choice == "luck":
+                person.luck += 1
+            elif choice == "medic":
+                person.medic += 1
+            elif choice == "crafting":
+                person.crafting += 1
+            elif choice == "tactitian":
+                person.tactitian += 1
+            elif choice == "cooking":
+                person.cooking += 1
+            elif choice == "inspiration":
+                person.inspiration += 1
+            elif choice == "scrapper":
+                person.scrapper += 1
+            elif choice == "barter":
+                person.barter += 1
+            elif choice == "electrician":
+                person.electrician += 1
+            else:
+                print_line("Invalid choice")
+                done = False
+                
 
 def create_NPC(
         parent_1,
