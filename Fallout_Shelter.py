@@ -1,7 +1,6 @@
 #Text-based Fallout Shelter game developed by T.G.
 from random import randint #Used for random choosing of values ( E.g. names)
 from time import sleep #Used to space out prints and create Fake loading times
-from tqdm import tqdm #Used to make loading screens.
 
 class Human(object): #Basic class for all the Humans present in the game.
 	def __init__(self,name,day_of_birth,parent_1,parent_2,gender):
@@ -479,7 +478,9 @@ class Item(object): # Basic model for items in the game. Objects of this class w
 
 #Information system!
 # Bunch of functions used by other functions to retrieve information about the shelter, it's assigned, rooms and items.
-load=1 #If this is 1, loading screens are activated. IF 0, no loading screens.
+load=0 #If this is 1, loading screens are activated. IF 0, no loading screens.
+if load:
+    from tqdm import tqdm
 def load_time(x,message): #This is a fake loading screen. There's no loading happening, just improves pacing of the game.
 	if load==1:
 		print(str(message))
