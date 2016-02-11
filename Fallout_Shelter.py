@@ -10,12 +10,17 @@ from general_funcs import *
 
 class Game(object):
     """
-    Main game class
+    Main game class.
     """
     def __init__(self):
+        """
+        Initilizes main game system. Set's default values local to the object 
+        """
         self.player = Player() # Instantiates a player object
-        self.inventory = {} 
-        #self.people = [self.player] # Add the player as the first person
+        self.inventory = {}
+        self.rooms = {}
+        self.people = {}
+        #self.people = [self.player] # Don't know If I want to add the player into the people list
         self.caps = 100
         self.happiness = 100
         self.action_points = 50
@@ -24,18 +29,18 @@ class Game(object):
         self.action_points = {} # What is this?
     
     
-    def validate_name(self, name):
-        if len(name) > 0:
-            if len(name.split()) == 1:
-                return True
-        return False
-    
-    
      def add_action(self, name, action):
+         """
+        Adds entries to the actions dictionary with the key `name` and the
+        value `action`, where action is any Python function.
+         """
         self.actions[name] = action
     
     
     def setup_player(self):
+        """
+        Create's new player class and stores it locally in the Game() object
+        """
         name = input("Choose a first name for yourself: ")
         if self.validate_name(name):
             fathers_name = input("What is the surname of your father? ")
@@ -50,8 +55,24 @@ class Game(object):
             self.player.name = name
         else:
             print_line("Invalid player name entered: {}".format(name))
+    
+    def storage_capacity(all_rooms):
+    """Calculate max inventory capacity of player.
+
+    Arguments:
+    all_rooms -- list of currently built rooms
+
+    Returns:
+    capacity -- max inventory capacity of player
+    """
+    capacity = all_rooms("storage").production
+    return capacity
+     
             
     def run(self, debug=False):
+        """
+        Main game. Once all values are initilized, this is run
+        """
         self.setup_player()
         while True and self.player.alive:
             if self.action_points < 50:
@@ -110,24 +131,16 @@ class Game(object):
                         print("You have to choose a valid action.")
 
 
-def storage_capacity(all_rooms):
-    """Calculate max inventory capacity of player.
 
+
+
+def see_people(game):
+    """Display info of all inhabitants.
     Arguments:
-    all_rooms -- list of currently built rooms
-
-    Returns:
-    capacity -- max inventory capacity of player
+    game -- Main game object
     """
-    capacity = all_rooms("storage").production
-    return capacity
-
-
-def see_people():
-    """Display info of all inhabitants."""
-    for person in people:
+    for person in game.people:
         print_line(person.name, person.surname)
-        print_line(
             "    Age:" + person.age,
             " Gender:" + person.gender.upper(),
             " Hunger:" + person.hunger,
@@ -136,10 +149,11 @@ def see_people():
 
 
 # (Log*5.Weight=5.Value=10.Components="Wood". Rarity=1)
-def see_inventory(inven):
+def see_inventory(game,inven):
     """Display all items in inventory.
 
     Arguments:
+    game -- Main game object
     inven -- inventory to show, 'player' or 'trader'
     """
     inven = str(inven)
@@ -213,26 +227,31 @@ def print_help():
     """, fast=True)
 
 
-def living_capacity():
+def living_capacity(game):
     """Get maximum inhabitant capacity of shelter.
 
     Returns:
     int -- maximum capacity of shelter
     """
-    room = rooms[get_room_index('living')]
+    room = game.room
     print_line("Maximum number of inhabitants", 5 * room.level)
     return (5 * room.level)
 
 
-def see_resources():
-    """Print food, water, and power Player has available."""
-    print_line("Food * ", count_item("food", "player"))
-    print_line("Water * ", count_item("water", "player"))
-    print_line("Power * ", count_item("watt", "player"))
+def see_resources(game):
+    """Print food, water, and power Player has available.
+    
+    Arguments:
+    game -- Main game object
+    """
+    print_line("Food * ", count_item(game,"food", "player"))
+    print_line("Water * ", count_item(game,"water", "player"))
+    print_line("Power * ", count_item(game,"watt", "player"))
 
-
+""" #Should be no need for this function anymore
 def get_person_index(first_name, surname):
-    """Get index of inhabitant in list of all inhabitants.
+    
+    Get index of inhabitant in list of all inhabitants.
 
     Arguments:
     first_name -- first name of inhabitant to search for
@@ -240,22 +259,21 @@ def get_person_index(first_name, surname):
 
     Returns:
     x -- index of person in list
-    """
+    
     for x in range(len(people)):
         if people[x].name == first_name[0].upper() + first_name[1:] \
                 and people[x].surname == surname[0].upper() + surname[1:]:
             return x
-
+"""
 
 # Scavenging system:
 
 # Sends people on a scavenging mission.
-def scavenge(first_name, surname, days=0):
+def scavenge(game,days=0):
     """Send inhabitant on scavenging mission.
 
     Arguments:
-    first_name -- first name of inhabitant to send
-    surname -- surname of inhabitant to send
+    game -- Main game object
     days -- ask user for number of days if this is 'days'.
     """
     global people
@@ -273,12 +291,12 @@ def scavenge(first_name, surname, days=0):
 
 # Construction system:
 
-def build(r, player):
+def build(game, room):
     """Build room specified.
 
     Arguments:
-    r -- name of room to build
-    player -- string 'player', used to remove components from inventory
+    game -- Main game object
+    room -- name of room to build
     """
     global rooms
     global inventory
@@ -296,11 +314,12 @@ def build(r, player):
     use_points(10)
 
 
-def craft(x):
+def craft(game, item):
     """Craft specified item.
 
     Arguments:
-    x -- item to craft
+    game -- Main game object
+    item -- item to craft
     """
     global inventory
     load_time(5, ("Crafting ", x))
@@ -355,10 +374,11 @@ def get_gender():
         return "f"
 
 
-def check_person(first_name, surname):
+def check_person(game, first_name, last_name):
     """Check if inhabitant exists in list of all inhabitants.
 
     Arguments:
+    game -- Main game object
     first_name -- first name of inhabitant to check
     surname -- surname of inhabitant to check
 
@@ -373,10 +393,12 @@ def check_person(first_name, surname):
         return False
 
 
-def gain_xp(first_name, last_name, amount):
+def gain_xp(game, person, amount):
     """Add experience to Human.
 
     Arguments:
+    game -- Main game object
+    person -- person to gain experience
     amount -- amount of experience to add
     """
     global people
@@ -387,18 +409,13 @@ def gain_xp(first_name, last_name, amount):
     person.XP += amount
 
 
-def check_xp(first_name, surname):
+def check_xp(game, person):
     """Check experience of inhabitant.
 
     Arguments:
-    first_name -- first name of inhabitant to check
-    surname -- surname of inhabitant to check
+    game -- Main game object
     """
-    global people
-    person = people[
-        get_person_index(
-            first_name,
-            last_name)]
+    
     # Xp needed to level up increases exponentially
     xp_needed = 1000 + (3**person.level)
     if person.XP + 1 > xp_needed:
@@ -408,51 +425,54 @@ def check_xp(first_name, surname):
         print_line(person.first_name, "  is now level ", person.level)
 
 
-def level_up(person:
+def level_up(person):
     """Level up Human and ask player for input on what stat to level up.
+    
     Arguments:
     person -- Person object at level x 
+    
     Returns:
     person -- Person object at level x+1
     """
-    see_stats()
-    self.level += 1
-    if self.name == people[0].name:  # If player has leveled up
+    
+    see_stats(person)
+    person.level += 1
+    if isinstance(person,Player):  # If player has leveled up
         print_line("\n")
         choice = input("Please choose an attribute to level up: ")
         choice.lower()
         if choice == "strength":
-            self.strength += 1
+            person.strength += 1
         elif choice == "perception":
-            self.perception += 1
+            person.perception += 1
         elif choice == "endurance":
-            self.endurance += 1
+            person.endurance += 1
         elif choice == "charisma":
-            self.charisma += 1
+            person.charisma += 1
         elif choice == "intelligence":
-            self.intelligence += 1
+            person.intelligence += 1
         elif choice == "luck":
-            self.luck += 1
+            person.luck += 1
         elif choice == "medic":
-            self.medic += 1
+            person.medic += 1
         elif choice == "crafting":
-            self.crafting += 1
+            person.crafting += 1
         elif choice == "tactitian":
-            self.tactitian += 1
+            person.tactitian += 1
         elif choice == "cooking":
-            self.cooking += 1
+            person.cooking += 1
         elif choice == "inspiration":
-            self.inspiration += 1
+            person.inspiration += 1
         elif choice == "scrapper":
-            self.scrapper += 1
+            person.scrapper += 1
         elif choice == "barter":
-            self.barter += 1
+            person.barter += 1
         elif choice == "electrician":
-            self.electrician += 1
+            person.electrician += 1
         else:
             print_line("Invalid choice")
-            self.level -= 1
-            self.level_up()
+            person.level -= 1
+            level_up(person)
 
 
 def create_NPC(
@@ -521,7 +541,7 @@ def death(person):
     person -- Person who's dying
     
     Returns:
-    person -- Dead now
+    None
     """
     global end  # Set to 1, if player died
     global rooms
@@ -535,7 +555,6 @@ def death(person):
     return None
 
 
-<<<<<<< 98a419a836dd0548b42d4ccbc3590b116524e53e
 def mature(person):
     """Increment Human's age.
     
@@ -562,13 +581,6 @@ def take_damage(person, amount):
     Returns:
     person -- Human who has taken damage
     """
-<<<<<<< 98a419a836dd0548b42d4ccbc3590b116524e53e
-    global people
-    person = people[
-        get_person_index(
-            first_name,
-            last_name)]
-
     person.defense = person.strength * 10
     damage_taken = amount - person.defense
     if damage_taken < 1:
@@ -582,12 +594,9 @@ def take_damage(person, amount):
 
 
 
-def first_few():
+def first_few(game):
     """Create first few inhabitants with random names."""
-    global people
-    global used_names
-    global rooms
-    global used_names
+    used_names=[]
     names = [
         "Thompson",
         "Elenor",
@@ -603,17 +612,16 @@ def first_few():
         "Lex",
         "Leth",
         "Exavor"]
-    for person in people:
+    for person in game.people:
         used_names.append(person.name)
         used_names.append(person.surname)
-    while len(people) < 5:
+    while len(game.people) < 5:
         num_1 = randint(0, len(names) - 1)
         num_2 = randint(0, len(names) - 1)
         if num_1 == num_2:
             continue
         if names[num_1] in used_names or names[num_2] in used_names:
             continue
-        # First few inhabitants all have the same mother.
         people.append(
             NPC(
                 names[num_1],
@@ -702,22 +710,36 @@ def see_stats(person):
         print_line("Electricain: ", person.electrician)
 
 
-def auto_assign():
-    """Automatically assign inhabitants to rooms."""
-    global people
-    global rooms
-    for person in people:
+def auto_assign(game):
+    """Automatically assign inhabitants to rooms.
+    
+    Arguments:
+    game -- Main game object
+    
+    Returns:
+    game -- Game object with everyone assigned to available rooms.
+    """
+    for person in game.people:
         if person.assigned_room == "":
-            for r in rooms:
-                if r.count_assigned() < r.assigned_limit:
+            for room in game.rooms:
+                if room.count_assigned() < room.assigned_limit:
                     person.assign_to_room(r.name)
                     break
+    return game
+    
 
-
-def update_all_assignment():
-    """When vault population increases, updates length of the assignement variable """
-    global rooms
-    for r in rooms:
+def update_all_assignment(game): #We shouldn't need this function anymore.
+    """
+    When vault population increases, updates length of the assignement variable 
+    
+    Arguments:
+    game -- Main game object
+    
+    Returns:
+    game -- Game object with all rooms that have proper lengths of assignment.
+    """
+    
+    for r in game.rooms:
         current_count = len(r.assigned)  # Count's how many digits exist
         # print_line("This many digits exist",current_count)
         required_count = len(people)  # Count's how many digits should exists
@@ -739,7 +761,7 @@ def update_all_assignment():
 
 # Room Management system:
 
-def get_room_index(room):
+def get_room_index(room): #Shouldnt'need this function anymore
     """Get index of room in room list.
 
     Arguments:
@@ -756,62 +778,71 @@ def get_room_index(room):
             return r
 
 
-def check_room(room):
+def check_room(game,room): 
     """Check if room exists.
 
     Arguments:
+    game -- main game object
     room -- room to check for
 
     Returns:
     bool -- whether room exists or not
     """
-    if room in all_rooms:
+    if room in game.all_rooms: #all_rooms list doesn't exist. Should we make it?
         return True
     return False
 
 
-def check_built_room(room):
+def check_built_room(game,room):
     """Check if room has been built yet.
 
     Arguments:
+    game -- main game object
     room -- room to check for
 
     Returns:
     bool -- whether room has been built or not
     """
-    for r in rooms:
+    for r in game.rooms:
         if room == r.name:
             return True
     return False
 
 
-def see_rooms():
-    """Print each room and details."""
+def see_rooms(game):
+    """Print each room with details.
+    
+    Arguments:
+    game -- main game object
+    """
     print_line("")
-    for r in rooms:
-        for word in r.name.split():
+    for room in game.rooms:
+        for word in room.name.split():
             print_line(word[0].upper() + word[1:], end=" ")
-        if r.can_produce:
-            r.update_production(player)
+        if room.can_produce:
+            room.update_production(player)
             print_line(
-                "\n    Risk:" + r.risk * 10 + "%",
-                "    Level:" + r.level,
-                "    Power:" + r.power_available,
-                "    Production:" + r.production)
+                "\n    Risk:" + room.risk * 10 + "%",
+                "    Level:" + room.level,
+                "    Power:" + room.power_available,
+                "    Production:" + room.production)
         else:
             print_line(
-                "\n    Risk:" + r.risk + "%",
-                "    Level:" + r.level,
-                "    Power:" + r.power_available)
+                "\n    Risk:" + room.risk + "%",
+                "    Level:" + room.level,
+                "    Power:" + room.power_available)
 
-        if r.can_produce or r.name == "trader":
-            r.see_assigned()
+        if room.can_produce or room.name == "trader":
+            room.see_assigned()
 
 
 def can_use_power(room):
     """
     Determine whether the room may use power or not.
-
+    
+    Arguments:
+    room - room which uses power
+    
     Returns:
     bool -- whether room may use power
     """
@@ -821,90 +852,96 @@ def can_use_power(room):
         return False
 
 
-def power_usage():
+def power_usage(game):
     """Check total power needed.
-
+    
+    Arguments:
+    game -- main game object
+    
     Returns:
     total -- total power needed by all rooms
     """
     total = 0
-    for r in rooms:
-        total += r.power_usage
+    for room in game.rooms:
+        total += room.power_usage
     return total
 
 
-def power_production():
+def power_production(game):
     """Check total power being produced.
-
+    
+    Arguments:
+    game -- main game object
+    
     Returns:
     production -- total amount of power being produced
     """
-    generator = rooms[get_room_index('generator')]
+    generator = game.rooms['generator']
     return generator.production
 
 
 # Inventory managment system:
+    
 
-def rand_item(target_inventory):
-    """Put a random item in inventory.
-
-    Arguments:
-    target_inventory -- inventory to put item in
-    """
-    # Following lines randomly choose an item, based on rarity
-    num = randint(1, 1024)
-    lst = [2**a for a in range(0, 11)]
-    count = 0
-    for chance in lst:
-        if num < chance:
-            break
-        count += 1
-    # Determines the rarity of an item. 50% chance it's a level 10, 25% chance
-    # it's a level 9, 12.5% chance it's a level 8 and so on.
-    rar = 10 - count
-    # Stores each item if the rarity level matches what was randomly picked.
-    possible_items = []
-    for x in all_items:
-        if Item(x).rarity == rar:
-            possible_items.append(x)
-    if len(possible_items) > 0:
-        number = randint(0, len(possible_items) - 1)
-        actual_item = possible_items[number]
-        # print_line("Randomly adding",actual_item,
-        #    "to",target_inventory,"inventory")
-        # Following lines actually store the item in memory
-        if target_inventory == "player":
-            add_to_inven(actual_item, 1, 'inventory')
-        elif target_inventory == "trader":
-            add_to_inven(actual_item, 1, 'trader')
-        else:
-            print_line("Bug with random item system. Please contact dev!")
-
-
-def count_weight():
+def count_weight(game):
     """Calculate weight of all items in inventory.
-
+    
+    Arguments:
+    game -- main game object
+    
     Returns:
     weight -- weight of all items in inventory
     """
     weight = 0
-    for x in inventory:
+    for x in game.inventory:
         weight += Item(x).weight
     return weight
 
 
-def find_rand_item(inven, items):
+def find_rand_item(game,inven, num):
     """Find random items and add them to inventory.
 
     Arguments:
+    game -- main game object
     inven -- inventory to add items to
     items -- how many items to add
+    
+    Returns:
+    game -- with all items added.
     """
-    for x in range(items):
-        rand_item(inven)
+    for x in range(num):
+        # Following lines randomly choose an item, based on rarity
+        num = randint(1, 1024)
+        lst = [2**a for a in range(0, 11)]
+        count = 0
+        for chance in lst:
+            if num < chance:
+                break
+            count += 1
+        # Determines the rarity of an item. 50% chance it's a level 10, 25% chance
+        # it's a level 9, 12.5% chance it's a level 8 and so on.
+        rar = 10 - count
+        # Stores each item if the rarity level matches what was randomly picked.
+        possible_items = []
+        for x in game.all_items:
+            if Item(x).rarity == rar:
+                possible_items.append(x)
+        if len(possible_items) > 0:
+            number = randint(0, len(possible_items) - 1)
+            actual_item = possible_items[number]
+            # Following lines actually store the item in memory
+            
+            if target_inventory == "player" or target_inventory == "trader":
+                if target_inventory == "player":
+                    game = add_to_inven(game,actual_item, 1, 'inventory')
+                elif target_inventory == "trader":
+                    game = add_to_inven(game,actual_item, 1, 'trader')
+            else:
+                print_line("Bug with random item system. Please contact dev!")
+    return game
 
 
-def add_to_inven(x, number, inven):
+def add_to_inven(game,item, number, inven):
     """Add given item to inventory.
 
     Arguments:
