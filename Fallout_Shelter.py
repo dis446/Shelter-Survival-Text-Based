@@ -57,7 +57,7 @@ class Game(object):
             self.player.name = name
         else:
             print_line("Invalid player name entered: {}".format(name))
-
+            
     def storage_capacity(self):
         """Calculate max inventory capacity of player.
 
@@ -529,65 +529,6 @@ def create_npc(
             create_npc(
                 parent_1,
                 parent_2)
-
-
-def death(game, person_name):
-    """Kill inhabitant.
-
-    Arguments:
-    game -- main game object
-    person -- Name of person dying
-
-    Returns:
-    game -- with one less inhabitant
-    """
-    print_line(person_name, " has died!")
-    if isinstance(person, Player):  # If player has died.
-        game.end = 1
-    else:
-        person = game.people[str(person_name)]
-        if person.assigned_room != "":
-            pass  # Person should be removed from the room's list.
-    del game.people[person_name]
-
-
-def mature(person):
-    """Increment Human's age.
-
-    Arguments:
-    person -- Human who's aging
-
-    Returns:
-    person -- Human with one more year
-    """
-    person.age += 1
-    print_line(
-        person.name + " has matured and is now ",
-        person.age + " years old!")
-    return person
-
-
-def take_damage(person, amount):
-    """Take health from Human.
-
-    Arguments:
-    person -- Human who's taking damage
-    amount -- amount of health to take
-
-    Returns:
-    person -- Human who has taken damage
-    """
-    person.defense = person.strength * 10
-    damage_taken = amount - person.defense
-    if damage_taken < 1:
-        damage_taken = 0
-    else:
-        person.HP -= damage_taken
-        if person.HP < 1:
-            person = death(person)
-        else:
-            return person
-
 
 def first_few(game):
     """Create first few inhabitants with random names."""

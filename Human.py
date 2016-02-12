@@ -150,6 +150,33 @@ class Human(object):
                     people[x].surname == self.surname:
                 return int(x)
 
+
+    def mature(self,person):
+        """Increment Human's age.
+
+        Arguments:
+        person -- Human who's aging
+        """
+        person.age += 1
+        print_line(
+            person.name + " has matured and is now ",
+            person.age + " years old!")
+
+    def take_damage(self, amount):
+        """Take health from Human.
+
+        Arguments:
+        amount -- amount of health to take
+        """
+        person.defense = person.strength * 10
+        damage_taken = amount - person.defense
+        if damage_taken < 1:
+            damage_taken = 0
+        else:
+            person.HP -= damage_taken
+            if person.HP < 1:
+                person.die()
+    
     def unassign(self):
         """Unassign Human from room."""
         for room in rooms:
@@ -251,22 +278,24 @@ class NPC(Human):
         self.scavenging = False
         self.days_scavenging = 0
         self.days_to_scavenge_for = 0
+    
+    def die(self, game):
+    """Kills NPC and removes them from their assigned room.
 
-    def die(self):
-        """Kill NPC."""
-        global people
-        global rooms
-        print_line(self.name, " has died")
-        if self.assigned_room != "":
-            for x in range(people):  # Fetches the index of the person.
-                if people[x].name == self.name:
-                    index = x
-                    break
-            for r in rooms:
-                # Removes person from the rooms' assigned records.
-                del r.assigned[index]
-        people.remove(self)
-
+    Arguments:
+    game -- main game object
+    
+    Returns:
+    game -- with one less inhabitant
+    """
+    print_line(person_name, " has died!")
+    if isinstance(person, Player):  # If player has died.
+        end = 1
+    else:
+        person = people[str(person_name)]
+        if person.assigned_room != "":
+            pass  # Person should be removed from the room's list.
+    del game.people[person_name]
 
 class Player(Human):
     """Player class, inherits Human attributes."""
@@ -295,3 +324,8 @@ class Player(Human):
         self.inspiration = 0  # Boosts production and defense.
         self.scrapper = 0  # Boosts chance of bonus components when scrapping.
         self.electrician = 0  # Boosts power production
+    
+    
+    def die(self):
+        """ Kills player and ends the game"""
+        end = True
