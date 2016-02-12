@@ -4,9 +4,29 @@ from random import randint
 # from Game import Game
 from Human import Human, Player, NPC
 from Room import Room
-from Item import Item
+from Item import all_items, Item
 
 from general_funcs import *
+
+
+class Inventory(dict):
+    """Inventory class, inherits dict attributes."""
+
+    def __init__(self, items=[]):
+        """Inventory class constructor, sets values to 0."""
+        for item in items:
+            self[item] = 0
+
+    def print(self):
+        """Print all items in inventory."""
+        att = " | {}: {}"
+        for item in self:
+            if self[item] > 0:
+                print_line("{} * {}".format(item, self[item]), end=" ")
+                print_line(att.format("Weight", Item(item).weight), end=" ")
+                print_line(att.format("Value", Item(item).value), end=" ")
+                print_line(att.format("Rarity", Item(item).rarity), end=" ")
+                print_line(att.format("Components", Item(item).components))
 
 
 class Game(object):
@@ -15,12 +35,11 @@ class Game(object):
     def __init__(self):
         """Initilize main game system."""
         self.player = Player()  # Instantiates a player object
-        with open('items.json') as i:
-            self.inventory = {item: 0 for item in json.loads(i.read())}
+        self.all_items = all_items()
+        self.inventory = Inventory(self.all_items)
         self.inventory['turret'] += 1
         self.rooms = {}
         self.people = {}
-        self.people = []
         self.caps = 100
         self.happiness = 100
         self.action_points = 50
@@ -28,6 +47,7 @@ class Game(object):
         self.days = 1
         self.actions = {}  # Actions are stored as {'action': ('desc', action)}
 
+        self.add_action('skip', 'skip current day', None)
         self.add_action('help', 'print this help', action_help)
 
     def add_action(self, name, description, action):
@@ -205,41 +225,42 @@ def see_inventory(game, inven):
         print_line("Bug with inventory system. Please contact dev!")
 
 
-# def print_help():
-#     """Print list of commands available to player."""
-#     print_line("""Commands:
-#
-#     Room actions:
-#     see rooms           : View all rooms
-#     build x             : Construct room 'x'
-#     rush x              : Rush construction of room 'x'
-#     upgrade x           : Upgrade room 'x'
-#     fix x               : Fix damaged room 'x'
-#
-#     Inhabitant actions:
-#     see people          : View all inhabitants
-#     feed x              : Feed inhabitant 'x'
-#     enable auto_feed    : Enable automatically feeding inhabitants
-#     disable auto_feed   : Disable automatically feeding inhabitants
-#     coitus x y          : Send inhabitants 'x' and 'y' to the love-house
-#     scavenge x          : Send inhabitant 'x' to scavenge in the wasteland
-#     heal x              : Heal inhabitant 'x'
-#     heal all            : Heal all inhabitants
-#     assign x y          : Assign inhabitant 'x' to room 'y'
-#     auto assign         : Automatically assign unassigned inhabitants to room
-#
-#     Inventory actions:
-#     see items           : View all held items
-#     scrap x             : Destroy item and add components to your inventory
-#     trade               : Begin trading interaction
-#
-#     Other actions:
-#     skip                : Skip current day
-#     see day             : View day number
-#     see resources       : View all resources available
-#     end                 : Quit game
-#     help                : See this help text
-#     """, fast=True)
+''' def print_help():
+     """Print list of commands available to player."""
+     print_line("""Commands:
+
+     Room actions:
+    see rooms           : View all rooms
+    build x             : Construct room 'x'
+    rush x              : Rush construction of room 'x'
+    upgrade x           : Upgrade room 'x'
+    fix x               : Fix damaged room 'x'
+
+    Inhabitant actions:
+    see people          : View all inhabitants
+    feed x              : Feed inhabitant 'x'
+    enable auto_feed    : Enable automatically feeding inhabitants
+    disable auto_feed   : Disable automatically feeding inhabitants
+    coitus x y          : Send inhabitants 'x' and 'y' to the love-house
+    scavenge x          : Send inhabitant 'x' to scavenge in the wasteland
+    heal x              : Heal inhabitant 'x'
+    heal all            : Heal all inhabitants
+    assign x y          : Assign inhabitant 'x' to room 'y'
+    auto assign         : Automatically assign unassigned inhabitants to room
+
+    Inventory actions:
+    see items           : View all held items
+    scrap x             : Destroy item and add components to your inventory
+    trade               : Begin trading interaction
+
+    Other actions:
+    skip                : Skip current day
+    see day             : View day number
+    see resources       : View all resources available
+    end                 : Quit game
+    help                : See this help text
+    """, fast=True)
+'''
 
 
 def living_capacity(game):
