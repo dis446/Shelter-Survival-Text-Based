@@ -54,22 +54,37 @@ def validate_name(name):
         return True
     else:
         return False
-        
 
-def print_line(*messages, fast=True):
-    """Replace print() with artificial line spacing.
+
+def text_align(starts):
+    """Align starts and ends so the beginning of end strings line up.
 
     Arguments:
-    *messages -- any number of arguments to print
+    starts -- list of strings to begin
+
+    Returns:
+    align -- list of differences of max string length and each string length
+    """
+    lens = [len(s) for s in starts]
+    align = [max(lens) - l for l in lens]
+    return align
+
+
+def print_line(*messages, end='\n', fast=False):
+    """Print message with artificial spacing by sleeping.
+
+    Arguments:
+    *messages -- tuple of strings to print
+    end -- end of string
+    fast -- if true, shortens time between prints
     """
     for message in messages:
-        message = str(message)
         for line in message.splitlines():
             if fast:
-                sleep(0.1)  # Only used while game is in development.
+                sleep(0.1)
             else:
-                sleep(0.5)  # Normal value used.
-            print(line)
+                sleep(0.5)
+            print(line, end=end)
 
 
 def load_time(x, message):
