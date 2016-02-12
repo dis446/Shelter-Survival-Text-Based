@@ -4,6 +4,17 @@ from general_funcs import print_line
 import json
 
 
+def all_items():
+    """Get a list of all items available in game.
+
+    Returns:
+    items -- list of all items
+    """
+    with open('items.json') as i:
+        items = [item for item in json.loads(i.read())]
+    return items
+
+
 class Item(object):
     """Item class. Only used for on-the-fly cases, not storage."""
 
