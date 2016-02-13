@@ -36,8 +36,7 @@ class Item(object):
                 self.components = item['components']
                 self.rarity = item['rarity']
             except KeyError:
-                print_line(
-                    "Unknown item. This is a bug. Please contact the dev.")
+                print("Unknown item. This is a bug. Please contact the dev.")
         # Keeps track of whether item has been scrapped by player.
         self.scrapped = False
 

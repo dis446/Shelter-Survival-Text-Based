@@ -2,6 +2,7 @@
 
 from general_funcs import print_line
 from Item import Item
+import json
 
 
 class Room(object):  # Basic class for the rooms in the game.
@@ -15,62 +16,22 @@ class Room(object):  # Basic class for the rooms in the game.
         player -- ???
         """
         self.name = name
-        self.assigned = ''  # should be a list
-
-        # Determines the production level, max assigned limit etc.
         self.level = 1
-        self.risk = False  # Risk of breaking down, when rushed.
+        self.power_available = True
+        with open('rooms.json') as f:
+            parsed = json.loads(f.read())
+            try:
+                room = parsed[self.name]
+                self.risk = room['risk']
+                self.can_produce = room['can_produce']
+                self.assigned_limit = room['assigned_limit']
+                self.components = room['components']
+                self.power_usage = room['power_usage']
+            except KeyError:
+                print("Unknown item. Please contact dev.")
+        self.assigned = []
         self.broken = False
-        # 'On' if there is enough power for the room, 'Off' otherwise.
-        self.power_available = "On"
-        # Living rooms have no "assigned". Number of living rooms just limits
-        # the total population of the shelter.
-        if self.name == "living":
-            # Stores whether or not room actually produces anything.
-            # self.components=["wood",] #Need to add components.
-            self.can_produce = False
-            self.assigned_limit = 0
-            self.components = ["wood", "wood", "wood", "wood"]
-            self.power_usage = 5
-        elif self.name == "generator":
-            self.risk = 2
-            self.can_produce = True
-            self.components = ["steel", "steel", "steel", "steel"]
-            # Max number of workers that can work in the room at one time.
-            self.assigned_limit = 3
-            self.power_usage = 0
-        elif self.name == "storage":
-            self.can_produce = False
-            self.assigned_limit = 0
-            self.components = ["steel", "steel"]
-            self.power_usage = 1
-        elif self.name == "kitchen":
-            self.risk = 1
-            self.can_produce = True
-            self.assigned_limit = 3
-            self.components = ["wood", "wood", "wood"]
-            self.power_usage = 10
-        elif self.name == "trader":
-            self.can_produce = False
-            self.assigned_limit = 1
-            self.components = ["wood", "wood", "steel", "steel", "wood"]
-            self.power_usage = 2
-        elif self.name == "water works":
-            self.risk = 2
-            self.can_produce = True
-            self.assigned_limit = 3
-            self.components = ["wood", "wood", "steel"]
-            self.power_usage = 10
-        elif self.name == "radio":
-            self.can_produce = False
-            self.assigned_limit = 2
-            self.components = ["wood", "wood", "steel", "steel", "wood"]
-            self.power_usage = 15
-        # Need to add more names.
-        else:
-            print_line(
-                "Bug with room creation system.",
-                "Please contact dev. Class specific bug.")
+
         if self.can_produce:
             self.production = 0
             self.can_rush = True
@@ -84,7 +45,7 @@ class Room(object):  # Basic class for the rooms in the game.
         Returns:
         self.name -- eg. "Living Room"
         """
-        return "{}{} Room".format(self.name[0].upper(), self.name[1:])
+        return "{} Room".format(self.name.title())
 
     def rush(self):
         """Rush building of Room."""
