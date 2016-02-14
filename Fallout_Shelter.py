@@ -77,7 +77,7 @@ class Game(object):
             self.player.name = name
         else:
             print_line("Invalid player name entered: {}".format(name))
-            
+
     def storage_capacity(self):
         """Calculate max inventory capacity of player.
 
@@ -405,8 +405,8 @@ def check_person(game, first_name, last_name):
     bool -- whether inhabitant exists or not
     """
     for per in people:
-        if per.name == first_name[0].upper() + first_name[1:] \
-                and per.surname == surname[0].upper() + surname[1:]:
+        if per.name == first_name.title() \
+                and per.surname == surname.title():
             return True
     else:
         return False
@@ -510,7 +510,7 @@ def create_npc(
         name = input("Choose a first name for the new child: ")
         if len(name.split()) == 1:  # Player can only input one word
             if name not in used_names:
-                name = name[0].upper() + name[1:]  # Capitalizes first letter_
+                name = name.title()  # Capitalizes first letter_
                 if parent_2.gender == "m":
                     parent_1, parent_2 = parent_2, parent_1
 
@@ -550,6 +550,7 @@ def create_npc(
             create_npc(
                 parent_1,
                 parent_2)
+
 
 def first_few(game):
     """Create first few inhabitants with random names."""
@@ -604,7 +605,7 @@ def create_player():
         elif len(name.split()) != 1:
             print_line("Only single word inputs are accepted.")
         else:
-            name = name[0].upper() + name[1:len(name)]
+            name = name.title()
             break
     while True:
         parent_1 = input("What is the surname of your father? ")
@@ -613,7 +614,7 @@ def create_player():
         elif len(parent_1.split()) != 1:
             print_line("Only single word inputs are accepted.")
         else:
-            parent_1 = parent_1[0].upper() + parent_1[1:]
+            parent_1 = parent_1.title()
             break
     while True:
         parent_2 = input("What is the surname of your mother? ")
@@ -622,7 +623,7 @@ def create_player():
         elif len(parent_2.split()) != 1:
             print_line("Only single word inputs are accepted.")
         else:
-            parent_2 = parent_2[0].upper() + parent_2[1:]
+            parent_2 = parent_2.title()
             break
     while True:
         gender = input("What is your gender?(m/f) ")
@@ -770,7 +771,7 @@ def see_rooms(game):
     print_line("")
     for room in game.rooms:
         for word in room.name.split():
-            print_line(word[0].upper() + word[1:], end=" ")
+            print_line(word.title(), end=" ")
         if room.can_produce:
             room.update_production(player)
             print_line(
@@ -1597,12 +1598,8 @@ def choice():  # Need to move these commands into Game() class
                     "another room to create space.")
             else:
                 person_index = get_person_index(
-                    a.split()[1][0].upper() +
-                    a.split()[1][
-                        1:],
-                    a.split()[2][0].upper() +
-                    a.split()[2][
-                        1:])
+                    a.split()[1].title(),
+                    a.split()[2].title())
                 people[person_index].assign_to_room(potential_room)
 
         elif a.split()[0] == "auto":  # All automaticf functions

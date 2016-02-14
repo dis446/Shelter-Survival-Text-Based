@@ -150,8 +150,7 @@ class Human(object):
                     people[x].surname == self.surname:
                 return int(x)
 
-
-    def mature(self,person):
+    def mature(self, person):
         """Increment Human's age.
 
         Arguments:
@@ -176,7 +175,7 @@ class Human(object):
             person.HP -= damage_taken
             if person.HP < 1:
                 person.die()
-    
+
     def unassign(self):
         """Unassign Human from room."""
         for room in rooms:
@@ -278,24 +277,25 @@ class NPC(Human):
         self.scavenging = False
         self.days_scavenging = 0
         self.days_to_scavenge_for = 0
-    
-    def die(self, game):
-    """Kills NPC and removes them from their assigned room.
 
-    Arguments:
-    game -- main game object
-    
-    Returns:
-    game -- with one less inhabitant
-    """
-    print_line(person_name, " has died!")
-    if isinstance(person, Player):  # If player has died.
-        end = 1
-    else:
-        person = people[str(person_name)]
-        if person.assigned_room != "":
-            pass  # Person should be removed from the room's list.
-    del game.people[person_name]
+    def die(self, game):
+        """Kill NPC and removes them from their assigned room.
+
+        Arguments:
+        game -- main game object
+
+        Returns:
+        game -- with one less inhabitant
+        """
+        print_line(person_name, " has died!")
+        if isinstance(person, Player):  # If player has died.
+            end = 1
+        else:
+            person = people[str(person_name)]
+            if person.assigned_room != "":
+                pass  # Person should be removed from the room's list.
+        del game.people[person_name]
+
 
 class Player(Human):
     """Player class, inherits Human attributes."""
@@ -324,8 +324,7 @@ class Player(Human):
         self.inspiration = 0  # Boosts production and defense.
         self.scrapper = 0  # Boosts chance of bonus components when scrapping.
         self.electrician = 0  # Boosts power production
-    
-    
+
     def die(self):
-        """ Kills player and ends the game"""
+        """Kill player and ends the game."""
         end = True

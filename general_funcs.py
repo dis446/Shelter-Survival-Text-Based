@@ -26,34 +26,31 @@ def input_int(s):
 
 
 def validate_input(text):
-        """
-        Checks if input is valid ( i.e has enougth length)
-        
+        """Check if input is valid ( i.e has enougth length).
+
         Arguments:
-        input -- string to be checked
-        
+        text -- string to be checked
+
         Returns:
         bool -- Whether input is acceptable
         """
-        if len(name) > 0:
+        if len(text) > 0:
                 return True
         return False
 
 
 def validate_name(name):
-    """
-    Checks if name is valid ( Has to be one word only)
-    
+    """Check if name is valid ( Has to be one word only).
+
     Arguments:
     name -- name to be checked
-    
+
     Returns:
     bool -- Whether name is acceptable or not
     """
     if validate_input(name) and len(name.split()) > 0:
         return True
-    else:
-        return False
+    return False
 
 
 def text_align(starts):
