@@ -1,4 +1,6 @@
 """Text-based Fallout Shelter game developed by T.G."""
+
+from collections import OrderedDict
 from random import randint
 
 from Human import Human, Player, NPC
@@ -26,8 +28,7 @@ class Game(object):
         self.action_points = 50
         self.security = "secure"  # Is this the player's job security?
         self.days = 1
-        self.actions = {}  # Actions are stored as {'action': ('desc', action)}
-        # need to see about sorting this by when actions are added
+        self.actions = OrderedDict()  # [('action': ('desc', action))]
 
         self.add_action(
             "skip",
@@ -39,7 +40,7 @@ class Game(object):
             action_help)
         self.add_action(
             "see inventory",
-            "see your items",
+            "see your inventory",
             action_see_inventory)
         self.add_action(
             "see trader",
@@ -174,11 +175,11 @@ def action_help(game):
     """Print help for actions available in-game."""
     print_line('Actions:')
     lens = text_align(game.actions)
-    for i, action in enumerate(game.actions):
+    for i, (action, desc) in enumerate(game.actions.items()):
         print_line('{}{}: {}'.format(
             action,
             ' ' * (2 + lens[i]),
-            game.actions[action][0]),
+            desc[0]),
             fast=True)
 
 
