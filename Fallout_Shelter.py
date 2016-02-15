@@ -433,7 +433,6 @@ def death(person):
     return None
 
 
-<<<<<<< 98a419a836dd0548b42d4ccbc3590b116524e53e
 def mature(person):
     """Increment Human's age.
     
@@ -460,7 +459,6 @@ def take_damage(person, amount):
     Returns:
     person -- Human who has taken damage
     """
-<<<<<<< 98a419a836dd0548b42d4ccbc3590b116524e53e
     global people
     person = people[
         get_person_index(
