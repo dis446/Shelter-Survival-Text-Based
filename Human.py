@@ -251,6 +251,20 @@ class Human(object):
                 return False
         return True
 
+    def die(self, game):
+        """Kill self, and unassign from a assigned room.
+
+        Arguments:
+        game -- main game object
+        """
+        print_line("{} has died!".format(self))
+        if self.assigned_room:
+            game.rooms[self.assigned_room].remove(str(self))
+        if not isinstance(self, Player):
+            del game.people[str(self)]
+        else:
+            game.player.alive = False
+
 
 class NPC(Human):
     """NPC class, inherits Human attributes."""
@@ -272,29 +286,11 @@ class NPC(Human):
             self, first_name, day_of_birth,
             parent_1, parent_2, age, gender)
         self.current_activity = ""
-        person.days_active = 0
-        person.activity_limit = 0
+        self.days_active = 0
+        self.activity_limit = 0
         self.scavenging = False
         self.days_scavenging = 0
         self.days_to_scavenge_for = 0
-
-    def die(self, game):
-        """Kill NPC and removes them from their assigned room.
-
-        Arguments:
-        game -- main game object
-
-        Returns:
-        game -- with one less inhabitant
-        """
-        print_line(person_name, " has died!")
-        if isinstance(person, Player):  # If player has died.
-            end = 1
-        else:
-            person = people[str(person_name)]
-            if person.assigned_room != "":
-                pass  # Person should be removed from the room's list.
-        del game.people[person_name]
 
 
 class Player(Human):
@@ -324,7 +320,3 @@ class Player(Human):
         self.inspiration = 0  # Boosts production and defense.
         self.scrapper = 0  # Boosts chance of bonus components when scrapping.
         self.electrician = 0  # Boosts power production
-
-    def die(self):
-        """Kill player and ends the game."""
-        end = True
