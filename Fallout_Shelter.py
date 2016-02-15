@@ -7,6 +7,7 @@ from Item import Item, Inventory, all_items
 
 from general_funcs import *
 
+
 class Game(object):
     """Main game class."""
 
@@ -26,14 +27,15 @@ class Game(object):
         self.security = "secure"  # Is this the player's job security?
         self.days = 1
         self.actions = {}  # Actions are stored as {'action': ('desc', action)}
+        # need to see about sorting this by when actions are added
 
         self.add_action(
-            "skip", 
-            "skip current day", 
+            "skip",
+            "skip current day",
             None)
         self.add_action(
             "help",
-            "print this help", 
+            "print this help",
             action_help)
         self.add_action(
             "see inventory",
@@ -45,7 +47,7 @@ class Game(object):
             action_see_inventory)
         self.add_action(
             "see rooms",
-            "see built rooms", 
+            "see built rooms",
             action_see_rooms)
 
     def add_action(self, name, description, action):
@@ -81,12 +83,12 @@ class Game(object):
             print(invalid_name)
         while True:
             gender = input("Please enter your gender (M/F): ")
-            if len(gender) == 1 and gender.upper() in ("M", "F"):
+            if len(gender) >= 1 and gender[0].upper() in ("M", "F"):
                 gender = gender.upper()
                 break
             print("Invalid gender.")
-        self.player = Player(first_name,0,father,mother,21,gender)
-        
+        self.player = Player(first_name, 0, father, mother, 21, gender)
+
     def storage_capacity(self):
         """Calculate max inventory capacity of player.
 
@@ -142,8 +144,8 @@ class Game(object):
                         pass
                     if person.days_active == person.activity_limit:
                         if person.current_activity == "scavenging":
-                            print_line(" Someone has come back from " +
-                                       "scavenging and has found these items")
+                            print_line("{} has come back from".format(person) +
+                                       " scavenging and has found these items")
                             # Need to print name and items found.
                         person.current_activity = ""
                         person.active_days = 0
@@ -151,21 +153,21 @@ class Game(object):
                     else:
                         person.days_active += 1
 
-                while self.action_points > 0:
-                    a = input("Choose an action: ")
-                    if len(a) > 0:
-                        action, *args = a.split()
-                        if action.lower() == "skip":
-                            continue
-                        try:
-                            self.actions[action][1](self, *args)
-                        except KeyError:
-                            print("Invalid action selected. Try again.")
-                            continue
-                        except Exception as e:
-                            print("Invalid input. Error: {}".format(e))
-                    else:
-                        print("You have to choose a valid action.")
+            while self.action_points > 0:
+                a = input("Choose an action: ")
+                if len(a) > 0:
+                    action, *args = a.split()
+                    if action.lower() == "skip":
+                        continue
+                    try:
+                        self.actions[action][1](self, *args)
+                    except KeyError:
+                        print("Invalid action selected. Try again.")
+                        continue
+                    except Exception as e:
+                        print("Invalid input. Error: {}".format(e))
+                else:
+                    print("You have to choose a valid action.")
 
 
 def action_help(game):
@@ -209,7 +211,8 @@ def action_see_inventory(game, inventory):
         game.trader_inventory.print()
     else:
         print("No inventory named {} exists.".format(inventory))
-    
+
+
 def action_see_rooms(game):
     """Print each room with details.
 

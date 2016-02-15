@@ -59,8 +59,10 @@ class Item(object):
 
         chance = randint(0, 101)
         if (player.scrapper) * 3 > chance:
-            print_line("Your scrapper skill has allowed you to gain more components!")
-            inventory[self.components[randint(len(self.components))]] += 1 #Randomly adds one more component of the scrapped item the inventory.
+            print_line(
+                "Your scrapper skill has allowed you to gain more components!")
+            # Randomly adds extra component of the scrapped item the inventory.
+            inventory[self.components[randint(len(self.components))]] += 1
         self.destroy("player")
 
     def destroy(self, target_inventory):
@@ -82,7 +84,6 @@ class Item(object):
                     trader_inventory.remove(trader_inventory[x])
                     break
 
-    
 
 class Inventory(dict):
     """Inventory class, inherits dict attributes."""
@@ -102,4 +103,3 @@ class Inventory(dict):
                 print_line(att.format("Value", Item(item).value), end=" ")
                 print_line(att.format("Rarity", Item(item).rarity), end=" ")
                 print_line(att.format("Components", Item(item).components))
-
