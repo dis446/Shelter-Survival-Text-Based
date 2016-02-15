@@ -67,6 +67,20 @@ def text_align(starts):
     return align
 
 
+def sentence_split(text):
+    """Split text by sentences and return first sentence.
+
+    Arguments:
+    text -- text to split
+
+    Returns:
+    sen -- first sentence
+    """
+    sens = text.split(".")
+    sen = sens[0] + "."
+    return sen
+
+
 def print_line(*messages, end='\n', fast=False):
     """Print message with artificial spacing by sleeping.
 

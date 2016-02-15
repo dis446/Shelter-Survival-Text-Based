@@ -28,38 +28,32 @@ class Game(object):
         self.action_points = 50
         self.security = "secure"  # Is this the player's job security?
         self.days = 1
-        self.actions = OrderedDict()  # [('action': ('desc', action))]
+        self.actions = OrderedDict()  # [('action': function)]
 
         self.add_action(
             "skip",
-            "skip current day",
             None)
         self.add_action(
             "help",
-            "print this help",
             action_help)
         self.add_action(
             "see inventory",
-            "see your inventory",
             action_see_inventory)
         self.add_action(
             "see trader",
-            "see trader's inventory",
             action_see_inventory)
         self.add_action(
             "see rooms",
-            "see built rooms",
             action_see_rooms)
 
-    def add_action(self, name, description, action):
+    def add_action(self, name, action):
         """Add entries to the actions dictionary.
 
         Arguments:
         name -- name of action
-        description -- description of action
         action -- function to execute
         """
-        self.actions[name] = (description, action)
+        self.actions[name] = action
 
     def setup_player(self):
         """Create player object."""
@@ -160,26 +154,35 @@ class Game(object):
                     action, *args = a.split()
                     if action.lower() == "skip":
                         continue
-                    try:
-                        self.actions[action][1](self, *args)
-                    except KeyError:
+                    if a in self.actions:
+                        try:
+                            self.actions[a](self, *args)
+                        except Exception as e:
+                            print("Error: {}".format(e))
+                    else:
                         print("Invalid action selected. Try again.")
                         continue
-                    except Exception as e:
-                        print("Invalid input. Error: {}".format(e))
                 else:
                     print("You have to choose a valid action.")
 
 
 def action_help(game):
-    """Print help for actions available in-game."""
+    """See help for all actions available.
+
+    Arguments:
+    game -- main game object
+    """
     print_line('Actions:')
     lens = text_align(game.actions)
-    for i, (action, desc) in enumerate(game.actions.items()):
+    for i, action in enumerate(game.actions.keys()):
+        if action == "skip":
+            desc = "Skip current day."
+        else:
+            desc = sentence_split(game.actions[action].__doc__)
         print_line('{}{}: {}'.format(
             action,
             ' ' * (2 + lens[i]),
-            desc[0]),
+            desc),
             fast=True)
 
 
@@ -199,7 +202,7 @@ def action_see_people(game):
 
 
 def action_see_inventory(game, inventory):
-    """Print given inventory's contents.
+    """See given inventory's contents.
 
     Arguments:
     game -- main game object

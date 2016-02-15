@@ -98,8 +98,9 @@ class Inventory(dict):
         att = " | {}: {}"
         for item in self:
             if self[item] > 0:
-                print_line("{} * {}".format(item, self[item]), end=" ")
-                print_line(att.format("Weight", Item(item).weight), end=" ")
-                print_line(att.format("Value", Item(item).value), end=" ")
-                print_line(att.format("Rarity", Item(item).rarity), end=" ")
+                print_line("{} * {}".format(item, self[item]), end="")
+                print_line(att.format("Weight", Item(item).weight), end="")
+                print_line(att.format("Value", Item(item).value), end="")
+                print_line(att.format("Rarity", Item(item).rarity), end="")
                 print_line(att.format("Components", Item(item).components))
+                # maybe use align_text() for this?
