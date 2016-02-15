@@ -1,40 +1,18 @@
 """Text-based Fallout Shelter game developed by T.G."""
 from random import randint
 
-# from Game import Game
 from Human import Human, Player, NPC
 from Room import Room, all_rooms
-from Item import Item, all_items
+from Item import Item, Inventory, all_items
 
 from general_funcs import *
-
-
-class Inventory(dict):
-    """Inventory class, inherits dict attributes."""
-
-    def __init__(self, items=[]):
-        """Inventory class constructor, sets values to 0."""
-        for item in items:
-            self[item] = 0
-
-    def print(self):
-        """Print all items in inventory."""
-        att = " | {}: {}"
-        for item in self:
-            if self[item] > 0:
-                print_line("{} * {}".format(item, self[item]), end=" ")
-                print_line(att.format("Weight", Item(item).weight), end=" ")
-                print_line(att.format("Value", Item(item).value), end=" ")
-                print_line(att.format("Rarity", Item(item).rarity), end=" ")
-                print_line(att.format("Components", Item(item).components))
-
 
 class Game(object):
     """Main game class."""
 
     def __init__(self):
         """Initilize main game system."""
-        self.player = Player()  # Instantiates a player object
+        self.setup_player()
         self.all_items = all_items()
         self.all_rooms = all_rooms()
         self.inventory = Inventory(self.all_items)
@@ -49,8 +27,14 @@ class Game(object):
         self.days = 1
         self.actions = {}  # Actions are stored as {'action': ('desc', action)}
 
-        self.add_action("skip", "skip current day", None)
-        self.add_action("help", "print this help", action_help)
+        self.add_action(
+            "skip", 
+            "skip current day", 
+            None)
+        self.add_action(
+            "help",
+            "print this help", 
+            action_help)
         self.add_action(
             "see inventory",
             "see your items",
@@ -59,7 +43,10 @@ class Game(object):
             "see trader",
             "see trader's inventory",
             action_see_inventory)
-        self.add_action("see rooms", "see built rooms", action_see_rooms)
+        self.add_action(
+            "see rooms",
+            "see built rooms", 
+            action_see_rooms)
 
     def add_action(self, name, description, action):
         """Add entries to the actions dictionary.
@@ -74,32 +61,32 @@ class Game(object):
     def setup_player(self):
         """Create player object."""
         invalid_name = "Invalid name. Only one word is acceptable."
-        name = ''
         while True:
             name = input("Choose a first name for yourself: ")
             if validate_name(name):
-                self.player.first_name = name
+                first_name = name
                 break
             print(invalid_name)
         while True:
             name = input("What is the surname of your father? ")
             if validate_name(name):
-                self.player.father = Human(surname=name)
+                father = Human(surname=name)
                 break
             print(invalid_name)
         while True:
             name = input("What is the surname of your mother? ")
             if validate_name(name):
-                self.player.mother = Human(surname=name)
+                mother = Human(surname=name)
                 break
             print(invalid_name)
         while True:
             gender = input("Please enter your gender (M/F): ")
-            if len(gender) > 1 and gender[0].upper() in ("M", "F"):
-                self.player.gender = gender.upper()
+            if len(gender) == 1 and gender.upper() in ("M", "F"):
+                gender = gender.upper()
                 break
             print("Invalid gender.")
-
+        self.player = Player(first_name,0,father,mother,21,gender)
+        
     def storage_capacity(self):
         """Calculate max inventory capacity of player.
 
@@ -111,7 +98,6 @@ class Game(object):
 
     def run(self, debug=False):
         """Main game. Once all values are initilized, this is run."""
-        self.setup_player()
         while True and self.player.alive:
             if self.action_points < 50:
                 self.action_points += 50
@@ -223,7 +209,32 @@ def action_see_inventory(game, inventory):
         game.trader_inventory.print()
     else:
         print("No inventory named {} exists.".format(inventory))
+    
+def action_see_rooms(game):
+    """Print each room with details.
 
+    Arguments:
+    game -- main game object
+    """
+    print_line("")
+    for room in game.rooms:
+        for word in room.name.split():
+            print_line(word.title(), end=" ")
+        if room.can_produce:
+            room.update_production(player)
+            print_line(
+                "\n    Risk:" + room.risk * 10 + "%",
+                "    Level:" + room.level,
+                "    Power:" + room.power_available,
+                "    Production:" + room.production)
+        else:
+            print_line(
+                "\n    Risk:" + room.risk * 10 + "%",
+                "    Level:" + room.level,
+                "    Power:" + room.power_available)
+
+        if room.can_produce or room.name == "trader":
+            room.see_assigned()
 
 ''' def print_help():
      """Print list of commands available to player."""
@@ -760,33 +771,6 @@ def check_built_room(game, room):
         if room == r.name:
             return True
     return False
-
-
-def see_rooms(game):
-    """Print each room with details.
-
-    Arguments:
-    game -- main game object
-    """
-    print_line("")
-    for room in game.rooms:
-        for word in room.name.split():
-            print_line(word.title(), end=" ")
-        if room.can_produce:
-            room.update_production(player)
-            print_line(
-                "\n    Risk:" + room.risk * 10 + "%",
-                "    Level:" + room.level,
-                "    Power:" + room.power_available,
-                "    Production:" + room.production)
-        else:
-            print_line(
-                "\n    Risk:" + room.risk + "%",
-                "    Level:" + room.level,
-                "    Power:" + room.power_available)
-
-        if room.can_produce or room.name == "trader":
-            room.see_assigned()
 
 
 def can_use_power(room):

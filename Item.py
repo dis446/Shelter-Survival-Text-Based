@@ -25,7 +25,7 @@ class Item(object):
         name -- name of item
         """
         # Just needs to get the name, all other attributes are automatically
-        # assigned by the following lines.
+        # assigned by the following lines, from parsing an item.json file.
         self.name = name
         with open('items.json') as f:
             parsed = json.loads(f.read())
@@ -53,17 +53,14 @@ class Item(object):
         global inventory
         print_line(self.name, " has been scrapped and these")
         for item in self.components:
-            inventory.append(item)
+            inventory[item] += 1
             print_line(item)
         print_line("have been added to your inventory")
 
         chance = randint(0, 101)
-        if (people[0].scrapper) * 3 > chance:
-            print_line(
-                "Your scrapper skill has allowed you to gain more components!")
-            for item in self.components:
-                inventory.append(item)
-        self.scrapped = True  # whether item is scrapped or just destroyed
+        if (player.scrapper) * 3 > chance:
+            print_line("Your scrapper skill has allowed you to gain more components!")
+            inventory[self.components[randint(len(self.components))]] += 1 #Randomly adds one more component of the scrapped item the inventory.
         self.destroy("player")
 
     def destroy(self, target_inventory):
@@ -72,17 +69,37 @@ class Item(object):
         Arguments:
         target_inventory -- inventory to remove Item from
         """
-        global inventory
         if target_inventory == "player":
+            global inventory
             for x in range(len(inventory)):
-                if Item(inventory[x]).name == self.name:
+                if inventory[x].name == self.name:
                     inventory.remove(inventory[x])
                     break
         elif target_inventory == "trader":
             global trader_inventory
             for x in range(len(trader_inventory)):
-                if Item(trader_inventory[x]).name == self.name:
+                if trader_inventory[x].name == self.name:
                     trader_inventory.remove(trader_inventory[x])
                     break
-    #    if self.scrapped!=1:
-    #        print_line(self.name," has been used!")
+
+    
+
+class Inventory(dict):
+    """Inventory class, inherits dict attributes."""
+
+    def __init__(self, items=[]):
+        """Inventory class constructor, sets values to 0."""
+        for item in items:
+            self[item] = 0
+
+    def print(self):
+        """Print all items in inventory."""
+        att = " | {}: {}"
+        for item in self:
+            if self[item] > 0:
+                print_line("{} * {}".format(item, self[item]), end=" ")
+                print_line(att.format("Weight", Item(item).weight), end=" ")
+                print_line(att.format("Value", Item(item).value), end=" ")
+                print_line(att.format("Rarity", Item(item).rarity), end=" ")
+                print_line(att.format("Components", Item(item).components))
+

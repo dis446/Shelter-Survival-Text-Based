@@ -19,6 +19,7 @@ class Human(object):
         age -- age of Human
         gender -- gender of Human
         """
+        self.alive = True
         self.name = first_name  # First name
         self.day_of_birth = day_of_birth
         self.parent_1 = parent_1  # Surname
