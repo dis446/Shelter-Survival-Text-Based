@@ -3,8 +3,8 @@ from random import randint
 
 # from Game import Game
 from Human import Human, Player, NPC
-from Room import Room
-from Item import all_items, Item
+from Room import Room, all_rooms
+from Item import Item, all_items
 
 from general_funcs import *
 
@@ -36,6 +36,7 @@ class Game(object):
         """Initilize main game system."""
         self.player = Player()  # Instantiates a player object
         self.all_items = all_items()
+        self.all_rooms = all_rooms()
         self.inventory = Inventory(self.all_items)
         self.inventory['turret'] += 1
         self.rooms = {}

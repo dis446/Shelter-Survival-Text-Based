@@ -5,6 +5,17 @@ from Item import Item
 import json
 
 
+def all_rooms():
+    """Get a list of all rooms in game.
+
+    Returns:
+    rooms -- list of all rooms
+    """
+    with open('rooms.json') as r:
+        rooms = [room for room in json.loads(r.read())]
+    return rooms
+
+
 class Room(object):  # Basic class for the rooms in the game.
     """Room class."""
 
