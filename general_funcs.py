@@ -48,7 +48,7 @@ def validate_name(name):
     Returns:
     bool -- Whether name is acceptable or not
     """
-    if validate_input(name) and len(name.split()) > 0:
+    if validate_input(name) and len(name.split()) == 1:
         return True
     return False
 

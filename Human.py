@@ -7,8 +7,8 @@ class Human(object):
     """Basic class for all humans in game."""
 
     def __init__(
-            self, first_name, day_of_birth,
-            parent_1, parent_2, age, gender):
+            self, first_name=None, day_of_birth=0,
+            parent_1=None, parent_2=None, age=0, gender='M', surname=None):
         """Constructor for Human class.
 
         Arguments:
@@ -301,8 +301,8 @@ class Player(Human):
     """Player class, inherits Human attributes."""
 
     def __init__(
-            self, first_name, day_of_birth,
-            parent_1, parent_2, age, gender):
+            self, first_name=None, day_of_birth=0,
+            parent_1=None, parent_2=None, age=21, gender='M'):
         """Player class constructor.
 
         Arguments:

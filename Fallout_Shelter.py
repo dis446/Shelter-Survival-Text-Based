@@ -62,21 +62,32 @@ class Game(object):
 
     def setup_player(self):
         """Create player object."""
-        name = input("Choose a first name for yourself: ")
-        if self.validate_name(name):
-            fathers_name = input("What is the surname of your father? ")
-            mothers_name = input("What is the surname of your mother? ")
-            if self.validate_name(fathers_name) and \
-                    self.validate_name(mothers_name):
-                self.player.father = Human(surname=fathers_name)
-                self.player.mother = Human(surname=mothers_name)
-            else:
-                print("Invalid surname entered.")
+        invalid_name = "Invalid name. Only one word is acceptable."
+        name = ''
+        while True:
+            name = input("Choose a first name for yourself: ")
+            if validate_name(name):
+                self.player.first_name = name
+                break
+            print(invalid_name)
+        while True:
+            name = input("What is the surname of your father? ")
+            if validate_name(name):
+                self.player.father = Human(surname=name)
+                break
+            print(invalid_name)
+        while True:
+            name = input("What is the surname of your mother? ")
+            if validate_name(name):
+                self.player.mother = Human(surname=name)
+                break
+            print(invalid_name)
+        while True:
             gender = input("Please enter your gender (M/F): ")
-            self.player.gender = gender.upper()
-            self.player.name = name
-        else:
-            print_line("Invalid player name entered: {}".format(name))
+            if len(gender) > 1 and gender[0].upper() in ("M", "F"):
+                self.player.gender = gender.upper()
+                break
+            print("Invalid gender.")
 
     def storage_capacity(self):
         """Calculate max inventory capacity of player.
