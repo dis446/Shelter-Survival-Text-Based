@@ -39,6 +39,7 @@ class Game(object):
         self.all_rooms = all_rooms()
         self.inventory = Inventory(self.all_items)
         self.inventory['turret'] += 1
+        self.trader_inventory = Inventory(self.all_items)
         self.rooms = {}
         self.people = {}
         self.caps = 100
@@ -48,8 +49,17 @@ class Game(object):
         self.days = 1
         self.actions = {}  # Actions are stored as {'action': ('desc', action)}
 
-        self.add_action('skip', 'skip current day', None)
-        self.add_action('help', 'print this help', action_help)
+        self.add_action("skip", "skip current day", None)
+        self.add_action("help", "print this help", action_help)
+        self.add_action(
+            "see inventory",
+            "see your items",
+            action_see_inventory)
+        self.add_action(
+            "see trader",
+            "see trader's inventory",
+            action_see_inventory)
+        self.add_action("see rooms", "see built rooms", action_see_rooms)
 
     def add_action(self, name, description, action):
         """Add entries to the actions dictionary.
@@ -184,7 +194,7 @@ def action_help(game):
             fast=True)
 
 
-def see_people(game):
+def action_see_people(game):
     """Display info of all inhabitants.
 
     Arguments:
@@ -199,42 +209,20 @@ def see_people(game):
                    "   Room:" + person.assigned_room)
 
 
-def see_inventory(game, inven):
-    """Display all items in an inventory.
+def action_see_inventory(game, inventory):
+    """Print given inventory's contents.
 
     Arguments:
-    game -- Main game object
-    inven -- inventory to show, 'player' or 'trader'
+    game -- main game object
+    inventory -- inventory to print
     """
-    inven = str(inven)
-    if inven == "player":
-        for x in game.inventory:
-            if x not in seen_items:
-                count = count_item(x, "player")
-                if count > 0:  # Only print if item is in inventory.
-                    it = Item(x)
-                    print_line(
-                        x + "*" + count,
-                        "| Weight: " + it.weight,
-                        "| Value: " + it.value,
-                        "| Components: " + it.components,
-                        "| Rarity: " + it.rarity)
-                    seen_items.append(x)
-    elif inven == "trader":
-        for x in game.trader_inventory:
-            if x not in seen_items:
-                count = count_item(x, "trader")
-                if count > 0:  # Only print if item is in inventory.
-                    it = Item(x)
-                    print_line(
-                        x + "*" + count,
-                        "| Weight: " + it.weight,
-                        "| Value: " + it.value,
-                        "| Components: " + it.components,
-                        "| Rarity: " + it.rarity)
-                    seen_items.append(x)
+    inv = inventory.lower()
+    if inv == "inventory":
+        game.inventory.print()
+    elif inv == "trader":
+        game.trader_inventory.print()
     else:
-        print_line("Bug with inventory system. Please contact dev!")
+        print("No inventory named {} exists.".format(inventory))
 
 
 ''' def print_help():
