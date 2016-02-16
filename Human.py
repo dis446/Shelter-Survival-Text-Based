@@ -61,7 +61,26 @@ class Human(object):
             " Thirst: {}".format(self.thirst))
         if self.assigned_room != "":
             print_line("   Room: {}".format(self.assigned_room))
-
+    
+    def see_stats(self):
+        """Check stats of inhabitant."""
+        print_line("Strength: ", self.strength)
+        print_line("Perception: ", self.perception)
+        print_line("Endurance: ", self.endurance)
+        print_line("Charisma: ", self.charisma)
+        print_line("Intelligence: ", self.intelligence)
+        print_line("Luck: ", self.luck)
+        if isinstance(self, Player):  # Player has extra stats
+            print_line("")
+            print_line("Medic: ", self.medic)
+            print_line("Crafting: ", self.crafting)
+            print_line("Tactician: ", self.tactician)
+            print_line("Cooking: ", self.cooking)
+            print_line("Inspiration: ", self.inspiration)
+            print_line("Scrapping: ", self.scrapper)
+            print_line("Bartering: ", self.barter)
+            print_line("Electricain: ", self.electrician)
+    
     def level_up(self):
         """Level up Human and ask player for input on what stat to level up."""
         see_stats(self.name, self.surname)
@@ -151,7 +170,7 @@ class Human(object):
         self.intelligence = 1
         self.luck = 1
 
-    def get_index(self):
+    def get_index(self): #Shouldn't need this anymore
         """Return index of Human in list of all people.
 
         Returns:
@@ -187,20 +206,23 @@ class Human(object):
             person.HP -= damage_taken
             if person.HP < 1:
                 person.die()
+        
+        
+    def scavenge(self, days=10):
+        """Send inhabitant on scavenging mission.
 
+        Arguments:
+        days -- ask user for number of days if this is 'days'.
+        """
+        self.current_activity = "scavenging"
+        if not (isinstance(days, int)) or days <= 0:
+            person.days_to_scavenge_for = 10
+        else:
+            person.days_to_scavenge_for = days
+    
     def unassign(self):
         """Unassign Human from room."""
-        for room in rooms:
-            string_room_name = str(room.assigned)
-            lst = []
-            for digit in string_room_name:
-                lst.append(digit)
-            lst[person_index] = '0'
-            string = ''
-            for digit in lst:
-                string = string + digit
-            room.assigned = string
-        self.assigned_room = ''
+        pass #Needs work
 
     def assign_to_room(self, chosen_room):
         """Assign Human to room.
@@ -208,6 +230,8 @@ class Human(object):
         Arguments:
         chosen_room -- room to assign to
         """
+        
+        """ #This needs complete reworking.
         global rooms
         global people
         person_index = self.get_index()
@@ -243,6 +267,7 @@ class Human(object):
         people[person_index].assigned_room = str(chosen_room)
         # print_line("Room",self.name,"has been assigned to is",
         #     people[person_index].assigned_room)
+        """
         print_line(
             self.name + " " + self.surname +
             "has been assigned to " + chosen_room)

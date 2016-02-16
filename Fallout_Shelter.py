@@ -48,6 +48,12 @@ class Game(object):
         self.add_action(
             "see rooms",
             action_see_rooms)
+        self.add_action(
+            "see resources",
+            action_see_resources)
+        self.add_action(
+            "auto assign",
+            action_auto_assign)
 
     def add_action(self, name, action):
         """Add entries to the actions dictionary.
@@ -98,6 +104,7 @@ class Game(object):
 
     def run(self, debug=False):
         """Main game. Once all values are initilized, this is run."""
+        action_help(game) #Initially prints the available commands.
         while True and self.player.alive: # Day loop
             if self.action_points < 50:
                 self.action_points += 50
@@ -277,7 +284,7 @@ def living_capacity(game):
     return (5 * room.level)
 
 
-def see_resources(game):
+def action_see_resources(game):
     """Print food, water, and power Player has available.
 
     Arguments:
@@ -287,28 +294,8 @@ def see_resources(game):
     print_line("Water * ", game.inventory["water"])
     print_line("Power * ", game.inventory["watt"])
 
-# Scavenging system:
-
-
-# Sends people on a scavenging mission.
-def scavenge(game, person, days=0):
-    """Send inhabitant on scavenging mission.
-
-    Arguments:
-    game -- Main game object
-    days -- ask user for number of days if this is 'days'.
-    """
-    person = game.people[str(person)]
-    person.current_activity = "scavenging"
-    if not (isinstance(days, int)) or days <= 0:
-        person.days_to_scavenge_for = 100
-    else:
-        person.days_to_scavenge_for = days
-    use_points(10)
-    return game
 
 # Construction system:
-
 
 def build(game, room):
     """Build room specified.
@@ -316,21 +303,23 @@ def build(game, room):
     Arguments:
     game -- Main game object
     room -- name of room to build
+    
+    Returns:
+    game -- Main game object
     """
-    global rooms
-    global inventory
     built_room = Room(str(r), player)  # creates a room.
-    rooms.append(built_room)  # Stores the room in memory.
+    game.rooms.append(built_room)  # Stores the room in memory.
     load_time(5, "Building " + r)
     for y in built_room.components:  # Does this for each component
-        for x in inventory:
+        for x in game.inventory:
             if y == x:  # If it matches, delete this.
                 Item(x).destroy("player")
                 # Ensures that only one instance of the item is removed for
                 # every one instance of the component.
                 break
-    player.gain_xp(100)
+    game.player.gain_xp(100)
     use_points(10)
+    return game
 
 
 def craft(game, item):
@@ -339,25 +328,28 @@ def craft(game, item):
     Arguments:
     game -- Main game object
     item -- item to craft
+    
+    Returns:
+    game -- Main game object
     """
-    global inventory
     load_time(5, ("Crafting ", x))
     add_to_inven(x, 1, "player")
     # Perk bonuses
     a = Item(x)
     for l in range(0, 5):
-        if player.crafting == l:
+        if game.player.crafting == l:
             chance = l * 2
             break
     for y in a.components:
-        for x in inventory:
+        for x in game.inventory:
             if y == x:
                 chance_game = randint(0, 101)
                 if chance_game > chance:
-                    inventory.remove(x)
+                    game.inventory[x] -= 1
                 break
-    player.gain_xp(a.rarity * 10)
+    game.player.gain_xp(a.rarity * 10)
     use_points(5)
+    return game
 
 
 # Human management system:
@@ -553,7 +545,14 @@ def create_npc(
 
 
 def first_few(game):
-    """Create first few inhabitants with random names."""
+    """Create first few inhabitants with random names.
+    
+    Arguments:
+    game -- Main game object
+    
+    Returns:
+    game -- Main game object
+    """
     used_names = []
     names = [
         "Thompson",
@@ -580,16 +579,17 @@ def first_few(game):
             continue
         if names[num_1] in used_names or names[num_2] in used_names:
             continue
-        people.append(
-            NPC(
+        game.people[
+            names[num1] + names[num_2]] = NPC(
                 names[num_1],
                 day_count,
                 names[num_2],
                 "Alena",
                 21,
-                get_gender()))
+                get_gender())
         used_names.append(names[num_1])
         used_names.append(names[num_2])
+    return game
 
 
 def create_player():
@@ -644,31 +644,7 @@ def create_player():
         gender)
 
 
-def see_stats(person):
-    """Check stats of inhabitant.
-
-    Arguments:
-    person - Person who's stats are being viewed
-    """
-    print_line("Strength: ", person.strength)
-    print_line("Perception: ", person.perception)
-    print_line("Endurance: ", person.endurance)
-    print_line("Charisma: ", person.charisma)
-    print_line("Intelligence: ", person.intelligence)
-    print_line("Luck: ", person.luck)
-    if person.name == player.name:  # Player has extra stats
-        print_line("")
-        print_line("Medic: ", person.medic)
-        print_line("Crafting: ", person.crafting)
-        print_line("Tactician: ", person.tactician)
-        print_line("Cooking: ", person.cooking)
-        print_line("Inspiration: ", person.inspiration)
-        print_line("Scrapping: ", person.scrapper)
-        print_line("Bartering: ", person.barter)
-        print_line("Electricain: ", person.electrician)
-
-
-def auto_assign(game):
+def action_auto_assign(game):
     """Automatically assign inhabitants to rooms.
 
     Arguments:
@@ -686,7 +662,7 @@ def auto_assign(game):
     return game
 
 
-def update_all_assignment(game):
+def update_all_assignment(game): #Need to scrap this
     """Increase length of assignment variable.
 
     Arguments:
@@ -756,9 +732,8 @@ def check_built_room(game, room):
     Returns:
     bool -- whether room has been built or not
     """
-    for r in game.rooms:
-        if room == r.name:
-            return True
+    if room in game.rooms:
+        return True
     return False
 
 
@@ -882,7 +857,7 @@ def add_to_inven(game, item, number, inven):
     elif inven == "trader":
         for y in range(number):
             pass  # Same as previous comment
-    return player
+    return game
 
 
 def lose_items(game, inven, number):
@@ -906,7 +881,7 @@ def lose_items(game, inven, number):
         print_line("Major bug in item losing system. Please contact dev!")
 
 
-def scrap(game, it):
+def action_scrap(game, it):
     """Scrap item and recieve its components.
 
     Arguments:
@@ -916,20 +891,14 @@ def scrap(game, it):
     Returns:
     game -- with the item removed and it's components added to the
     """
-    global inventory
     if it not in all_items:
         print_line(
             "Bug with item scrapping system.",
             "Invalid argument passes to function. Please contact dev.")
     else:
-        for item in inventory:
-            if item == it:
-                Item(it).scrap()
-                load_time(300, ("Scrapping " + str(it)))
-                player.gain_xp((Item(it).rarity) * 10)
-                break
+        game.inventory[it] -= 1
     use_points(2)
-
+    return game
 
 # Raiding system:
 
@@ -966,9 +935,10 @@ def raid(game):
                     " has been killed in a raid")
                 # dead_person = game.people[death_number]
                 game = death(game, dead.person.name)
-    for person in game.people:  # Survivor gain xp
+    for person in game.people:  # Survivors gain xp
         person.gain_xp(attack_power * 10)
     use_points(30)
+    return game
 
 
 def update_defense(player):
