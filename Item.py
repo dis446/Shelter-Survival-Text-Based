@@ -47,11 +47,15 @@ class Item(object):
         count -- amount of item held
         """
         att = " | {}: {}"
-        print_line("{} * {}".format(self.name, count), end="")
-        print_line(att.format("Weight", self.weight), end="")
-        print_line(att.format("Value", self.value), end="")
-        print_line(att.format("Rarity", self.rarity), end="")
-        print_line(att.format("Components", self.components))
+        print_line(
+            "{} * {}".format(self.name, count),
+            att.format("Weight", self.weight),
+            att.format("Value", self.value),
+            att.format("Rarity", self.rarity),
+            att.format("Components", self.components),
+            end="",
+            fast=True)
+        print()
 
     def count_component(self, component):
         """Count number of components in Item.
