@@ -37,6 +37,9 @@ class Game(object):
             "help",
             action_help)
         self.add_action(
+            "see people",
+            action_see_people)
+        self.add_action(
             "see inventory",
             action_see_inventory)
         self.add_action(
@@ -154,7 +157,7 @@ class Game(object):
                     action, *args = a.split()
                     if action.lower() == "skip":
                         continue
-                    if a in self.actions:
+                    if a in self.actions.keys():
                         try:
                             self.actions[a](self, *args)
                         except Exception as e:
@@ -186,19 +189,14 @@ def action_help(game):
             fast=True)
 
 
-def action_see_people(game):
+def action_see_people(game, *args):
     """Display info of all inhabitants.
 
     Arguments:
     game -- Main game object
     """
-    for person in game.people:
-        print_line(person,
-                   "    Age:" + person.age,
-                   " Gender:" + person.gender.upper(),
-                   " Hunger:" + person.hunger,
-                   " Thirst:" + person.thirst,
-                   "   Room:" + person.assigned_room)
+    for person in game.people.values():
+        person.print_()
 
 
 def action_see_inventory(game, inventory):
@@ -210,38 +208,22 @@ def action_see_inventory(game, inventory):
     """
     inv = inventory.lower()
     if inv == "inventory":
-        game.inventory.print()
+        game.inventory.print_()
     elif inv == "trader":
-        game.trader_inventory.print()
+        game.trader_inventory.print_()
     else:
-        print("No inventory named {} exists.".format(inventory))
+        print("No inventory named '{}' exists.".format(inventory))
 
 
-def action_see_rooms(game):
+def action_see_rooms(game, *args):
     """Print each room with details.
 
     Arguments:
     game -- main game object
     """
-    print_line("")
     for room in game.rooms:
-        for word in room.name.split():
-            print_line(word.title(), end=" ")
-        if room.can_produce:
-            room.update_production(player)
-            print_line(
-                "\n    Risk:" + room.risk * 10 + "%",
-                "    Level:" + room.level,
-                "    Power:" + room.power_available,
-                "    Production:" + room.production)
-        else:
-            print_line(
-                "\n    Risk:" + room.risk * 10 + "%",
-                "    Level:" + room.level,
-                "    Power:" + room.power_available)
+        room.print_(game.player)
 
-        if room.can_produce or room.name == "trader":
-            room.see_assigned()
 
 ''' def print_help():
      """Print list of commands available to player."""

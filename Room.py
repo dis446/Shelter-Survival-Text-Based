@@ -58,12 +58,28 @@ class Room(object):  # Basic class for the rooms in the game.
         """
         return "{} Room".format(self.name.title())
 
+    def print_(self, player):
+        """Print room name and its attributes.
+
+        Arguments:
+        player -- Player object
+        """
+        print_line(self)
+        print_line("    Risk: {}%".format(self.risk),
+                   "    Level: {}".format(self.level),
+                   "    Power: {}".format(self.power_available))
+        if self.can_produce:
+            self.update_production(player)
+            print_line("    Production: {}".format(self.production))
+        if self.can_produce or self.name == "trader":
+            self.see_assigned()
+        print()
+
     def rush(self):
         """Rush building of Room."""
-        global rooms
         self.rushed = 1  # Lets game know this room has been rushed.
         self.risk += 5
-        print_line(self.name, " has been rushed!")
+        print_line("{} has been rushed!".format(self.name))
 
     def fix(self):
         """Repair room if damaged."""

@@ -40,6 +40,19 @@ class Item(object):
         # Keeps track of whether item has been scrapped by player.
         self.scrapped = False
 
+    def print_(self, count):
+        """Print item name and attributes.
+
+        Arguments:
+        count -- amount of item held
+        """
+        att = " | {}: {}"
+        print_line("{} * {}".format(self.name, count), end="")
+        print_line(att.format("Weight", self.weight), end="")
+        print_line(att.format("Value", self.value), end="")
+        print_line(att.format("Rarity", self.rarity), end="")
+        print_line(att.format("Components", self.components))
+
     def count_component(self, component):
         """Count number of components in Item.
 
@@ -93,14 +106,8 @@ class Inventory(dict):
         for item in items:
             self[item] = 0
 
-    def print(self):
+    def print_(self):
         """Print all items in inventory."""
-        att = " | {}: {}"
         for item in self:
             if self[item] > 0:
-                print_line("{} * {}".format(item, self[item]), end="")
-                print_line(att.format("Weight", Item(item).weight), end="")
-                print_line(att.format("Value", Item(item).value), end="")
-                print_line(att.format("Rarity", Item(item).rarity), end="")
-                print_line(att.format("Components", Item(item).components))
-                # maybe use align_text() for this?
+                Item(item).print_(self[item])

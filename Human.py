@@ -51,6 +51,17 @@ class Human(object):
         """
         return "{} {}".format(self.firstname, self.surname)
 
+    def print_(self):
+        """Print name and attributes."""
+        print_line(
+            self,
+            "    Age: {}".format(self.age),
+            " Gender: {}".format(self.gender),
+            " Hunger: {}".format(self.hunger),
+            " Thirst: {}".format(self.thirst))
+        if self.assigned_room != "":
+            print_line("   Room: {}".format(self.assigned_room))
+
     def level_up(self):
         """Level up Human and ask player for input on what stat to level up."""
         see_stats(self.name, self.surname)

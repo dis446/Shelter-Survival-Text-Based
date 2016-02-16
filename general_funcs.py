@@ -1,6 +1,7 @@
 """General functions used by most modules in this project."""
 
 from time import sleep
+from sys import stdout
 
 load = False  # Enables/disables loading screens.
 if load:
@@ -81,7 +82,7 @@ def sentence_split(text):
     return sen
 
 
-def print_line(*messages, end='\n', fast=False):
+def print_line(*messages, end="\n", fast=False):
     """Print message with artificial spacing by sleeping.
 
     Arguments:
@@ -95,7 +96,11 @@ def print_line(*messages, end='\n', fast=False):
                 sleep(0.1)
             else:
                 sleep(0.5)
-            print(line, end=end)
+            if end != "\n":
+                stdout.write(line)
+                stdout.flush()
+            else:
+                print(line)
 
 
 def load_time(x, message):
