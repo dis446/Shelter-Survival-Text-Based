@@ -16,9 +16,9 @@ class Game(object):
     def __init__(self):
         """Initilize main game system."""
         self.setup_player()
-        self.all_items = all_items() #Fetches all items from Item.py, which parses it from item.json
-        self.all_rooms = all_rooms() #Fetches all items from Room.py, which parses it from room.json
-        self.inventory = Inventory(self.all_items) 
+        self.all_items = all_items()  # Fetches all items from items.json
+        self.all_rooms = all_rooms()  # Fetches all items from rooms.json
+        self.inventory = Inventory(self.all_items)
         self.inventory['turret'] += 1
         self.trader_inventory = Inventory(self.all_items)
         self.rooms = {}
@@ -36,6 +36,9 @@ class Game(object):
         self.add_action(
             "help",
             action_help)
+        self.add_action(
+            "see day",
+            action_see_day)
         self.add_action(
             "see people",
             action_see_people)
@@ -104,8 +107,8 @@ class Game(object):
 
     def run(self, debug=False):
         """Main game. Once all values are initilized, this is run."""
-        action_help(game) #Initially prints the available commands.
-        while True and self.player.alive: # Day loop
+        action_help(self)  # Initially prints the available commands.
+        while True and self.player.alive:  # Day loop
             if self.action_points < 50:
                 self.action_points += 50
             print_line("A new day dawns. It is now day {} in the vault".format(
@@ -128,8 +131,9 @@ class Game(object):
                 if person.hunger > 99:
                     person.kill("hunger")
                 elif person.hunger > 80:
-                    print_line("Warning! {} is starving and may die soon".format(
-                        person))
+                    print_line(
+                        "Warning! {} is starving and may die soon".format(
+                            person))
                 elif person.hunger > 50:
                     print_line("{} is hungry".format(person))
                 person.increase_thirst()
@@ -137,7 +141,7 @@ class Game(object):
                     person.kill("thirst")
                 elif person.thirst > 80:
                     print_line("Warning! {} is extremely thristy " +
-                          "and may die soon.".format(person))
+                               "and may die soon.".format(person))
                 elif person.thirst > 50:
                     print_line("{} is thirsty".format(person))
                 if person.current_activity != "":
@@ -157,9 +161,9 @@ class Game(object):
                         person.activity_limit = 0
                     else:
                         person.days_active += 1
-                        
+
             skip_day = False
-            while self.action_points > 0 and not skip_day: #Choice loop
+            while self.action_points > 0 and not skip_day:  # Choice loop
                 a = input("Choose an action: ")
                 if len(a) > 0:
                     action, *args = a.split()
@@ -175,7 +179,8 @@ class Game(object):
                 else:
                     print_line("You have to choose a valid action.")
             self.days += 1
-                    
+
+
 def action_help(game):
     """See help for all actions available.
 
@@ -194,6 +199,15 @@ def action_help(game):
             ' ' * (2 + lens[i]),
             desc),
             fast=True)
+
+
+def action_see_day(game, *args):
+    """See current day number.
+
+    Arguments:
+    game -- main game object
+    """
+    print_line("It is currently day number {} in the vault.".format(game.days))
 
 
 def action_see_people(game, *args):
@@ -231,8 +245,20 @@ def action_see_rooms(game, *args):
     for room in game.rooms:
         room.print_(game.player)
 
-#Old print_help function.
-''' def print_help(): 
+
+def action_see_resources(game, *args):
+    """See available resources (food, water, and power).
+
+    Arguments:
+    game -- Main game object
+    """
+    print_line("Food * ", game.inventory["food"])
+    print_line("Water * ", game.inventory["water"])
+    print_line("Power * ", game.inventory["watt"])
+
+
+# Old print_help function.
+''' def print_help():
      """Print list of commands available to player."""
      print_line("""Commands:
 
@@ -284,17 +310,6 @@ def living_capacity(game):
     return (5 * room.level)
 
 
-def action_see_resources(game):
-    """Print food, water, and power Player has available.
-
-    Arguments:
-    game -- Main game object
-    """
-    print_line("Food * ", game.inventory["food"])
-    print_line("Water * ", game.inventory["water"])
-    print_line("Power * ", game.inventory["watt"])
-
-
 # Construction system:
 
 def build(game, room):
@@ -303,7 +318,7 @@ def build(game, room):
     Arguments:
     game -- Main game object
     room -- name of room to build
-    
+
     Returns:
     game -- Main game object
     """
@@ -328,7 +343,7 @@ def craft(game, item):
     Arguments:
     game -- Main game object
     item -- item to craft
-    
+
     Returns:
     game -- Main game object
     """
@@ -546,10 +561,10 @@ def create_npc(
 
 def first_few(game):
     """Create first few inhabitants with random names.
-    
+
     Arguments:
     game -- Main game object
-    
+
     Returns:
     game -- Main game object
     """
@@ -644,25 +659,21 @@ def create_player():
         gender)
 
 
-def action_auto_assign(game):
+def action_auto_assign(game, *args):
     """Automatically assign inhabitants to rooms.
 
     Arguments:
     game -- Main game object
-
-    Returns:
-    game -- Game object with everyone assigned to available rooms.
     """
-    for person in game.people:
+    for person in game.people.values():
         if person.assigned_room == "":
             for room in game.rooms:
                 if room.count_assigned() < room.assigned_limit:
                     person.assign_to_room(r.name)
                     break
-    return game
 
 
-def update_all_assignment(game): #Need to scrap this
+def update_all_assignment(game):  # Need to scrap this
     """Increase length of assignment variable.
 
     Arguments:
@@ -901,6 +912,7 @@ def action_scrap(game, it):
     return game
 
 # Raiding system:
+
 
 def raid(game):
     """Force raid on shelter.
