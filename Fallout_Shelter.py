@@ -16,9 +16,9 @@ class Game(object):
     def __init__(self):
         """Initilize main game system."""
         self.setup_player()
-        self.all_items = all_items()
-        self.all_rooms = all_rooms()
-        self.inventory = Inventory(self.all_items)
+        self.all_items = all_items() #Fetches all items from Item.py, which parses it from item.json
+        self.all_rooms = all_rooms() #Fetches all items from Room.py, which parses it from room.json
+        self.inventory = Inventory(self.all_items) 
         self.inventory['turret'] += 1
         self.trader_inventory = Inventory(self.all_items)
         self.rooms = {}
@@ -66,25 +66,25 @@ class Game(object):
             if validate_name(name):
                 first_name = name
                 break
-            print(invalid_name)
+            print_line(invalid_name)
         while True:
             name = input("What is the surname of your father? ")
             if validate_name(name):
                 father = Human(surname=name)
                 break
-            print(invalid_name)
+            print_line(invalid_name)
         while True:
             name = input("What is the surname of your mother? ")
             if validate_name(name):
                 mother = Human(surname=name)
                 break
-            print(invalid_name)
+            print_line(invalid_name)
         while True:
             gender = input("Please enter your gender (M/F): ")
             if len(gender) >= 1 and gender[0].upper() in ("M", "F"):
                 gender = gender.upper()
                 break
-            print("Invalid gender.")
+            print_line("Invalid gender.")
         self.player = Player(first_name, 0, father, mother, 21, gender)
 
     def storage_capacity(self):
@@ -98,7 +98,7 @@ class Game(object):
 
     def run(self, debug=False):
         """Main game. Once all values are initilized, this is run."""
-        while True and self.player.alive:
+        while True and self.player.alive: # Day loop
             if self.action_points < 50:
                 self.action_points += 50
             print_line("A new day dawns. It is now day {} in the vault".format(
@@ -110,7 +110,7 @@ class Game(object):
                     self.inventory['watt'] -= room.wattage
                     self.inventory[resource] += production
                 else:
-                    print("Not enough power to operate room: {}".format(
+                    print_line("Not enough power to operate room: {}".format(
                         room.name))
 
                 if room.rushed:
@@ -121,18 +121,18 @@ class Game(object):
                 if person.hunger > 99:
                     person.kill("hunger")
                 elif person.hunger > 80:
-                    print("Warning! {} is starving and may die soon".format(
+                    print_line("Warning! {} is starving and may die soon".format(
                         person))
                 elif person.hunger > 50:
-                    print("{} is hungry".format(person))
+                    print_line("{} is hungry".format(person))
                 person.increase_thirst()
                 if person.thirst > 99:
                     person.kill("thirst")
                 elif person.thirst > 80:
-                    print("Warning! {} is extremely thristy " +
+                    print_line("Warning! {} is extremely thristy " +
                           "and may die soon.".format(person))
                 elif person.thirst > 50:
-                    print("{} is thirsty".format(person))
+                    print_line("{} is thirsty".format(person))
                 if person.current_activity != "":
                     if person.current_activity == "scavenging":
                         person = take_damage(person, randint(0, 30))
@@ -150,25 +150,25 @@ class Game(object):
                         person.activity_limit = 0
                     else:
                         person.days_active += 1
-
-            while self.action_points > 0:
+                        
+            skip_day = False
+            while self.action_points > 0 and not skip_day: #Choice loop
                 a = input("Choose an action: ")
                 if len(a) > 0:
                     action, *args = a.split()
                     if action.lower() == "skip":
-                        continue
+                        skip_day = True
                     if a in self.actions.keys():
                         try:
                             self.actions[a](self, *args)
                         except Exception as e:
-                            print("Error: {}".format(e))
+                            print_line("Error: {}".format(e))
                     else:
-                        print("Invalid action selected. Try again.")
-                        continue
+                        print_line("Invalid action selected. Try again.")
                 else:
-                    print("You have to choose a valid action.")
-
-
+                    print_line("You have to choose a valid action.")
+            self.days += 1
+                    
 def action_help(game):
     """See help for all actions available.
 
@@ -224,8 +224,8 @@ def action_see_rooms(game, *args):
     for room in game.rooms:
         room.print_(game.player)
 
-
-''' def print_help():
+#Old print_help function.
+''' def print_help(): 
      """Print list of commands available to player."""
      print_line("""Commands:
 
