@@ -1,5 +1,6 @@
 """General functions used by most modules in this project."""
 
+from string import ascii_uppercase
 from time import sleep
 from sys import stdout
 
@@ -24,6 +25,38 @@ def input_int(s):
         except:
             print_line("Invalid. Only integer numbers are accepted!")
     return x
+
+
+def default_input(text):
+    """Ask for input and accept a default answer.
+
+    Example `text`: "Answer? (Y/n) " where `Y` is default answer.
+
+    Arguments:
+    text -- text as prompt
+
+    Returns:
+    char/None -- answer
+    """
+    answers = []
+    default = ""
+    in_ans = False
+    for c in text[len(text):0:-1]:
+        if in_ans:
+            if c == "(":
+                in_ans = False
+                break
+            answers += c.lower()
+            if c in ascii_uppercase:
+                default = answers[-1]
+        if c == ")":
+            in_ans = True
+    answer = input(text).lower()
+    if len(answer) == 0:
+        return default
+    elif answer in answers:
+        return answer
+    return None
 
 
 def validate_input(text):
