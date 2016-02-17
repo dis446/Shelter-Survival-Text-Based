@@ -35,7 +35,9 @@ class Game(object):
         self.security = "secure"  # Is this the player's job security?
         self.days = 1
         self.actions = OrderedDict()  # [('action': function)]
-
+        self.first_few()
+        action_see_people(0,game)
+        
         self.add_action(
             "quit",
             action_quit)
@@ -110,6 +112,54 @@ class Game(object):
                 break
             print_line("Invalid gender.")
         self.player = Player(first_name, 0, father, mother, 21, gender)
+        
+    
+    def first_few(self):
+        """Create first few inhabitants with random names.
+    
+        Arguments:
+        game -- Main game object
+    
+        Returns:
+        game -- Main game object
+        """
+        used_names = []
+        names = [
+            "Thompson",
+            "Elenor",
+            "Codsworth",
+            "Sharmak",
+            "Luthor",
+            "Marshall",
+            "Cole",
+            "Diven",
+            "Davenport",
+            "John",
+            "Max",
+            "Lex",
+            "Leth",
+            "Exavor"]
+        for person in self.people:
+            used_names.append(person)
+            used_names.append(person)
+        while len(self.people) < 5:
+            num_1 = randint(0, len(names) - 1)
+            num_2 = randint(0, len(names) - 1)
+            if num_1 == num_2:
+                continue
+            if names[num_1] in used_names or names[num_2] in used_names:
+                continue
+            self.people[
+                names[num_1] + names[num_2]] = NPC(
+                    names[num_1],
+                    self.days,
+                    names[num_2],
+                    "Alena",
+                    21,
+                    get_gender())
+            used_names.append(names[num_1])
+            used_names.append(names[num_2])
+
 
     def storage_capacity(self):
         """Calculate max inventory capacity of player.
@@ -126,7 +176,7 @@ class Game(object):
         while True and self.player.alive:  # Day loop
             if self.action_points < 50:
                 self.action_points += 50
-            print_line("A new day dawns. It is now day {} in the vault".format(
+            load_time(100,"A new day dawns. It is now day {} in the vault".format(
                 self.days))
 
             for room in self.rooms:
@@ -141,7 +191,7 @@ class Game(object):
                 if room.rushed:
                     room.rushed = False
 
-            for person in self.people:
+            for person in self.people.items():
                 person.increase_hunger()
                 if person.hunger > 99:
                     person.kill("hunger")
@@ -588,18 +638,12 @@ def create_npc(
                 name = name.title()  # Capitalizes first letter_
                 if parent_2.gender == "m":
                     parent_1, parent_2 = parent_2, parent_1
-
-                # First 5 people will be 21 years old, so they can mate.
-                if len(people) < 5 and day_count < 3:
-                    age = 21
-                else:
-                    age = 0
                 person = NPC(
                     name,
-                    day_count,
+                    days,
                     parent_1.surname,
                     parent_2.surname,
-                    age,
+                    0,
                     get_gender())
                 # Next few lines need some work.
                 parent_1.children.append(str(name + " " + parent_1_surname))
@@ -608,7 +652,7 @@ def create_npc(
                 parent_2.partner = parent_1.name + " " + parent_1.surname
                 see_people()
                 update_all_assignment()
-                if day_count > 2:  # First few births cost no points
+                if days > 2:  # First few births cost no points
                     use_points(50)
                 player.gain_xp(100)
                 use_points(25)
@@ -625,55 +669,6 @@ def create_npc(
             create_npc(
                 parent_1,
                 parent_2)
-
-
-def first_few(game):
-    """Create first few inhabitants with random names.
-
-    Arguments:
-    game -- Main game object
-
-    Returns:
-    game -- Main game object
-    """
-    used_names = []
-    names = [
-        "Thompson",
-        "Elenor",
-        "Codsworth",
-        "Sharmak",
-        "Luthor",
-        "Marshall",
-        "Cole",
-        "Diven",
-        "Davenport",
-        "John",
-        "Max",
-        "Lex",
-        "Leth",
-        "Exavor"]
-    for person in game.people:
-        used_names.append(person.name)
-        used_names.append(person.surname)
-    while len(game.people) < 5:
-        num_1 = randint(0, len(names) - 1)
-        num_2 = randint(0, len(names) - 1)
-        if num_1 == num_2:
-            continue
-        if names[num_1] in used_names or names[num_2] in used_names:
-            continue
-        game.people[
-            names[num1] + names[num_2]] = NPC(
-                names[num_1],
-                day_count,
-                names[num_2],
-                "Alena",
-                21,
-                get_gender())
-        used_names.append(names[num_1])
-        used_names.append(names[num_2])
-    return game
-
 
 def create_player():
     """Create player inhabitant.
@@ -720,7 +715,7 @@ def create_player():
 
     return Player(
         name,
-        day_count,
+        days,
         parent_1,
         parent_2,
         21,
@@ -992,7 +987,7 @@ def raid(game):
     raiders = ["Super Mutant", "Raider", "Synth", "Feral Ghoul"]
     raider_index = randint(0, len(raiders))
     raider = raiders[raider_index]  # Randomly chooses a raider party.
-    max_attack = day_count // 5
+    max_attack = days // 5
     attack_power = randint(1, max_attack)
     load_time(10, ("There was a " + raider + " raid on your shelter!"))
     print_line("The total enemy power was", attack_power)
@@ -1480,7 +1475,7 @@ def choice():  # Need to move these commands into Game() class
             elif a.split()[1] == "rooms":
                 see_rooms()
             elif a.split()[1] == "day":
-                print_line("Today is day", day_count)
+                print_line("Today is day", days)
             elif a.split()[1] == "resources":
                 see_resources()
             else:

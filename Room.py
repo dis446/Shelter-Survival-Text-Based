@@ -3,7 +3,8 @@
 from general_funcs import print_line
 from Item import Item
 import json
-
+import os
+import sys
 
 def all_rooms():
     """Get a list of all rooms in game.
