@@ -155,20 +155,20 @@ class Game(object):
                         if person.current_activity == "scavenging":
                             print_line("{} has come back from".format(person) +
                                        " scavenging and has found these items")
-                            # Need to print name and items found.
+                            # Need to print items found.
                         person.current_activity = ""
                         person.active_days = 0
                         person.activity_limit = 0
                     else:
                         person.days_active += 1
 
-            skip_day = False
-            while self.action_points > 0 and not skip_day:  # Choice loop
+        
+            while self.action_points > 0:  # Choice loop
                 a = input("Choose an action: ")
                 if len(a) > 0:
                     action, *args = a.split()
                     if action.lower() == "skip":
-                        skip_day = True
+                        break
                     if a in self.actions.keys():
                         try:
                             self.actions[a](self, *args)
