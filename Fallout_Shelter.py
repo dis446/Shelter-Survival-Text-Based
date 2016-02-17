@@ -2,12 +2,18 @@
 
 from collections import OrderedDict
 from random import randint
+import pickle
+import sys
+import os
 
 from Human import Human, Player, NPC
 from Room import Room, all_rooms
 from Item import Item, Inventory, all_items
 
 from general_funcs import *
+
+
+_save_file = "fstb.p"
 
 
 class Game(object):
@@ -30,6 +36,15 @@ class Game(object):
         self.days = 1
         self.actions = OrderedDict()  # [('action': function)]
 
+        self.add_action(
+            "quit",
+            action_quit)
+        self.add_action(
+            "save",
+            action_save)
+        self.add_action(
+            "load",
+            load_game)
         self.add_action(
             "skip",
             None)
@@ -162,7 +177,6 @@ class Game(object):
                     else:
                         person.days_active += 1
 
-        
             while self.action_points > 0:  # Choice loop
                 a = input("Choose an action: ")
                 if len(a) > 0:
@@ -174,11 +188,65 @@ class Game(object):
                             self.actions[a](self, *args)
                         except Exception as e:
                             print_line("Error: {}".format(e))
+                    elif action in ("save", "load"):
+                        self.actions[action](self, args[0])
                     else:
                         print_line("Invalid action selected. Try again.")
                 else:
                     print_line("You have to choose a valid action.")
             self.days += 1
+
+
+def load_game(noarg=None, save=_save_file):
+    """Load game from file, `load filename` to load from specific file.
+
+    Arguments:
+    save -- file to load from
+
+    Returns:
+    game -- Game object
+    """
+    with open(save, "rb") as s:
+        try:
+            game = pickle.load(s)
+        except pickle.UnpicklingError:
+            print_line("Unable to load game.")
+            return None
+    print_line("Game loaded from {}.".format(save))
+    return game
+
+
+def action_quit(*_):
+    """Quit current game.
+
+    Arguments:
+    game -- main game object
+    """
+    save = default_input("Quit without saving? (y/N) ")
+    if save == "n":
+        return
+    else:
+        sys.exit(0)
+
+
+def action_save(game, save=_save_file):
+    """Save current game state, `save filename` to save to specific file.
+
+    Arguments:
+    game -- game object to save
+    save -- file to save to
+    """
+    if os.path.exists(save):
+        ow = default_input("{} already exists, overwrite? (Y/n) ".format(save))
+        if ow != 'y':
+            return
+    with open(save, "wb") as s:
+        try:
+            pickle.dump(game, s)
+        except pickle.PicklingError:
+            print_line("Unable to save game.")
+            return
+    print_line("Game has been saved to {}.".format(save))
 
 
 def action_help(game):
@@ -1662,5 +1730,11 @@ def choice():  # Need to move these commands into Game() class
         print_line("You have to choose something!")
 
 if __name__ == '__main__':
-    game = Game()
+    game = None
+    if os.path.exists(_save_file):
+        load = default_input("Load game from {}? (Y/n) ".format(_save_file))
+        if load == "y":
+            game = load_game()
+    if game is None:
+        game = Game()
     game.run()

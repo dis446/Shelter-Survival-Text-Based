@@ -25,7 +25,10 @@ class Human(object):
         self.parent_1 = parent_1  # Surname
         self.parent_2 = parent_2  # Surname
         self.gender = gender
-        self.surname = self.parent_1
+        try:
+            self.surname = self.parent_1.surname
+        except:
+            self.surname = surname
         self.partner = ""
 
         # The stats of the person. Affects the production of
@@ -49,7 +52,7 @@ class Human(object):
         Returns:
         str -- "Firstname Lastname"
         """
-        return "{} {}".format(self.firstname, self.surname)
+        return "{} {}".format(self.name, self.surname)
 
     def print_(self):
         """Print name and attributes."""
