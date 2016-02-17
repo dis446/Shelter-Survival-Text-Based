@@ -11,7 +11,9 @@ def all_rooms():
     Returns:
     rooms -- list of all rooms
     """
-    with open('rooms.json') as r:
+    fn = "rooms.json"
+    path = os.path.join(os.path.dirname(sys.argv[0]), fn)
+    with open(path) as r:
         rooms = [room for room in json.loads(r.read())]
     return rooms
 

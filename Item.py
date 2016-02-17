@@ -2,6 +2,8 @@
 
 from general_funcs import print_line
 import json
+import sys
+import os
 
 
 def all_items():
@@ -10,7 +12,9 @@ def all_items():
     Returns:
     items -- list of all items
     """
-    with open('items.json') as i:
+    fn = "items.json"
+    path = os.path.join(os.path.dirname(sys.argv[0]), fn)
+    with open(path) as i:
         items = [item for item in json.loads(i.read())]
     return items
 
