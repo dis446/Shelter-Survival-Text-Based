@@ -1211,7 +1211,7 @@ def action_trade(game):
                 int(a.split()[1])
             except ValueError:
                 print_line("You have to input a number as the second word")
-                    let_trade = False
+                let_trade = False
              
         if let_trade:  # Messy conditional routine coming up.
             # Fetches cost of item by tempoarily creating it's object
