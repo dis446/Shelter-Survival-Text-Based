@@ -36,7 +36,7 @@ class Game(object):
         self.days = 1
         self.actions = OrderedDict()  # [('action': function)]
         self.first_few()
-        action_see_people(0,game)
+        action_see_people(self)
         
         self.add_action(
             "quit",
@@ -195,7 +195,7 @@ class Game(object):
                     room.rushed = False
 
             for person in self.people.items():
-                person.increase_hunger()
+                person.increase_hunger(10)
                 if person.hunger > 99:
                     person.kill("hunger")
                 elif person.hunger > 80:

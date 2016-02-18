@@ -24,7 +24,10 @@ class Human(object):
         self.day_of_birth = day_of_birth
         self.parent_1 = parent_1  # Surname
         self.parent_2 = parent_2  # Surname
+        self.age = age
         self.gender = gender
+        self.hunger = 0
+        self.thirst = 0
         try:
             self.surname = self.parent_1.surname
         except:
@@ -61,7 +64,8 @@ class Human(object):
             "    Age: {}".format(self.age),
             " Gender: {}".format(self.gender),
             " Hunger: {}".format(self.hunger),
-            " Thirst: {}".format(self.thirst))
+            " Thirst: {}".format(self.thirst),
+            fast = True)
         if self.assigned_room != "":
             print_line("   Room: {}".format(self.assigned_room))
     
@@ -209,7 +213,14 @@ class Human(object):
             person.HP -= damage_taken
             if person.HP < 1:
                 person.die()
+    
+    def increase_hunger(self,amount):
+        """Increase hunger level of Human by certain amount
         
+        Arguments:
+        amount -- amount of hunger to increase by
+        """
+        self.hunger += amount
         
     def scavenge(self, days=10):
         """Send inhabitant on scavenging mission.

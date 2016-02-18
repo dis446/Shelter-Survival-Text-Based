@@ -124,6 +124,7 @@ def print_line(*messages, end="\n", fast=False):
     fast -- if true, shortens time between prints
     """
     for message in messages:
+        message = str(message)
         for line in message.splitlines():
             if fast:
                 sleep(0.1)
