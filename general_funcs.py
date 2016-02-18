@@ -122,6 +122,7 @@ def print_line(*messages, end="\n", fast=False, slow = False):
     *messages -- tuple of strings to print
     end -- end of string
     fast -- if true, shortens time between prints
+    slow -- if true, extends time between prints
     """
     for message in messages:
         message = str(message)
