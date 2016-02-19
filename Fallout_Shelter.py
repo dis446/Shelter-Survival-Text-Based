@@ -118,14 +118,7 @@ class Game(object):
         
     
     def first_few(self):
-        """Create first few inhabitants with random names.
-    
-        Arguments:
-        game -- Main game object
-    
-        Returns:
-        game -- Main game object
-        """
+        """Create first few inhabitants with random names."""
         used_names = []
         names = [
             "Thompson",
@@ -163,7 +156,6 @@ class Game(object):
             used_names.append(names[num_1])
             used_names.append(names[num_2])
 
-
     def storage_capacity(self):
         """Calculate max inventory capacity of player.
 
@@ -194,7 +186,7 @@ class Game(object):
                 if room.rushed:
                     room.rushed = False
 
-            for person in self.people.items():
+            for person in self.people.values():
                 person.increase_hunger(10)
                 if person.hunger > 99:
                     person.kill("hunger")
@@ -204,7 +196,7 @@ class Game(object):
                             person))
                 elif person.hunger > 50:
                     print_line("{} is hungry".format(person))
-                person.increase_thirst()
+                person.increase_thirst(20)
                 if person.thirst > 99:
                     person.kill("thirst")
                 elif person.thirst > 80:

@@ -214,14 +214,22 @@ class Human(object):
             if person.HP < 1:
                 person.die()
     
-    def increase_hunger(self,amount):
+    def increase_hunger(self, amount):
         """Increase hunger level of Human by certain amount
         
         Arguments:
         amount -- amount of hunger to increase by
         """
         self.hunger += amount
+    
+    def increase_thirst(self, amount):
+        """Increase thirst level of Human by certain amount
         
+        Arguments:
+        amount -- amount of thirst to increase by
+        """
+        self.thirst += amount
+    
     def scavenge(self, days=10):
         """Send inhabitant on scavenging mission.
 
