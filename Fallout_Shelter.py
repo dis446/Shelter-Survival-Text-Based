@@ -37,7 +37,7 @@ class Game(object):
         self.actions = OrderedDict()  # [('action': function)]
         self.first_few()
         action_see_people(self)
-        
+
         self.add_action(
             "quit",
             action_quit)
@@ -115,8 +115,7 @@ class Game(object):
                 break
             print_line("Invalid gender.")
         self.player = Player(first_name, 0, father, mother, 21, gender)
-        
-    
+
     def first_few(self):
         """Create first few inhabitants with random names."""
         used_names = []
@@ -171,7 +170,7 @@ class Game(object):
         while True and self.player.alive:  # Day loop
             if self.action_points < 50:
                 self.action_points += 50
-            load_time(100,"A new day dawns. It is now day {} in the vault".format(
+            load_time(100, "A new day dawns. It is now day {} in the vault".format(
                 self.days))
 
             for room in self.rooms:
@@ -664,6 +663,7 @@ def create_npc(
             create_npc(
                 parent_1,
                 parent_2)
+
 
 def create_player():
     """Create player inhabitant.
@@ -1182,7 +1182,7 @@ def action_trade(game):
             if len(a.split()) == 2:  # a is in the form (buy x) or (sell x)
                 if a.split()[1] in game.all_items:
                     if a.split()[0] == "buy" or a.split()[0] == "sell":
-                        a = "%s %s %s" % (a.split()[0], 1, a.split()[1]) #Set's a to (buy 1 wood) if player inputs buy wood.
+                        a = "%s %s %s" % (a.split()[0], 1, a.split()[1])  # Set's a to (buy 1 wood) if player inputs buy wood.
                         let_trade = True
                     else:
                         print_line("Invalid input. You can (buy) or (sell)")
@@ -1193,7 +1193,7 @@ def action_trade(game):
             else:
                 print_line("You have to input 3 words. Buy/sell,amount,item")
         elif len(a.split()) == 3:
-            if a.split()[0].lower() not in ("buy","sell"):
+            if a.split()[0].lower() not in ("buy", "sell"):
                 print_line("Invalid input. You can only (buy) and (sell)")
                 let_trade = False
             if a.split()[2] not in game.all_items():
@@ -1204,7 +1204,7 @@ def action_trade(game):
             except ValueError:
                 print_line("You have to input a number as the second word")
                 let_trade = False
-             
+
         if let_trade:  # Messy conditional routine coming up.
             # Fetches cost of item by tempoarily creating it's object
             # and retreiving it's value attribute
@@ -1220,7 +1220,7 @@ def action_trade(game):
                     print_line("You can't afford that!")
                 else:
                     count = count_item(a.split()[2], "trader")
-                    if int(a.split()[1]) > count: #If trader doesn't have enough.
+                    if int(a.split()[1]) > count:  # If trader doesn't have enough.
                         if count < 1:
                             print_line(
                                 "The trader doesn't have any " +
@@ -1245,7 +1245,7 @@ def action_trade(game):
                     print_line("The trader can't afford that!")
                 else:
                     count = count_item(a.split()[2], "player")
-                    if int(a.split()[1]) > count: #If player doesn't have enough of the item to sell.
+                    if int(a.split()[1]) > count:  # If player doesn't have enough of the item to sell.
                         if count < 1:
                             print_line(
                                 "You don't have any " +
