@@ -40,7 +40,7 @@ class Room(object):  # Basic class for the rooms in the game.
                 self.can_produce = room['can_produce']
                 self.assigned_limit = room['assigned_limit']
                 self.components = room['components']
-                self.power_usage = room['power_usage']
+                self.wattage = room['power_usage']
             except KeyError:
                 print("Unknown item. Please contact dev.")
         self.assigned = []
@@ -49,9 +49,9 @@ class Room(object):  # Basic class for the rooms in the game.
         if self.can_produce:
             self.production = 0
             self.can_rush = True
-            self.rushed = False
         else:
             self.can_rush = False
+        self.rushed = False
 
     def __str__(self):
         """String representation of object.

@@ -27,7 +27,9 @@ class Game(object):
         self.inventory = Inventory(self.all_items)
         self.inventory['turret'] += 1
         self.trader_inventory = Inventory(self.all_items)
-        self.rooms = {}
+        self.rooms = {
+            Room('living',self.player),
+            Room('generator',self.player)}
         self.people = {}
         self.caps = 100
         self.happiness = 100
