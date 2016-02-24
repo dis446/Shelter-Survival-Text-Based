@@ -28,8 +28,9 @@ class Game(object):
         self.inventory['turret'] += 1
         self.trader_inventory = Inventory(self.all_items)
         self.rooms = {
-            Room('living',self.player),
-            Room('generator',self.player)}
+            'living' : Room('living',self.player),
+            'generator' : Room('generator',self.player),
+            'water works' : Room('water works',self.player)}
         self.people = {}
         self.caps = 100
         self.happiness = 100
@@ -79,6 +80,12 @@ class Game(object):
         self.add_action(
             "trade",
             action_trade)
+        self.add_action(
+            "craft",
+            action_craft)
+        self.add_action(
+            "rush",
+            action_rush_room)
 
     def add_action(self, name, action):
         """Add entries to the actions dictionary.
@@ -426,7 +433,7 @@ def living_capacity(game):
 
 # Construction system:
 
-def build(game, room):
+def action_build(game, room):
     """Build room specified.
 
     Arguments:
@@ -451,7 +458,7 @@ def build(game, room):
     return game
 
 
-def craft(game, item):
+def action_craft(game, item):
     """Craft specified item.
 
     Arguments:
@@ -480,6 +487,21 @@ def craft(game, item):
     use_points(5)
     return game
 
+action_scrap(game,item):
+    """Deletes an item from the inventory and adds it's components to the inventory
+    
+    Arguments:
+    game -- Main game object
+    item -- name of item being scrapped
+    
+    Returns:
+    game -- Main game object
+    """
+    it = Item(item)
+    for component in it.components:
+        game.inventory[component] += 1
+    game.inventory[item] -= 1
+    return game
 
 # Human management system:
 
@@ -777,6 +799,25 @@ def get_room_index(room):  # Shouldnt'need this function anymore
             # print_line("Room index fetch returns,",r)
             return r
 
+def action_rush_room(game,room):
+    """ Rush a room in the game
+    
+    Arguments:
+    game -- Main game object
+    room -- name of room to rush
+    
+    Returns:
+    game -- main game object
+    """
+    room = game.rooms[room] 
+    random = randint(0,101)
+    if random < room.risk:
+        print_line(" The {} room has been broken.".format(room.name))
+        room.broken = True 
+    else:
+        room.rushed = True
+    room.update_production(game.player)
+    return game
 
 def check_room(game, room):
     """Check if room exists.
