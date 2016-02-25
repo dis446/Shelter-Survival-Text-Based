@@ -62,18 +62,18 @@ class Room(object):  # Basic class for the rooms in the game.
         """
         return "{} Room".format(self.name.title())
 
-    def print_(self, player):
+    def print_(self, game):
         """Print room name and its attributes.
-
+        
         Arguments:
-        player -- Player object
+        game -- Main game object. Passes this to Room.update_production method
         """
         print_line(self)
         print_line("    Risk: {}%".format(self.risk),
                    "    Level: {}".format(self.level),
                    "    Power: {}".format(self.power_available))
         if self.can_produce:
-            self.update_production(player)
+            self.update_production(game.player)
             print_line("    Production: {}".format(self.production))
         if self.can_produce or self.name == "trader":
             self.see_assigned()

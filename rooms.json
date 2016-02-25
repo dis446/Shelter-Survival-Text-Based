@@ -7,7 +7,7 @@
         "power_usage": 5
     },
     "generator": {
-        "risk": 2,
+        "risk": 20,
         "can_produce": true,
         "assigned_limit": 3,
         "components": ["steel", "steel", "steel", "steel"],
@@ -21,7 +21,7 @@
         "power_usage": 1
     },
     "kitchen": {
-        "risk": 1,
+        "risk": 10,
         "can_produce": true,
         "assigned_limit": 3,
         "components": ["wood", "wood", "wood"],
@@ -35,7 +35,7 @@
         "power_usage": 2
     },
     "water works": {
-        "risk": 2,
+        "risk": 20,
         "can_produce": true,
         "assigned_limit": 3,
         "components": ["wood", "wood", "steel"],

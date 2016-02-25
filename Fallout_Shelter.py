@@ -182,7 +182,7 @@ class Game(object):
             load_time(100, "A new day dawns. It is now day {} in the vault".format(
                 self.days))
 
-            for room in self.rooms:
+            for room in self.rooms.values():
                 if self.inventory['watt'] > room.wattage:
                     resource, production = room.production()
                     self.inventory['watt'] -= room.wattage
@@ -363,8 +363,8 @@ def action_see_rooms(game, *args):
     Arguments:
     game -- main game object
     """
-    for room in game.rooms:
-        room.print_(game.player)
+    for room in game.rooms.values():
+        room.print_(game)
 
 
 def action_see_resources(game, *args):
@@ -487,7 +487,7 @@ def action_craft(game, item):
     use_points(5)
     return game
 
-action_scrap(game,item):
+def action_scrap(game, item):
     """Deletes an item from the inventory and adds it's components to the inventory
     
     Arguments:
