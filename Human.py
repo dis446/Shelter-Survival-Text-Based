@@ -29,12 +29,8 @@ class Human(object):
 
         # The stats of the person. Affects the production of
         # room the person has been assigned to.
-        self.strength = 1
-        self.perception = 1
-        self.endurance = 1
-        self.charisma = 1
-        self.intelligence = 1
-        self.luck = 1
+        self.strength = self.perception = self.endurance = 1
+        self.charisma =  self.intelligence = self.luck = 1
 
         self.assigned_room = ""  # Keeps track of where person is working.
         self.children = []  # List of all children
@@ -58,51 +54,24 @@ class Human(object):
             print_line("\n")
             choice = input("Please choose an attribute to level up: ")
             choice.lower()
-            if choice == "strength":
-                self.strength += 1
-            elif choice == "perception":
-                self.perception += 1
-            elif choice == "endurance":
-                self.endurance += 1
-            elif choice == "charisma":
-                self.charisma += 1
-            elif choice == "intelligence":
-                self.intelligence += 1
-            elif choice == "luck":
-                self.luck += 1
-            elif choice == "medic":
-                self.medic += 1
-            elif choice == "crafting":
-                self.crafting += 1
-            elif choice == "tactitian":
-                self.tactitian += 1
-            elif choice == "cooking":
-                self.cooking += 1
-            elif choice == "inspiration":
-                self.inspiration += 1
-            elif choice == "scrapper":
-                self.scrapper += 1
-            elif choice == "barter":
-                self.barter += 1
-            elif choice == "electrician":
-                self.electrician += 1
+            choice_dict = {
+                'strength':self.strength, 'perception':self.perception,
+                'endurance':self.endurance, 'charisma':self.charisma,
+                'intelligence':self.intelligence, 'luck':self.luck,
+                'medic':self.medic, 'crafting':self.crafting,
+                'tactician':self.tactician, 'cooking':self.cooking,
+                'inspiration':self.inspiration, 'scrapper':self.scrapper,
+                'barter':self.barter, 'elctrician':self.electician
+                }
+            if choice in choice_dict:
+                choice_dict[choice] += 1
             else:
                 print_line("Invalid choice")
                 self.level -= 1
                 self.level_up()
         else:  # If NPC has levelled up
-            if choice == "strength":
-                self.strength += 1
-            elif choice == "perception":
-                self.perception += 1
-            elif choice == "endurance":
-                self.endurance += 1
-            elif choice == "charisma":
-                self.charisma += 1
-            elif choice == "intelligence":
-                self.intelligence += 1
-            elif choice == "luck":
-                self.luck += 1
+            if choice in choice_dict:
+                choice_dict[choice] += 1
             else:
                 print_line("\nInvalid choice.\n")
                 self.level -= 1
@@ -132,12 +101,8 @@ class Human(object):
             print_line(
                 self.name +
                 " has been reborn and her stats have been reset")
-        self.strength = 1
-        self.perception = 1
-        self.endurance = 1
-        self.charisma = 1
-        self.intelligence = 1
-        self.luck = 1
+        self.strength = self.perception = self.endurance =  1
+        self.charisma = self.luck = self.intelligence = 1
 
     def get_index(self):
         """Return index of Human in list of all people.
@@ -154,9 +119,7 @@ class Human(object):
         """Unassign Human from room."""
         for room in rooms:
             string_room_name = str(room.assigned)
-            lst = []
-            for digit in string_room_name:
-                lst.append(digit)
+            lst = [digit for digit in string_room_name]
             lst[person_index] = '0'
             string = ''
             for digit in lst:
@@ -173,37 +136,26 @@ class Human(object):
         global rooms
         global people
         person_index = self.get_index()
-        # print_line("Index of ",self.name,"is",person_index)
         room_index = get_room_index(chosen_room)
-        # print_line("Index of ",chosen_room," is ",room_index)
         room = rooms[room_index]  # Refers to the actual room
-        # print_line("Chosen room is",room.name)
         if people[person_index].assigned_room != '':
             for room in rooms:
                 string = str(room.assigned)
-                lst = []
-                for digit in string:
-                    lst.append(digit)
+                lst = [digit for digit in string]
                 lst[person_index] = '0'
                 string = ''
                 for digit in lst:
                     string = string + digit
                 room.assigned = string
         string = str(room.assigned)
-        # print_line("Assigned log",string)
-        lst = []
-        for digit in string:
-            lst.append(digit)
-        # print_line("Assigned log",lst)
+        lst = [digit for digit in string]
         lst[person_index] = '1'
         string = ''
         for digit in lst:
             string = string + digit
         room.assigned = string
-        # print_line("Updated assigned log",room.assigned)
         # Let's  character know where they've been assigned.
         people[person_index].assigned_room = str(chosen_room)
-        # print_line("Room",self.name,"has been assigned to is",
         #     people[person_index].assigned_room)
         print_line(
             self.name + " " + self.surname +
@@ -246,8 +198,7 @@ class NPC(Human):
             self, first_name, day_of_birth,
             parent_1, parent_2, age, gender)
         self.scavenging = False
-        self.days_scavenging = 0
-        self.days_to_scavenge_for = 0
+        self.days_scavenging = self.days_to_scavenge_for = 0
 
     def die(self):
         """Kill NPC."""
@@ -285,11 +236,6 @@ class Player(Human):
             self, first_name, day_of_birth,
             parent_1, parent_2, age, gender)
 
-        self.medic = 0  # Improves healing capabilities of stimpacks
-        self.crafting = 0  # Chance to not use components when crafting.
-        self.tactician = 0  # Boosts defense.
-        self.cooking = 0  # Boosts production level of kitchen.
-        self.barter = 0  # Increases selling prices, decreases buying prices.
-        self.inspiration = 0  # Boosts production and defense.
-        self.scrapper = 0  # Boosts chance of bonus components when scrapping.
-        self.electrician = 0  # Boosts power production
+        self.medic = self.crafting = self.tactician = 0  
+        self.cooking =  self.barter = self.inspiration = 0  
+        self.scrapper =  self.electrician = 0  
