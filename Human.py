@@ -138,7 +138,7 @@ class Human(object):
         else:
             print_line(
                 self.name +
-                " has been reborn and her stats have been reset"
+                " has been reborn and her stats have been reset")
         self.strength = self.perception = self.endurance =  1
         self.charisma = self.luck = self.intelligence = 1
 

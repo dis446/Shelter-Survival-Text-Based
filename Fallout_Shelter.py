@@ -33,6 +33,7 @@ class Game(object):
             'water works' : Room('water works',self.player)}
         self.people = {}
         self.caps = 100
+        self.trader_caps = 500
         self.happiness = 100
         self.action_points = 50
         self.security = "secure"  # Is this the player's job security?
@@ -1205,11 +1206,11 @@ def action_trade(game):
         print_line("")
         print_line("Here are the traders' items: ")
         action_see_inventory(game, "trader")
-        print_line("\nThe trader has ", game.trader_caps, " caps.")
+        print_line("\nThe trader has " + str(game.trader_caps) + " caps.")
 
         print_line("\nHere are your items: ")
-        action_see_inventory(game, "player")
-        print_line("\nYou have ", game.caps, " caps.")
+        action_see_inventory(game, "inventory")
+        print_line("\nYou have " + str(game.caps) + " caps.")
 
         print_line(
             "\nFor instance, input (buy 5 food) if you want to buy 5 " +
@@ -1220,22 +1221,22 @@ def action_trade(game):
             continue
 
         # Following lines are checks.
-        let_trade = False
-        if len(a.split()) != 3:
-            if len(a.split()) == 2:  # a is in the form (buy x) or (sell x)
-                if a.split()[1] in game.all_items:
-                    if a.split()[0] == "buy" or a.split()[0] == "sell":
-                        a = "%s %s %s" % (a.split()[0], 1, a.split()[1])  # Set's a to (buy 1 wood) if player inputs buy wood.
-                        let_trade = True
-                    else:
-                        print_line("Invalid input. You can (buy) or (sell)")
+        let_trade = True
+        if len(a.split()) == 2:  # a is in the form (buy x) or (sell x)
+            if a.split()[1] in game.all_items:
+                if a.split()[0] == "buy" or a.split()[0] == "sell":
+                    a = "%s %s %s" % (a.split()[0], 1, a.split()[1])  # Set's a to (buy 1 wood) if player inputs buy wood.
+                    print("Action is "+a)
                 else:
-                    print_line("This item doesn't exist")
-            elif a.split()[0] == 'end' or a.split()[0] == 'stop':
-                break
+                    print_line("Invalid input. You can (buy) or (sell)")
+                    let_trade = False
             else:
-                print_line("You have to input 3 words. Buy/sell,amount,item")
-        elif len(a.split()) == 3:
+                print_line("This item doesn't exist")
+                let_trade = False
+        elif a.split()[0] == 'end' or a.split()[0] == 'stop':
+            break
+            
+        if len(a.split()) == 3:
             if a.split()[0].lower() not in ("buy", "sell"):
                 print_line("Invalid input. You can only (buy) and (sell)")
                 let_trade = False
@@ -1247,18 +1248,14 @@ def action_trade(game):
             except ValueError:
                 print_line("You have to input a number as the second word")
                 let_trade = False
-
+        print("Trade happening")
         if let_trade:  # Messy conditional routine coming up.
-            # Fetches cost of item by tempoarily creating it's object
-            # and retreiving it's value attribute
             cost = Item(a.split()[2]).value
-            # Sums up the money that is exchanging hands
             total_cost = cost * int(a.split()[1])
             print_line("Cost of all items:", total_cost)
             if a.split()[0].lower() == "buy":
                 # Adjusts the prices, depending on player's bartering level.
-                for x in range(0, 4):
-                    total_cost = int(total_cost * (1.2 - (x * 0.05)))
+                total_cost = int(total_cost * (1.2 - (game.player.bartering * 0.05)))
                 if total_cost > game.caps:
                     print_line("You can't afford that!")
                 else:
@@ -1282,8 +1279,8 @@ def action_trade(game):
                         game.trader_caps += total_cost
             elif a.split()[0].lower() == "sell":
                 # Adjusts the prices, depending on bartering level.
-                for x in range(0, 4):
-                    total_cost = int(total_cost * (0.8 + (x * 0.05)))
+                total_cost = int(total_cost * (0.8 + (game.player.bartering * 0.05)))
+                print("Total cost is"+ total_cost)
                 if total_cost > game.trader_caps:
                     print_line("The trader can't afford that!")
                 else:
@@ -1291,8 +1288,7 @@ def action_trade(game):
                     if int(a.split()[1]) > count:  # If player doesn't have enough of the item to sell.
                         if count < 1:
                             print_line(
-                                "You don't have any " +
-                                a.split()[2])
+                                "You don't have any " + a.split()[2])
                         else:
                             print_line(
                                 "You don't have " + int(a.split()[1]) +
