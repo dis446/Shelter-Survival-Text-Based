@@ -36,12 +36,8 @@ class Human(object):
 
         # The stats of the person. Affects the production of
         # room the person has been assigned to.
-        self.strength = 1
-        self.perception = 1
-        self.endurance = 1
-        self.charisma = 1
-        self.intelligence = 1
-        self.luck = 1
+        self.strength = self.perception = self.endurance = 1
+        self.charisma =  self.intelligence = self.luck = 1
 
         self.assigned_room = ""  # Keeps track of where person is working.
         self.children = []  # List of all children
@@ -96,51 +92,24 @@ class Human(object):
             print_line("\n")
             choice = input("Please choose an attribute to level up: ")
             choice.lower()
-            if choice == "strength":
-                self.strength += 1
-            elif choice == "perception":
-                self.perception += 1
-            elif choice == "endurance":
-                self.endurance += 1
-            elif choice == "charisma":
-                self.charisma += 1
-            elif choice == "intelligence":
-                self.intelligence += 1
-            elif choice == "luck":
-                self.luck += 1
-            elif choice == "medic":
-                self.medic += 1
-            elif choice == "crafting":
-                self.crafting += 1
-            elif choice == "tactitian":
-                self.tactitian += 1
-            elif choice == "cooking":
-                self.cooking += 1
-            elif choice == "inspiration":
-                self.inspiration += 1
-            elif choice == "scrapper":
-                self.scrapper += 1
-            elif choice == "barter":
-                self.barter += 1
-            elif choice == "electrician":
-                self.electrician += 1
+            choice_dict = {
+            'strength':self.strength, 'perception':self.perception,
+            'endurance':self.endurance, 'charisma':self.charisma,
+            'intelligence':self.intelligence, 'luck':self.luck,
+            'medic':self.medic, 'crafting':self.crafting,
+            'tactician':self.tactician, 'cooking':self.cooking,
+            'inspiration':self.inspiration, 'scrapper':self.scrapper,
+            'barter':self.barter, 'electrician':self.electician
+            }
+            if choice in choice_dict:
+                choice_dict[choice] += 1
             else:
                 print_line("Invalid choice")
                 self.level -= 1
                 self.level_up()
         else:  # If NPC has levelled up
-            if choice == "strength":
-                self.strength += 1
-            elif choice == "perception":
-                self.perception += 1
-            elif choice == "endurance":
-                self.endurance += 1
-            elif choice == "charisma":
-                self.charisma += 1
-            elif choice == "intelligence":
-                self.intelligence += 1
-            elif choice == "luck":
-                self.luck += 1
+            if choice in choice_dict:
+                choice_dict[choice] += 1
             else:
                 print_line("\nInvalid choice.\n")
                 self.level -= 1
@@ -162,20 +131,16 @@ class Human(object):
     def rebirth(self):
         """Don't know if I'll ever use this."""
         self.age = 0
-        if self.gender == "f":
+        if self.gender == "m":
             print_line(
                 self.name +
                 " has been reborn and his stats have been reset")
         else:
             print_line(
                 self.name +
-                " has been reborn and her stats have been reset")
-        self.strength = 1
-        self.perception = 1
-        self.endurance = 1
-        self.charisma = 1
-        self.intelligence = 1
-        self.luck = 1
+                " has been reborn and her stats have been reset"
+        self.strength = self.perception = self.endurance =  1
+        self.charisma = self.luck = self.intelligence = 1
 
     def get_index(self): #Shouldn't need this anymore
         """Return index of Human in list of all people.
