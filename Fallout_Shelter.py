@@ -2,6 +2,7 @@
 
 from collections import OrderedDict
 from random import randint
+from appdirs import user_data_dir
 import pickle
 import sys
 import os
@@ -13,7 +14,7 @@ from Item import Item, Inventory, all_items
 from general_funcs import *
 
 
-_save_file = "fstb.p"
+_save_file = save_file()
 
 
 class Game(object):
@@ -251,7 +252,7 @@ class Game(object):
             self.days += 1
 
 
-def load_game(noarg=None, save=_save_file):
+def load_game(_=None, save=_save_file):
     """Load game from file, `load filename` to load from specific file.
 
     Arguments:
@@ -1751,6 +1752,21 @@ def choice():  # Need to move these commands into Game() class
             print_line("Invalid Input. Try again.")
     else:
         print_line("You have to choose something!")
+
+
+def save_file():
+    """Generate save file location/name based on system.
+
+    Returns:
+    str -- path to save file
+    """
+    sfn = "fstb.p"
+    if "-l" in sys.argv:
+        sfp = os.path.split(os.path.abspath(sys.argv[0]))[0]
+    else:
+        appname = "Fallout-Shelter-Text-Based"
+        sfp = user_data_dir(appname=appname, appauthor=False, roaming=True)
+    return os.path.join(sfp, sfn)
 
 if __name__ == '__main__':
     game = None
