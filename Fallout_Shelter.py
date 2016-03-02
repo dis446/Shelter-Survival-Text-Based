@@ -103,6 +103,12 @@ class Game(object):
         self.add_action(
             "rush",
             action_rush_room)
+        self.add_action(
+            "assign",
+            action_assign_to_room)
+        self.add_action(
+            "unassign",
+            action_unassign)
 
     def add_action(self, name, action):
         """Add entries to the actions dictionary.
@@ -354,6 +360,7 @@ def action_see_people(game, *args):
     Arguments:
     game -- Main game object
     """
+    game.player.print_()
     for person in game.people.values():
         person.print_()
 
@@ -652,8 +659,92 @@ def level_up(person):
             else:
                 print_line("Invalid choice")
                 done = False
+    
+def action_assign_to_room(game, *args):
+    """ Assign a person to a room.
+        In the form "assign first_name surname to room"
+    
+    Arguments:
+    game -- main game object
+    first_name -- first_name of person
+    surname -- surname of person
+    room -- room to assign to 
+    
+    Returns:
+    game -- Main game object
+    """
+    
+    if (args[0] == "assign") and (args[2] == "to"):
+        if check_person(game, args[1], args[2]):
+            if check_room(game, args[4]):
+                game = assign_to_room(game, args[1] + args[2], args[4])
+            else:
+                print_line("This room doesn't exist")
+        else:
+            print_line("This person doesn't exist")
+    else:
+        print_line("Invalid syntax. Must be in form of (assign cole leth to living")
+    return game    
+        
+def assign_to_room(game, person_name, room_name):
+    """Assign Human to room.
 
+    Arguments:
+    game -- Main game object
+    person_name -- full name of person being assigned
+    room_name -- name of room to assign to
+     
+    """
+    room = game.rooms[chosen_room]
+    person = game.people[person_name]
+    if room.count_assigned < room.assigned_limit:
+        if self.assigned_room != "": #If person is already assigned to a room, unassigns them.
+            game = unassign(game, person_name)
+        room.assigned.append(person_name)
+        self.assigned_room = chosen_room
+    else:
+        print("{} has {} people assigned and can hold no more".format(chosen_room,room.count_assigned))
+    return game
 
+def action_unassign(game, *args):
+    """ Unassigns person from their room.
+    
+    Arguments:
+    game -- main game object
+    first_name -- first_name of person
+    surname -- surname of person
+    
+    Returns:
+    game -- Main game object
+    
+    """
+    if len(args) == 2:
+        if check_person(game, args[0], args[1]):
+            game = unassign(game, args[0] + args[1])
+        else:
+            print_line(" This person doesn't exist")
+    else:
+        print_line("That name is too long")
+    return game
+
+def unassign(game, person_name) :
+    """Unassign Human from room.
+    
+    Arguments:
+    person_name -- name of person to be unassigned
+    game -- Main game object
+    
+    Returns:
+    game -- Main game object
+    """
+    room = game.rooms[self.assigned_room]
+    person = game.people[person_name]
+    
+    person.assigned_room = ""
+    room.assigned.remove(person_name)
+    return game
+
+    
 def create_npc(
         parent_1,
         parent_2):
@@ -772,32 +863,6 @@ def action_auto_assign(game, *args):
                     break
 
 
-def update_all_assignment(game):  # Need to scrap this
-    """Increase length of assignment variable.
-
-    Arguments:
-    game -- Main game object
-    """
-    for r in game.rooms:
-        current_count = len(r.assigned)  # Count's how many digits exist
-        # print_line("This many digits exist",current_count)
-        required_count = len(people)  # Count's how many digits should exists
-        # print_line("How many are needed",required_count)
-        if current_count < required_count:
-            difference = required_count - current_count
-            lst = []
-            for letter in r.assigned:
-                lst.append(letter)
-            for x in range(difference):
-                lst.append('0')
-            final = ''
-            for letter in lst:
-                final = final + letter
-            # print_line("We're adding this to the assigned",final)
-            r.assigned = r.assigned + final
-            # print_line("This is what happened", r.assigned)
-
-
 # Room Management system:
 
 def get_room_index(room):  # Shouldnt'need this function anymore
@@ -816,7 +881,7 @@ def get_room_index(room):  # Shouldnt'need this function anymore
             # print_line("Room index fetch returns,",r)
             return r
 
-def action_rush_room(game,room):
+def action_rush_room(game, room):
     """Rush a room in the game.
 
     Arguments:
@@ -1664,7 +1729,7 @@ def choice():  # Need to move these commands into Game() class
                     a.split()[2].title())
                 people[person_index].assign_to_room(potential_room)
 
-        elif a.split()[0] == "auto":  # All automaticf functions
+        elif a.split()[0] == "auto":  # All automatic functions
             if a.split()[1] == "assign":
                 auto_assign()  # Auto-assigns every free person to a room
 

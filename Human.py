@@ -206,58 +206,7 @@ class Human(object):
             person.days_to_scavenge_for = 10
         else:
             person.days_to_scavenge_for = days
-    
-    def unassign(self):
-        """Unassign Human from room."""
-        pass #Needs work
-
-    def assign_to_room(self, chosen_room):
-        """Assign Human to room.
-
-        Arguments:
-        chosen_room -- room to assign to
-        """
         
-        """ #This needs complete reworking.
-        global rooms
-        global people
-        person_index = self.get_index()
-        # print_line("Index of ",self.name,"is",person_index)
-        room_index = get_room_index(chosen_room)
-        # print_line("Index of ",chosen_room," is ",room_index)
-        room = rooms[room_index]  # Refers to the actual room
-        # print_line("Chosen room is",room.name)
-        if people[person_index].assigned_room != '':
-            for room in rooms:
-                string = str(room.assigned)
-                lst = []
-                for digit in string:
-                    lst.append(digit)
-                lst[person_index] = '0'
-                string = ''
-                for digit in lst:
-                    string = string + digit
-                room.assigned = string
-        string = str(room.assigned)
-        # print_line("Assigned log",string)
-        lst = []
-        for digit in string:
-            lst.append(digit)
-        # print_line("Assigned log",lst)
-        lst[person_index] = '1'
-        string = ''
-        for digit in lst:
-            string = string + digit
-        room.assigned = string
-        # print_line("Updated assigned log",room.assigned)
-        # Let's  character know where they've been assigned.
-        people[person_index].assigned_room = str(chosen_room)
-        # print_line("Room",self.name,"has been assigned to is",
-        #     people[person_index].assigned_room)
-        """
-        print_line(
-            self.name + " " + self.surname +
-            "has been assigned to " + chosen_room)
 
     def can_mate(self):
         """Check if Human meets requirements to have children.
