@@ -275,13 +275,14 @@ class Human(object):
                 return False
         return True
 
-    def die(self, game):
+    def die(self, game, cause):
         """Kill self, and unassign from a assigned room.
 
         Arguments:
         game -- main game object
+        cause -- cause of death
         """
-        print_line("{} has died!".format(self))
+        print_line("{} has died of {}!".format(self, cause))
         if self.assigned_room:
             game.rooms[self.assigned_room].remove(str(self))
         if not isinstance(self, Player):

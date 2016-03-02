@@ -214,7 +214,7 @@ class Game(object):
             for person in self.people.values():
                 person.increase_hunger(10)
                 if person.hunger > 99:
-                    person.kill("hunger")
+                    person.kill(self, "hunger")
                 elif person.hunger > 80:
                     print_line(
                         "Warning! {} is starving and may die soon".format(
@@ -223,7 +223,7 @@ class Game(object):
                     print_line("{} is hungry".format(person))
                 person.increase_thirst(20)
                 if person.thirst > 99:
-                    person.kill("thirst")
+                    person.kill(self, "thirst")
                 elif person.thirst > 80:
                     print_line("Warning! {} is extremely thristy " +
                                "and may die soon.".format(person))
