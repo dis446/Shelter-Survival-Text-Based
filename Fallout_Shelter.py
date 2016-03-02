@@ -817,7 +817,7 @@ def get_room_index(room):  # Shouldnt'need this function anymore
             return r
 
 def action_rush_room(game,room):
-    """ Rush a room in the game
+    """Rush a room in the game.
 
     Arguments:
     game -- Main game object
