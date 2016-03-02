@@ -25,7 +25,7 @@ class Human(object):
         self.parent_1 = parent_1  # Surname
         self.parent_2 = parent_2  # Surname
         self.age = age
-        self.gender = gender
+        self.gender = gender.upper()
         self.hunger = 0
         self.thirst = 0
         try:
@@ -295,7 +295,7 @@ class NPC(Human):
 
     def __init__(
             self, first_name, day_of_birth,
-            parent_1, parent_2, age, gender):
+            parent_1, parent_2, age, gender, surname=None):
         """NPC class constructor.
 
         Arguments:
@@ -308,7 +308,7 @@ class NPC(Human):
         """
         Human.__init__(
             self, first_name, day_of_birth,
-            parent_1, parent_2, age, gender)
+            parent_1, parent_2, age, gender, surname)
         self.current_activity = ""
         self.days_active = 0
         self.activity_limit = 0

@@ -170,14 +170,14 @@ class Game(object):
                 continue
             if names[num_1] in used_names or names[num_2] in used_names:
                 continue
-            self.people[
-                names[num_1] + names[num_2]] = NPC(
+            self.people["{} {}".format(names[num_1], names[num_2])] = NPC(
                     names[num_1],
                     self.days,
-                    names[num_2],
+                    None,
                     "Alena",
                     21,
-                    get_gender())
+                    get_gender(),
+                    names[num_2])
             used_names.append(names[num_1])
             used_names.append(names[num_2])
 
