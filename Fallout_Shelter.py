@@ -14,9 +14,6 @@ from Item import Item, Inventory, all_items
 from general_funcs import *
 
 
-_save_file = save_file()
-
-
 class Game(object):
     """Main game class."""
 
@@ -491,11 +488,11 @@ def action_craft(game, item):
 
 def action_scrap(game, item):
     """Deletes an item from the inventory and adds it's components to the inventory
-    
+
     Arguments:
     game -- Main game object
     item -- name of item being scrapped
-    
+
     Returns:
     game -- Main game object
     """
@@ -803,19 +800,19 @@ def get_room_index(room):  # Shouldnt'need this function anymore
 
 def action_rush_room(game,room):
     """ Rush a room in the game
-    
+
     Arguments:
     game -- Main game object
     room -- name of room to rush
-    
+
     Returns:
     game -- main game object
     """
-    room = game.rooms[room] 
+    room = game.rooms[room]
     random = randint(0,101)
     if random < room.risk:
         print_line(" The {} room has been broken.".format(room.name))
-        room.broken = True 
+        room.broken = True
     else:
         room.rushed = True
     room.update_production(game.player)
@@ -1236,7 +1233,7 @@ def action_trade(game):
                 let_trade = False
         elif a.split()[0] == 'end' or a.split()[0] == 'stop':
             break
-            
+
         if len(a.split()) == 3:
             if a.split()[0].lower() not in ("buy", "sell"):
                 print_line("Invalid input. You can only (buy) and (sell)")
@@ -1768,7 +1765,10 @@ def save_file():
         sfp = user_data_dir(appname=appname, appauthor=False, roaming=True)
     return os.path.join(sfp, sfn)
 
+
 if __name__ == '__main__':
+    global _save_file
+    _save_file = save_file()
     game = None
     if os.path.exists(_save_file):
         load = default_input("Load game from {}? (Y/n) ".format(_save_file))
