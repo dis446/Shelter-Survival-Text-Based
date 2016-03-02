@@ -14,6 +14,24 @@ from Item import Item, Inventory, all_items
 from general_funcs import *
 
 
+def save_file():
+    """Generate save file location/name based on system.
+
+    Returns:
+    str -- path to save file
+    """
+    sfn = "fstb.p"
+    if "-l" in sys.argv:
+        sfp = os.path.split(os.path.abspath(sys.argv[0]))[0]
+    else:
+        appname = "Fallout-Shelter-Text-Based"
+        sfp = user_data_dir(appname=appname, appauthor=False, roaming=True)
+    return os.path.join(sfp, sfn)
+
+
+_save_file = save_file()
+
+
 class Game(object):
     """Main game class."""
 
@@ -1751,24 +1769,7 @@ def choice():  # Need to move these commands into Game() class
         print_line("You have to choose something!")
 
 
-def save_file():
-    """Generate save file location/name based on system.
-
-    Returns:
-    str -- path to save file
-    """
-    sfn = "fstb.p"
-    if "-l" in sys.argv:
-        sfp = os.path.split(os.path.abspath(sys.argv[0]))[0]
-    else:
-        appname = "Fallout-Shelter-Text-Based"
-        sfp = user_data_dir(appname=appname, appauthor=False, roaming=True)
-    return os.path.join(sfp, sfn)
-
-
 if __name__ == '__main__':
-    global _save_file
-    _save_file = save_file()
     game = None
     if os.path.exists(_save_file):
         load = default_input("Load game from {}? (Y/n) ".format(_save_file))
