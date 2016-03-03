@@ -113,7 +113,7 @@ class Inventory(dict):
         """Inventory class constructor, sets values to 0."""
         for item in items:
             self[item] = 0
-
+            
     def print_(self):
         """Print all items in inventory."""
         for item in self:

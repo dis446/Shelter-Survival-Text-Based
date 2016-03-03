@@ -59,6 +59,8 @@ class Game(object):
         self.actions = OrderedDict()  # [('action': function)]
         self.first_few()
         action_see_people(self)
+        if check_built_room(self, "trader"):
+            self = find_rand_items(self, 'trader', 10)
 
         self.add_action(
             "quit",
@@ -210,7 +212,7 @@ class Game(object):
                 self.action_points += 50
             load_time(100, "A new day dawns. It is now day {} in the vault".format(
                 self.days))
-
+            
             for room in self.rooms.values():
                 if self.inventory['watt'] > room.wattage:
                     resource, production = room.production()
@@ -258,7 +260,12 @@ class Game(object):
                         person.activity_limit = 0
                     else:
                         person.days_active += 1
-
+            
+            if check_built_room(self, 'trader'): #Trader randomly loses and gains items daily
+                if game.rooms['trader'].assigned:
+                    self = lose_items(self, 'trader', 10)
+                    self = find_rand_items(self, 'trader', 10)
+                    
             while self.action_points > 0:  # Choice loop
                 a = input("Choose an action: ")
                 if len(a) > 0:
@@ -1003,7 +1010,7 @@ def count_weight(game):
     return weight
 
 
-def find_rand_item(game, inven, num):
+def find_rand_items(game, inven, num):
     """Find random items and add them to inventory.
 
     Arguments:
@@ -1016,36 +1023,32 @@ def find_rand_item(game, inven, num):
     """
     for x in range(num):
         # Following lines randomly choose an item, based on rarity
-        num = randint(1, 1024)  # More likely to find common items than rare.
+        rand_num = randint(1, 1024)
         lst = [2**a for a in range(0, 11)]
-        count = 0
+        rarity = 1
         for chance in lst:
-            if num < chance:
+            if rand_num < chance:
                 break
-            count += 1
-        # Determines the rarity of an item. 50% chance it's a level 10,
-        # 25% chance it's a level 9, 12.5% chance it's a level 8 and so on.
-        rar = 10 - count
+            rarity += 1
+        # Determines the rarity of an item. 50% chance it's a level 1,
+        # 25% chance it's a level 2, 12.5% chance it's a level 3 and so on.
+        
         # Stores each item if the rarity level matches what was randomly picked
         possible_items = []
-        for x in game.all_items:
-            if Item(x).rarity == rar:
-                possible_items.append(x)
+        for it in game.all_items:
+            if Item(it).rarity == rarity:
+                possible_items.append(it)
         if len(possible_items) > 0:
-            number = randint(0, len(possible_items) - 1)
-            actual_item = possible_items[number]
+            actual_item = possible_items[randint(0, len(possible_items) - 1)]
             # Following lines actually store the item in memory
-            if target_inventory == "player" or target_inventory == "trader":
-                if target_inventory == "player":
-                    game = add_to_inven(game, actual_item, 1, 'inventory')
-                elif target_inventory == "trader":
-                    game = add_to_inven(game, actual_item, 1, 'trader')
-            else:
-                print_line("Bug with random item system. Please contact dev!")
+            if inven == "player":
+                game.inventory[actual_item] += 1
+            elif inven == "trader":
+                game.trader_inventory[actual_item] += 1
     return game
 
 
-def add_to_inven(game, item, number, inven):
+def add_to_inven(game, item, number, inven): #Shouldn't need this anymore
     """Add given item to inventory.
 
     Arguments:
@@ -1057,13 +1060,33 @@ def add_to_inven(game, item, number, inven):
     inven = str(inven)
     if inven == "player":
         for y in range(number):
-            pass  # Need to add to inven dict
+            pass  
     elif inven == "trader":
         for y in range(number):
-            pass  # Same as previous comment
+            pass  
     return game
 
-
+def list_of_items(game, inven):
+    """Returns a flat list of every item present in the chosen inventory
+    
+    Arguments:
+    game -- Main game object
+    inven -- chosen inventory to search
+    
+    Returns:
+    list -- all the items found in the inventory.
+    """
+    found_items = []
+    if inven == "player":
+        for item, num in game.inventory.items():
+            if num > 0:
+                found_items.append(item)
+    elif inven == "trader":
+        for item, num in game.trader_inventory.items():
+            if num > 0:
+                found_items.append(item)
+    return found_items
+    
 def lose_items(game, inven, number):
     """Randomly delete multiple items from inventory.
 
@@ -1077,30 +1100,38 @@ def lose_items(game, inven, number):
     """
     if inven == "trader":
         for x in range(number):
-            # rand_number = randint(0, len(trader_inventory) - 1)
-            pass  # Need to remove an item at index rand_number
+            items_available = list_of_items(game, "trader")
+            item = items_available[randint(0, len(items_available) - 1)]
+            game.inventory[item] -= 1
     elif inven == "player":
-        pass  # Need to remove from player's inventory
+        for x in range(number):
+            items_available = list_of_items(game, "player")
+            item = items_available[randint(0, len(items_available) - 1)]
+            game.trader_inventory[item] -= 1
     else:
         print_line("Major bug in item losing system. Please contact dev!")
+    return game
 
 
-def action_scrap(game, it):
+def action_scrap(game, item):
     """Scrap item and recieve its components.
 
     Arguments:
     game -- main game object
-    it -- item to scrap
+    item -- item to scrap
 
     Returns:
     game -- with the item removed and it's components added to the
     """
-    if it not in all_items:
+    if item not in game.all_items:
         print_line(
             "Bug with item scrapping system.",
             "Invalid argument passes to function. Please contact dev.")
     else:
-        game.inventory[it] -= 1
+        game.inventory[item] -= 1
+        item = Item(item)
+        for component in item.components:
+            game.inventory[component] += 1
     use_points(2)
     return game
 
@@ -1330,7 +1361,7 @@ def action_trade(game):
                     if total_cost > game.caps:
                         print_line("You can't afford that!")
                     else:
-                        count = game.trader_invenotory[a.split[2]]
+                        count = game.trader_inventory[a.split[2]]
                         if int(a.split()[1]) > count:  # If trader doesn't have enough.
                             if count < 1:
                                 print_line(
