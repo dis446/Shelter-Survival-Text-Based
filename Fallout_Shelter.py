@@ -52,6 +52,7 @@ class Game(object):
         self.trader_caps = 500
         self.happiness = 100
         self.action_points = 50
+        self.defense = 0
         self.security = "secure"  # Is this the player's job security?
         self.days = 1
         self.actions = OrderedDict()  # [('action': function)]
@@ -109,6 +110,9 @@ class Game(object):
         self.add_action(
             "unassign",
             action_unassign)
+        self.add_action(
+            "auto feed all",
+            action_auto_feed_all)
 
     def add_action(self, name, action):
         """Add entries to the actions dictionary.
@@ -166,9 +170,10 @@ class Game(object):
             "Lex",
             "Leth",
             "Exavor"]
-        for person in self.people:
-            used_names.append(person)
-            used_names.append(person)
+        for person_name in self.people.keys():
+            used_names.append(person_name.split(" ")[0])
+            used_names.append(person_name.split(" ")[1])
+        load_time(100, "Populating vault with random inhabitants.")
         while len(self.people) < 5:
             num_1 = randint(0, len(names) - 1)
             num_2 = randint(0, len(names) - 1)
@@ -259,13 +264,16 @@ class Game(object):
                     action, *args = a.split()
                     if action.lower() == "skip":
                         break
-                    if a in self.actions.keys():
+                    elif action in ("trade", "assign", "unnassign", "auto"):
+                        self = self.actions[action](self, *args)
+                    elif a in self.actions.keys():
                         try:
                             self.actions[a](self, *args)
                         except Exception as e:
                             print_line("Error: {}".format(e))
                     elif action in ("save", "load"):
                         self.actions[action](self, args[0])
+                    
                     else:
                         print_line("Invalid action selected. Try again.")
                 else:
@@ -931,17 +939,18 @@ def check_built_room(game, room):
     return False
 
 
-def can_use_power(room):
+def can_use_power(game, room):
     """
     Determine whether the room may use power or not.
 
     Arguments:
+    game -- main game object
     room - room which uses power
 
     Returns:
     bool -- whether room may use power
     """
-    if count_item('watt', 'player') > room.power_usage:
+    if game.inventory["watt"] > room.power_usage:
         return True
     else:
         return False
@@ -1136,24 +1145,23 @@ def raid(game):
     return game
 
 
-def update_defense(player):
+def update_defense(game, player):
     """Update defense of shelter based on guns and turrets in inventory."""
-    global defense
-    defense = 0
-    turret_count = count_item("turret", "player")
-    defense += 10 * turret_count
-    gun_count = count_item("gun", "player")
-    defense += gun_count
+    game.defense = 0
+    turret_count = game.inventory["turret"]
+    game.defense += 10 * turret_count
+    gun_count = game.inventory["gun"]
+    game.defense += gun_count
     # Add cases for more items that increase defense
     strength_sum = 0
-    for person in people:
+    for person in game.people.values():
         strength_sum += person.strength
-    defense += strength_sum
-    if player.tactician > 0:
-        defense = defense * (1 + (player.tactician * 0.05))
-    if player.inspiration > 0:
-        defense = defense * (1 + (player.inspiration * 0.03))
-
+    game.defense += strength_sum
+    if game.player.tactician > 0:
+        game.defense = defense * (1 + (player.tactician * 0.05))
+    if game.player.inspiration > 0:
+        game.defense = defense * (1 + (player.inspiration * 0.03))
+    return game
 
 # Happiness System:
 
@@ -1183,54 +1191,21 @@ def avg_thirst():
     return avg
 
 
-def feed(first_name, surname, amount):
-    """Reduce hunger level of inhabitant.
 
-    Arguments:
-    first_name -- first name of inhabitant to feed
-    surname -- surname of inhabitant to feed
-    amount -- how much to feed inhabitant
-    """
-    global people
-    global inventory
-    person = people[get_person_index(first_name, surname)]
-    person.hunger -= amount * 10
-    if person.hunger < 0:
-        person.hunger = 0
-    Item('food').destroy('player')
-
-
-def drink(first_name, surname, amount):
-    """Reduce thirst level of inhabitant.
-
-    Arguments:
-    first_name -- first name of inhabitant to feed
-    surname -- surname of inhabitant to feed
-    amount -- how much to feed inhabitant
-    """
-    global inventory
-    global people
-    person = people[get_person_index(first_name, surname)]
-    person.thirst -= amount
-    if person.thirst < 0:
-        person.thirst = 0
-    Item('water').destroy('player')
-
-
-def auto_feed_all():
+def action_auto_feed_all(game):
     """Automatically feed all inhabitants."""
-    global people
-    food_count = count_item("food", "player")
-    water_count = count_item("water", "player")
+    food_count = game.inventory["food"]
+    water_count = game.inventory["water"]
     load_time(200, "Feeding all inhabitants.")
     while food_count > 0 and avg_hunger() > 2:
-        for person in people:
-            feed(person.name, person.surname, 1)
+        for person in game.people.values():
+            #feed(person.name, person.surname, 1)
             food_count -= 1
     while water_count > 0 and avg_thirst() > 2:
-        for person in people:
-            drink(person.name, person.surname, 1)
+        for person in game.people.values():
+            #drink(person.name, person.surname, 1)
             water_count -= 1
+    return game
 
 
 def happiness_loss():
@@ -1307,7 +1282,6 @@ def action_trade(game):
             if a.split()[1] in game.all_items:
                 if a.split()[0] == "buy" or a.split()[0] == "sell":
                     a = "%s %s %s" % (a.split()[0], 1, a.split()[1])  # Set's a to (buy 1 wood) if player inputs buy wood.
-                    print("Action is "+a)
                 else:
                     print_line("Invalid input. You can (buy) or (sell)")
                     let_trade = False
@@ -1321,7 +1295,7 @@ def action_trade(game):
             if a.split()[0].lower() not in ("buy", "sell"):
                 print_line("Invalid input. You can only (buy) and (sell)")
                 let_trade = False
-            if a.split()[2] not in game.all_items():
+            if a.split()[2] not in game.all_items:
                 print_line("This item doesn't exist.")
                 let_trade = False
             try:
@@ -1329,18 +1303,17 @@ def action_trade(game):
             except ValueError:
                 print_line("You have to input a number as the second word")
                 let_trade = False
-        print("Trade happening")
         if let_trade:  # Messy conditional routine coming up.
             cost = Item(a.split()[2]).value
             total_cost = cost * int(a.split()[1])
             print_line("Cost of all items:", total_cost)
             if a.split()[0].lower() == "buy":
                 # Adjusts the prices, depending on player's bartering level.
-                total_cost = int(total_cost * (1.2 - (game.player.bartering * 0.05)))
+                total_cost = int(total_cost * (1.2 - (game.player.barter * 0.05)))
                 if total_cost > game.caps:
                     print_line("You can't afford that!")
                 else:
-                    count = count_item(a.split()[2], "trader")
+                    count = game.trader_invenotory[a.split[2]]
                     if int(a.split()[1]) > count:  # If trader doesn't have enough.
                         if count < 1:
                             print_line(
@@ -1360,12 +1333,12 @@ def action_trade(game):
                         game.trader_caps += total_cost
             elif a.split()[0].lower() == "sell":
                 # Adjusts the prices, depending on bartering level.
-                total_cost = int(total_cost * (0.8 + (game.player.bartering * 0.05)))
-                print("Total cost is"+ total_cost)
+                total_cost = int(total_cost * (0.8 + (game.player.barter * 0.05)))
+                print("Total cost is"+ str(total_cost))
                 if total_cost > game.trader_caps:
                     print_line("The trader can't afford that!")
                 else:
-                    count = count_item(a.split()[2], "player")
+                    count = game.inventory[a.split()[2]]
                     if int(a.split()[1]) > count:  # If player doesn't have enough of the item to sell.
                         if count < 1:
                             print_line(
@@ -1384,9 +1357,8 @@ def action_trade(game):
     print_line("Ending trade")
     return game
 
-
+"""
 def choice():  # Need to move these commands into Game() class
-    """Choice/Command input system."""
     a = input("Choose what to do: ")
     # From here on out, a.split()[0] is used to cut out the first word of the
     # input and compare it individually.
@@ -1417,7 +1389,7 @@ def choice():  # Need to move these commands into Game() class
                 for component in room.components:
                     if component not in checked:
                         if room.count_component(component) > \
-                                count_item(component, "player"):
+                                count_item(game, component, "player"):
                             print_line(
                                 "You don't have enough",
                                 component,
@@ -1449,7 +1421,7 @@ def choice():  # Need to move these commands into Game() class
                     checked = []
                     for component in actual_item.components:
                         if component not in checked:
-                            number_available = count_item(component, "player")
+                            number_available = count_item(game, component, "player")
                             number_needed = actual_item.count_component(
                                 component)
                             if number_needed > number_available:
@@ -1469,7 +1441,7 @@ def choice():  # Need to move these commands into Game() class
                 if a.split()[1] not in all_items:
                     print_line("Invalid item. Please try again.")
                 else:
-                    count = count_item(str(a.split()[1]), "player")
+                    count = count_item(game, str(a.split()[1]), "player")
                     if count > 0:
                         scrap(a.split()[1])
                     else:
@@ -1477,7 +1449,7 @@ def choice():  # Need to move these commands into Game() class
             elif len(a.split()) == 3:  # Scrap multiple times
                 if a.split()[1] in range(1, 100):
                     if a.split()[2] in all_items:
-                        count = count_item(str(a.split()[1]), "player")
+                        count = count_item(game, str(a.split()[1]), "player")
                         if count >= a.split()[1]:
                             for x in range(a.split()[1]):
                                 scrap(a.split()[2])
@@ -1560,7 +1532,7 @@ def choice():  # Need to move these commands into Game() class
                 checked_items = []
                 for it in items_needed:
                     if it not in checked_items:
-                        available = count_item(it, 'player')
+                        available = count_item(game, it, 'player')
                         needed = room.count_component(it)
                         if needed > available:
                             print_line(
@@ -1754,7 +1726,7 @@ def choice():  # Need to move these commands into Game() class
                         if ite == comp:
                             needed += 1
                     # Counts number of component available to the player
-                    available = count_item(ite, "player")
+                    available = count_item(game, ite, "player")
                     if available < needed:  # Not enough
                         can_up = False
                         print_line(
@@ -1832,7 +1804,7 @@ def choice():  # Need to move these commands into Game() class
             print_line("Invalid Input. Try again.")
     else:
         print_line("You have to choose something!")
-
+"""
 
 if __name__ == '__main__':
     game = None

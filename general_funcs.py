@@ -160,7 +160,7 @@ def load_time(x, *messages):
         sleep(x / 10000)
 
 
-def count_item(item, target_inventory):
+def count_item(game, item, target_inventory):
     """Count total number of specified item in inventory.
 
     Arguments:
@@ -172,8 +172,8 @@ def count_item(item, target_inventory):
     """
     item = str(item)
     if target_inventory == "player":
-        return inventory.count(item)
+        return game.inventory[item]
     elif target_inventory == "trader":
-        return trader_inventory.count(item)
+        return game.trader_inventory[item]
     else:
         print_line("Bug with item counting system. Please contact dev!")

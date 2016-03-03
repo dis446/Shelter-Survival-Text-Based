@@ -84,6 +84,26 @@ class Human(object):
             print_line("Bartering: ", self.barter)
             print_line("Electricain: ", self.electrician)
     
+    def feed(self, amount):
+        """Reduce hunger level of inhabitant.
+
+        Arguments:
+        amount -- how much to feed inhabitant
+        """
+        self.hunger -= amount
+        if self.hunger < 0:
+            self.hunger = 0
+
+    def drink(self, amount):
+        """Reduce thirst level of inhabitant.
+
+        Arguments:
+        amount -- how much to feed inhabitant
+        """
+        person.thirst -= amount
+        if person.thirst < 0:
+            person.thirst = 0
+        
     def level_up(self):
         """Level up Human and ask player for input on what stat to level up."""
         see_stats(self.name, self.surname)
