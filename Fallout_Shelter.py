@@ -46,7 +46,8 @@ class Game(object):
         self.rooms = {
             'living' : Room('living',self.player),
             'generator' : Room('generator',self.player),
-            'water works' : Room('water works',self.player)}
+            'water works' : Room('water works',self.player),
+            'trader' : Room('trader',self.player)}
         self.people = {}
         self.caps = 100
         self.trader_caps = 500

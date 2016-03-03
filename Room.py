@@ -69,9 +69,19 @@ class Room(object):  # Basic class for the rooms in the game.
         game -- Main game object. Passes this to Room.update_production method
         """
         print_line(self)
+        if self.power_available:
+            power_availablility = "Working"
+        else:
+            power_availablility = "No power available"
+        if self.broken:
+            status = "Broken"
+            status = "Functional"
+        else:
+            status = "Functional"
         print_line("    Risk: {}%".format(self.risk),
                    "    Level: {}".format(self.level),
-                   "    Power: {}".format(self.power_available))
+                   "    Power: {}".format(power_availablility),
+                   "    Status: {}".format(status))
         if self.can_produce:
             self.update_production(game.player)
             print_line("    Production: {}".format(self.production))
