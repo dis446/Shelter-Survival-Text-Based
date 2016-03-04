@@ -576,20 +576,24 @@ def get_gender():
         return "f"
 
 
-def check_person(game, first_name, last_name):
+def check_person(game, name):
     """Check if inhabitant exists in list of all inhabitants.
 
     Arguments:
     game -- Main game object
-    first_name -- first name of inhabitant to check
-    surname -- surname of inhabitant to check
+    name -- full name of person
 
     Returns:
     bool -- whether inhabitant exists or not
     """
-    for per in people:
-        if per.name == first_name.title() \
-                and per.surname == surname.title():
+    print("Checking to see if {} exists".format(name))
+    first_name = name.split()[0].title()
+    surname = name.split()[1].title()
+    name = " ".join((first_name, surname))
+    print("In the form of {}".format(name))
+    for person in game.people.values():
+        print("Checking against {}".format(str(person)))
+        if str(person) == name:
             return True
     else:
         return False
@@ -690,12 +694,15 @@ def action_assign_to_room(game, *args):
     game -- Main game object
     """
     
-    if (args[0] == "assign") and (args[2] == "to"):
-        if check_person(game, args[1], args[2]):
-            if check_room(game, args[4]):
-                game = assign_to_room(game, args[1] + args[2], args[4])
+    if (args[2] == "to"):
+        if check_person(game, str(args[0:2])):
+            if check_built_room(game, args[3]):
+                game = assign_to_room(game, args.split()[0].title() + " " + args.split()[1].title(), args.split()[3])
             else:
-                print_line("This room doesn't exist")
+                if not check_room(game, args[4]):
+                    print_line("This room doesn't exist")
+                else:
+                    print_line("You need to build the {} room".format(args[4]))
         else:
             print_line("This person doesn't exist")
     else:
@@ -722,44 +729,30 @@ def assign_to_room(game, person_name, room_name):
         print("{} has {} people assigned and can hold no more".format(chosen_room,room.count_assigned))
     return game
 
-def action_unassign(game, *args):
+def action_unassign(game, name):
     """ Unassigns person from their room.
     
     Arguments:
     game -- main game object
-    first_name -- first_name of person
-    surname -- surname of person
+    name -- name of person to unnassign
     
     Returns:
     game -- Main game object
     
     """
-    if len(args) == 2:
-        if check_person(game, args[0], args[1]):
-            game = unassign(game, args[0] + args[1])
+    if len(name.split()) == 2:
+        if check_person(game, name):
+            name = name.split()[0].title() + " " + name.split()[1].title() 
+            person = game.people[name]
+            room = game.rooms[person.assigned_room]
+            person.assigned_room = ""
+            room.assigned.remove(person_name)
         else:
             print_line(" This person doesn't exist")
     else:
-        print_line("That name is too long")
+        print_line("The name must be 2 words")
     return game
-
-def unassign(game, person_name) :
-    """Unassign Human from room.
     
-    Arguments:
-    person_name -- name of person to be unassigned
-    game -- Main game object
-    
-    Returns:
-    game -- Main game object
-    """
-    room = game.rooms[self.assigned_room]
-    person = game.people[person_name]
-    
-    person.assigned_room = ""
-    room.assigned.remove(person_name)
-    return game
-
     
 def create_npc(
         parent_1,
@@ -1229,14 +1222,14 @@ def action_auto_feed_all(game):
     food_count = game.inventory["food"]
     water_count = game.inventory["water"]
     load_time(200, "Feeding all inhabitants.")
-    while food_count > 0 and avg_hunger() > 2:
+    while game.inventory["food"] > 0 and avg_hunger() > 1:
         for person in game.people.values():
-            #feed(person.name, person.surname, 1)
-            food_count -= 1
-    while water_count > 0 and avg_thirst() > 2:
+            person.feed(1)
+            game.inventory["food"] -= 1
+    while game.inventory["water"] > 0 and avg_thirst() > 1:
         for person in game.people.values():
-            #drink(person.name, person.surname, 1)
-            water_count -= 1
+            person.drink(1)
+            game.inventory["water"] -= 1
     return game
 
 

@@ -115,7 +115,7 @@ def sentence_split(text):
     return sen
 
 
-def print_line(*messages, end="\n", fast=False, slow=False):
+def print_line(*messages, end = "\n", fast= True, slow = False):
     """Print message with artificial spacing by sleeping.
 
     Arguments:
