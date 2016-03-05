@@ -221,9 +221,9 @@ class Game(object):
                 else:
                     print_line("Not enough power to operate room: {}".format(
                         room.name))
-
                 if room.rushed:
                     room.rushed = False
+            game = update_all_room_production(game)
 
             for person in self.people.values():
                 person.increase_hunger(10)
@@ -586,9 +586,9 @@ def check_person(game, name):
     Returns:
     bool -- whether inhabitant exists or not
     """
-    print("Checking to see if {} exists".format(name))
+    #print("Checking to see if {} exists".format(name))
     name = name.split()[0].title() + " " + name.split()[1].title()
-    print("In the form of {}".format(name))
+    #print("In the form of {}".format(name))
     if name in game.people.keys():
         return True
     else:
@@ -690,19 +690,22 @@ def action_assign_to_room(game, *args):
     game -- Main game object
     """
     
-    if (args[2] == "to"):
-        if check_person(game, str(args[0]) + " " + str(args[1])):
-            if check_built_room(game, args[3]):
-                game = assign_to_room(game,
-                args[0].title() + " " + args[1].title(),
-                args[3])
-            else:
-                if not check_room(game, args[4]):
-                    print_line("This room doesn't exist")
+    if len(args) == 4:
+        if args[2] == "to":
+            if check_person(game, str(args[0]) + " " + str(args[1])):
+                if check_built_room(game, args[3]):
+                    game = assign_to_room(game,
+                    args[0].title() + " " + args[1].title(),
+                    args[3])
                 else:
-                    print_line("You need to build the {} room".format(args[4]))
+                    if not check_room(game, args[4]):
+                        print_line("This room doesn't exist")
+                    else:
+                        print_line("You need to build the {} room".format(args[4]))
+            else:
+                print_line("This person doesn't exist")
         else:
-            print_line("This person doesn't exist")
+            print_line("Invalid syntax. Must be in form of (assign cole leth to living)")
     else:
         print_line("Invalid syntax. Must be in form of (assign cole leth to living)")
     return game    
@@ -729,7 +732,8 @@ def assign_to_room(game, person_name, room_name):
     return game
 
 def action_unassign(game, first_name, surname):
-    """ Checks to see if all arguments are valid, then passes them to 
+    """ Unassigns person from their room.
+        Checks to see if all arguments are valid, then passes them to 
         unassing() function. Only called by the player.
     
     Arguments:
@@ -765,6 +769,7 @@ def unassign(game, name):
     name = name.split()[0].title() + " " + name.split()[1].title() 
     person = game.people[name]
     room = game.rooms[person.assigned_room]
+    print_line("{} has been unassigned from the {}".format(name, str(room)))
     person.assigned_room = ""
     room.assigned.remove(name)
     return game
@@ -800,8 +805,7 @@ def create_npc(
                 parent_2.children.append(str(name + " " + parent_1_surname))
                 parent_1.partner = parent_2.name + " " + parent_2.surname
                 parent_2.partner = parent_1.name + " " + parent_1.surname
-                see_people()
-                update_all_assignment()
+                action_see_people()
                 if days > 2:  # First few births cost no points
                     use_points(50)
                 player.gain_xp(100)
@@ -998,6 +1002,53 @@ def power_production(game):
     """
     generator = game.rooms['generator']
     return generator.production
+
+def update_all_room_production(game):
+    for room in game.rooms.values():
+        production = 0
+        if room.broken:
+            print_line(room.name, "is broken and needs to be fixed.")
+        else:
+            if room.name == "generator":
+                for person_name in room.assigned:
+                    person = game.people[person_name]
+                    production += person.strength
+                if player.electrician > 0:
+                    production = production * \
+                        (1 + (player.electrician * 0.05))
+            elif room.name == "kitchen":
+                for person_name in room.assigned:
+                    person = game.people[person_name]
+                    production += person.intelligence
+                if player.cooking > 0:
+                    production = production * \
+                        (1 + (player.cooking * 0.05))
+
+            elif room.name == "water works":
+                for person_name in room.assigned:
+                    person = game.people[person_name]
+                    production += person.perception
+                if player.cooking > 0:
+                    production = production * \
+                        (1 + (player.cooking * 0.05))
+            elif room.name == "radio":
+                for person_name in room.assigned:
+                    person = game.people[person_name]
+                    production += person.charisma
+                if player.inspiration > 0:
+                    production = production * \
+                        (1 + (player.inspiration * 0.05))
+            else:
+                print_line(
+                    "Bug with room production update system.",
+                    "Please contact dev.")
+            if player.inspiration > 0:
+                production = production * \
+                    (1 + (player.inspiration * 0.03))
+            if room.can_rush and room.rushed:
+                production = production * 2
+        room.production = production
+    return game
 
 
 # Inventory managment system:

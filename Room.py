@@ -86,6 +86,7 @@ class Room(object):  # Basic class for the rooms in the game.
             self.update_production(game.player)
             print_line("    Production: {}".format(self.production))
         if self.can_produce or self.name == "trader":
+            print_line("    Assigned: ")
             self.see_assigned()
         print()
 
@@ -99,57 +100,6 @@ class Room(object):  # Basic class for the rooms in the game.
         """Repair room if damaged."""
         global rooms
 
-    def update_production(self, player):
-        """Calculate production value of Room.
-
-        Arguments:
-        player -- player object
-        """
-        if self.broken:
-            production = 0
-            print_line(self.name, "is broken and needs to be fixed.")
-        else:
-            production = 0
-            if self.name == "generator":
-                for person_index in str(self.assigned):
-                    if person_index == '1':
-                        production += people[int(person_index)].strength * 10
-                if player.electrician > 0:
-                    production = production * (1 + (player.electrician * 0.05))
-            elif self.name == "kitchen":
-                for person_index in str(self.assigned):
-                    if person_index == '1':
-                        production += people[int(person_index)].intelligence \
-                            * 10
-                if player.cooking > 0:
-                    production = production * \
-                        (1 + (player.cooking * 0.05))
-
-            elif self.name == "water works":
-                for person_index in str(self.assigned):
-                    if person_index == '1':
-                        production += people[int(person_index)].perception * 10
-                if player.cooking > 0:
-                    production = production * \
-                        (1 + (player.cooking * 0.05))
-            elif self.name == "radio":
-                for person_index in str(self.assigned):
-                    if person_index == '1':
-                        production += people[int(person_index)].charisma * 10
-                if player.inspiration > 0:
-                    production = production * \
-                        (1 + (player.inspiration * 0.05))
-            else:
-                print_line(
-                    "Bug with room production update system.",
-                    "Please contact dev.")
-            if player.inspiration > 0:
-                production = production * \
-                    (1 + (player.inspiration * 0.03))
-            if self.can_rush and self.rushed:
-                production = production * 2
-            return production
-
     def count_assigned(self):
         """Count inhabitants assigned to Room."""
         count = len(self.assigned)
@@ -157,11 +107,11 @@ class Room(object):  # Basic class for the rooms in the game.
 
     def see_assigned(self):
         """Print names of inhabitants assigned to Room."""
-        if self.count_assigned() == 0:
-            print_line("None")
-        else:
+        if self.assigned:
             for person_name in self.assigned:
-                print_line("   " + person_name)
+                print_line("        " + person_name)
+        else:
+            print_line("        None")
 
     def count_component(self, component):
         """Count components required to build Room.
