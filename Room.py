@@ -152,20 +152,16 @@ class Room(object):  # Basic class for the rooms in the game.
 
     def count_assigned(self):
         """Count inhabitants assigned to Room."""
-        count = 0
-        for x in str(self.assigned):
-            if x == '1':
-                count += 1
+        count = len(self.assigned)
         return count
 
     def see_assigned(self):
         """Print names of inhabitants assigned to Room."""
-        count = 0
-        for x in str(self.assigned):
-            if x == '1':
-                person = people[count]
-                print_line("      ", person.name, person.surname)
-            count += 1
+        if self.count_assigned() == 0:
+            print_line("None")
+        else:
+            for person_name in self.assigned:
+                print_line("   " + person_name)
 
     def count_component(self, component):
         """Count components required to build Room.

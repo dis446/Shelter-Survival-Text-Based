@@ -272,7 +272,7 @@ class Game(object):
                     action, *args = a.split()
                     if action.lower() == "skip":
                         break
-                    elif action in ("trade", "assign", "unnassign", "auto"):
+                    elif action in ("trade", "assign", "unassign", "auto"):
                         self = self.actions[action](self, *args)
                     elif a in self.actions.keys():
                         try:
@@ -587,14 +587,10 @@ def check_person(game, name):
     bool -- whether inhabitant exists or not
     """
     print("Checking to see if {} exists".format(name))
-    first_name = name.split()[0].title()
-    surname = name.split()[1].title()
-    name = " ".join((first_name, surname))
+    name = name.split()[0].title() + " " + name.split()[1].title()
     print("In the form of {}".format(name))
-    for person in game.people.values():
-        print("Checking against {}".format(str(person)))
-        if str(person) == name:
-            return True
+    if name in game.people.keys():
+        return True
     else:
         return False
 
@@ -695,9 +691,11 @@ def action_assign_to_room(game, *args):
     """
     
     if (args[2] == "to"):
-        if check_person(game, str(args[0:2])):
+        if check_person(game, str(args[0]) + " " + str(args[1])):
             if check_built_room(game, args[3]):
-                game = assign_to_room(game, args.split()[0].title() + " " + args.split()[1].title(), args.split()[3])
+                game = assign_to_room(game,
+                args[0].title() + " " + args[1].title(),
+                args[3])
             else:
                 if not check_room(game, args[4]):
                     print_line("This room doesn't exist")
@@ -706,30 +704,54 @@ def action_assign_to_room(game, *args):
         else:
             print_line("This person doesn't exist")
     else:
-        print_line("Invalid syntax. Must be in form of (assign cole leth to living")
+        print_line("Invalid syntax. Must be in form of (assign cole leth to living)")
     return game    
         
 def assign_to_room(game, person_name, room_name):
-    """Assign Human to room.
+    """Assign Human to room, assuming all inputted arguments are valid.
 
     Arguments:
     game -- Main game object
-    person_name -- full name of person being assigned
+    person_name -- full name of person being assigned (with first letter's capitalized)
     room_name -- name of room to assign to
      
     """
-    room = game.rooms[chosen_room]
+    room = game.rooms[room_name]
     person = game.people[person_name]
-    if room.count_assigned < room.assigned_limit:
-        if self.assigned_room != "": #If person is already assigned to a room, unassigns them.
+    if room.count_assigned() < room.assigned_limit:
+        if person.assigned_room != "": #If person is already assigned to a room, unassigns them.
             game = unassign(game, person_name)
         room.assigned.append(person_name)
-        self.assigned_room = chosen_room
+        person.assigned_room = room_name
+        print_line("{} has been assigned to the {}".format(person_name, str(room)))
     else:
-        print("{} has {} people assigned and can hold no more".format(chosen_room,room.count_assigned))
+        print("The {} has {} people assigned and can hold no more".format(str(room), room.count_assigned()))
     return game
 
-def action_unassign(game, name):
+def action_unassign(game, first_name, surname):
+    """ Checks to see if all arguments are valid, then passes them to 
+        unassing() function. Only called by the player.
+    
+    Arguments:
+    game -- main game object
+    first_name -- first name of person to unassign
+    surname -- surname of person to unassign
+    
+    Returns:
+    game -- Main game object
+    
+    """
+    name = first_name.title() + " " + surname.title() 
+    if len(name.split()) == 2:
+        if check_person(game, name): 
+            game = unassign(game, name)
+        else:
+            print_line(" This person doesn't exist")
+    else:
+        print_line("The name must be 2 words")
+    return game
+
+def unassign(game, name):
     """ Unassigns person from their room.
     
     Arguments:
@@ -740,20 +762,13 @@ def action_unassign(game, name):
     game -- Main game object
     
     """
-    if len(name.split()) == 2:
-        if check_person(game, name):
-            name = name.split()[0].title() + " " + name.split()[1].title() 
-            person = game.people[name]
-            room = game.rooms[person.assigned_room]
-            person.assigned_room = ""
-            room.assigned.remove(person_name)
-        else:
-            print_line(" This person doesn't exist")
-    else:
-        print_line("The name must be 2 words")
+    name = name.split()[0].title() + " " + name.split()[1].title() 
+    person = game.people[name]
+    room = game.rooms[person.assigned_room]
+    person.assigned_room = ""
+    room.assigned.remove(name)
     return game
-    
-    
+
 def create_npc(
         parent_1,
         parent_2):
@@ -1283,20 +1298,15 @@ def use_points(game, point):
 def action_trade(game):
     """Trading system."""
     can_trade = True
-    """ 
-    Checks to see if trader room has been built and if anyone has
-    been assigned to it. Tempoarily commented out since room assignment
-    doesn't work
-    
     if check_built_room(game, 'trader'):
         trader_room = game.rooms['trader']
-        if trader_room.assigned == []:
+        if not trader_room.assigned: #If trader_room.assigned is empty.
             print_line("There's no one assigned to the trader room!")
             can_trade = False
     else:
         print_line("You need to build a trader room")
         can_trade = False    
-    """
+        
     if can_trade:
         load_time(100, "Initializing trading system.")
         while True:
