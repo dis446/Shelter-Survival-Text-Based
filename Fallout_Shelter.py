@@ -719,7 +719,7 @@ def assign_to_room(game, person_name, room_name):
     room = game.rooms[room_name]
     person = game.people[person_name]
     if room.count_assigned() < room.assigned_limit:
-        if not person.assigned_room: #If person is already assigned to a room, unassigns them.
+        if person.assigned_room: #If person is already assigned to a room, unassigns them.
             game = unassign(game, person_name)
         room.assigned.append(person_name)
         person.assigned_room = room_name
