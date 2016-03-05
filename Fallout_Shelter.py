@@ -210,7 +210,7 @@ class Game(object):
         while True and self.player.alive:  # Day loop
             if self.action_points < 50:
                 self.action_points += 50
-            load_time(100, "A new day dawns. It is now day {} in the vault".format(
+            load_time(100, "A new day dawns.F It is now day {} in the vault".format(
                 self.days))
             
             for room in self.rooms.values():
@@ -223,7 +223,7 @@ class Game(object):
                         room.name))
                 if room.rushed:
                     room.rushed = False
-            game = update_all_room_production(game)
+            self = update_all_room_production(self)
 
             for person in self.people.values():
                 person.increase_hunger(10)
@@ -404,7 +404,7 @@ def action_see_rooms(game, *args):
     game -- main game object
     """
     for room in game.rooms.values():
-        room.print_(game)
+        room.print_()
 
 
 def action_see_resources(game, *args):
@@ -586,10 +586,8 @@ def check_person(game, name):
     Returns:
     bool -- whether inhabitant exists or not
     """
-    #print("Checking to see if {} exists".format(name))
-    name = name.split()[0].title() + " " + name.split()[1].title()
-    #print("In the form of {}".format(name))
-    if name in game.people.keys():
+    print("Checking to see if {} exists".format(name.title()))
+    if name.title() in game.people.keys():
         return True
     else:
         return False
@@ -1009,6 +1007,7 @@ def update_all_room_production(game):
         if room.broken:
             print_line(room.name, "is broken and needs to be fixed.")
         else:
+            player = game.player
             if room.name == "generator":
                 for person_name in room.assigned:
                     person = game.people[person_name]

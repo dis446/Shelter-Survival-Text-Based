@@ -62,11 +62,11 @@ class Room(object):  # Basic class for the rooms in the game.
         """
         return "{} Room".format(self.name.title())
 
-    def print_(self, game):
+    def print_(self):
         """Print room name and its attributes.
         
         Arguments:
-        game -- Main game object. Passes this to Room.update_production method
+        game -- Main game object. 
         """
         print_line(self)
         if self.power_available:
@@ -83,7 +83,6 @@ class Room(object):  # Basic class for the rooms in the game.
                    "    Power: {}".format(power_availablility),
                    "    Status: {}".format(status))
         if self.can_produce:
-            self.update_production(game.player)
             print_line("    Production: {}".format(self.production))
         if self.can_produce or self.name == "trader":
             print_line("    Assigned: ")
@@ -98,12 +97,12 @@ class Room(object):  # Basic class for the rooms in the game.
 
     def fix(self):
         """Repair room if damaged."""
-        global rooms
+        self.broken = False
+        #Need to remove some items from the inventory.
 
     def count_assigned(self):
         """Count inhabitants assigned to Room."""
-        count = len(self.assigned)
-        return count
+        return len(self.assigned)
 
     def see_assigned(self):
         """Print names of inhabitants assigned to Room."""
