@@ -3,6 +3,8 @@
         "risk": 0,
         "can_produce": false,
         "assigned_limit": 0,
+        "attribute": "None",
+        "perk": "None",
         "components": ["wood", "wood", "wood", "wood"],
         "power_usage": 5
     },
@@ -10,6 +12,8 @@
         "risk": 20,
         "can_produce": true,
         "assigned_limit": 3,
+        "attribute": "strength",
+        "perk": "None",
         "components": ["steel", "steel", "steel", "steel"],
         "power_usage": 0
     },
@@ -17,6 +21,8 @@
         "risk": 0,
         "can_produce": false,
         "assigned_limit": 0,
+        "attribute": "None",
+        "perk": "None",
         "components": ["steel", "steel"],
         "power_usage": 1
     },
@@ -24,12 +30,16 @@
         "risk": 10,
         "can_produce": true,
         "assigned_limit": 3,
+        "attribute": "intelligence",
+        "perk": "None",
         "components": ["wood", "wood", "wood"],
         "power_usage": 10
     },
     "trader": {
         "risk": 0,
         "can_produce": false,
+        "attribute": "None",
+        "perk": "None",
         "assigned_limit": 1,
         "components": ["wood", "wood", "wood", "steel", "steel"],
         "power_usage": 2
@@ -38,6 +48,8 @@
         "risk": 20,
         "can_produce": true,
         "assigned_limit": 3,
+        "attribute": "perception",
+        "perk": "None",
         "components": ["wood", "wood", "steel"],
         "power_usage": 10
     },
@@ -45,6 +57,8 @@
         "risk": 0,
         "can_produce": false,
         "assigned_limit": 2,
+        "attribute": "charisma",
+        "perk": "None",
         "components": ["wood", "wood", "wood", "steel", "steel"],
         "power_usage": 15
     }

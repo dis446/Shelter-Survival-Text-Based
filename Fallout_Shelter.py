@@ -618,61 +618,12 @@ def check_xp(game, person_name):
     Returns:
     bool -- Whether inhabitant can level up
     """
-    person = game.people[str(person_name)]
+    person = game.people[person_name]
     # Xp needed to level up increases exponentially
     xp_needed = 100 + (3**person.level)
     if person.XP + 1 > xp_needed:
-        person = level_up(person)
+        person.level_up()
     return game
-
-
-def level_up(person):
-    """Level up Human and ask player for input on what stat to level up.
-
-    Arguments:
-    person -- Person object at level x
-
-    Returns:
-    person -- Person object at level x+1
-    """
-    see_stats(person)
-    if isinstance(person, Player):  # If player has leveled up
-        print_line("\n")
-        done = False
-        while done is False:
-            done = True
-            choice = input("Please choose an attribute to level up: ").lower()
-            if choice == "strength":
-                person.strength += 1
-            elif choice == "perception":
-                person.perception += 1
-            elif choice == "endurance":
-                person.endurance += 1
-            elif choice == "charisma":
-                person.charisma += 1
-            elif choice == "intelligence":
-                person.intelligence += 1
-            elif choice == "luck":
-                person.luck += 1
-            elif choice == "medic":
-                person.medic += 1
-            elif choice == "crafting":
-                person.crafting += 1
-            elif choice == "tactitian":
-                person.tactitian += 1
-            elif choice == "cooking":
-                person.cooking += 1
-            elif choice == "inspiration":
-                person.inspiration += 1
-            elif choice == "scrapper":
-                person.scrapper += 1
-            elif choice == "barter":
-                person.barter += 1
-            elif choice == "electrician":
-                person.electrician += 1
-            else:
-                print_line("Invalid choice")
-                done = False
     
 def action_assign_to_room(game, *args):
     """ Assign a person to a room.
@@ -1008,6 +959,22 @@ def update_all_room_production(game):
             print_line(room.name, "is broken and needs to be fixed.")
         else:
             player = game.player
+            if room.attribute:
+                attribute = room.attribute
+                for person_name in room.assigned:
+                    person = game.people[person_name]
+                    for stat in person.stats:
+                        if stat == attribute:
+                            level = person.stats[stat]
+                            production += level
+                    production += 1
+            if room.perk: #Some player perks improve production
+                for perk in game.player.stats:
+                    if perk == room.perk:
+                        value = game.player.stats[perk]
+                        production = production * \
+                        (1 + (value * 0.05))
+            """
             if room.name == "generator":
                 for person_name in room.assigned:
                     person = game.people[person_name]
@@ -1041,11 +1008,15 @@ def update_all_room_production(game):
                 print_line(
                     "Bug with room production update system.",
                     "Please contact dev.")
-            if player.inspiration > 0:
+                print_line("Room name is {}".format(room.name))
+            
+            """
+            if player.stats["inspiration"] > 0:
                 production = production * \
                     (1 + (player.inspiration * 0.03))
             if room.can_rush and room.rushed:
                 production = production * 2
+        
         room.production = production
     return game
 
@@ -1245,7 +1216,7 @@ def update_defense(game, player):
     # Add cases for more items that increase defense
     strength_sum = 0
     for person in game.people.values():
-        strength_sum += person.strength
+        strength_sum += person.stats["strength"]
     game.defense += strength_sum
     if game.player.tactician > 0:
         game.defense = defense * (1 + (player.tactician * 0.05))

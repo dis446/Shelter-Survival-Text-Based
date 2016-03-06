@@ -36,9 +36,14 @@ class Human(object):
 
         # The stats of the person. Affects the production of
         # room the person has been assigned to.
-        self.strength = self.perception = self.endurance = 1
-        self.charisma =  self.intelligence = self.luck = 1
-
+        self.stats = {"strength": 0,
+                      "perception": 0,
+                      "endurance": 0,
+                      "charisma": 0,
+                      "intelligence": 0,
+                      "luck": 0
+                        }
+        
         self.assigned_room = ""  # Keeps track of where person is working.
         self.children = []  # List of all children
         self.partner = ""
@@ -67,6 +72,10 @@ class Human(object):
     
     def see_stats(self):
         """Check stats of inhabitant."""
+        for stat in self.stats:
+            print_line("{}: {}".format(stat, self.stats[stat]))
+            
+        """ #Old system    
         print_line("Strength: ", self.strength)
         print_line("Perception: ", self.perception)
         print_line("Endurance: ", self.endurance)
@@ -83,7 +92,7 @@ class Human(object):
             print_line("Scrapping: ", self.scrapper)
             print_line("Bartering: ", self.barter)
             print_line("Electricain: ", self.electrician)
-    
+        """
     def feed(self, amount):
         """Reduce hunger level of inhabitant.
 
@@ -108,26 +117,50 @@ class Human(object):
         """Level up Human and ask player for input on what stat to level up."""
         see_stats(self.name, self.surname)
         self.level += 1
-        if self.name == people[0].name:  # If player has leveled up
+        choice_dict = {
+            'strength':self.stats["strength"],
+            'perception':self.stats["perception"],
+            'endurance':self.stats["endurance"],
+            'charisma':self.stats["charisma"],
+            'intelligence':self.stats["intelligence"], 
+            'luck':self.stats["luck"]
+            }
+        if isinstance(self, Player):  # If player has leveled up
             print_line("\n")
+            print_line("You can level up any of these attributes: ")
+            for stat in choice_dict.keys():
+                print_line(" {}".format(stat), end = " ")
             choice = input("Please choose an attribute to level up: ")
             choice.lower()
+            perks = ["medic", "crafting", "tactitian", "cooking",
+                     "inspiration", "scrapper", "barter", "electrician"]
+            #Perks specific to the player are added to the dictionary of
+            #available choices
+            for perk in perks:
+                choice_dict[perk] = self.stats[perk]
+            """ #Old choice_dict dictionary
             choice_dict = {
-            'strength':self.strength, 'perception':self.perception,
-            'endurance':self.endurance, 'charisma':self.charisma,
-            'intelligence':self.intelligence, 'luck':self.luck,
-            'medic':self.medic, 'crafting':self.crafting,
-            'tactician':self.tactician, 'cooking':self.cooking,
-            'inspiration':self.inspiration, 'scrapper':self.scrapper,
-            'barter':self.barter, 'electrician':self.electician
+            'strength':self.stats["strength"], 'perception':self.stats["perception"],
+            'endurance':self.stats["endurance"], 'charisma':self.stats["charisma"],
+            'intelligence':self.stats["intelligence"], 'luck':self.stats["luck"],
+            'medic':self.stats["medic"], 'crafting':self.stats["crafting"],
+            'tactician':self.stats["tactician"], 'cooking':self.stats["cooking"],
+            'inspiration':self.stats["inspiration"], 'scrapper':self.stats["scrapper"],
+            'barter':self.stats["barter"], 'electrician':self.stats["electician"]
             }
-            if choice in choice_dict:
+            """
+            if choice in choice_dict.keys():
                 choice_dict[choice] += 1
             else:
                 print_line("Invalid choice")
                 self.level -= 1
                 self.level_up()
         else:  # If NPC has levelled up
+            
+            for stat in choice_dict.keys():
+                print_line(" {}".format(stat), end = " ")
+            choice = input("Please choose an attribute to level up: ")
+            choice.lower()
             if choice in choice_dict:
                 choice_dict[choice] += 1
             else:
@@ -141,9 +174,9 @@ class Human(object):
         Arguments:
         amount -- amount of health to give
         """
-        player = people[0]
-        if player.medic > 0:  # Medic Boost.
-            amount = amount * (1 + (0.05 * player.medic))
+        self = people[0]
+        if self.medic > 0:  # Medic Boost.
+            amount = amount * (1 + (0.05 * self.medic))
         self.HP += amount
         if self.HP > 99:  # Truncates health
             self.HP = 100
@@ -159,8 +192,8 @@ class Human(object):
             print_line(
                 self.name +
                 " has been reborn and her stats have been reset")
-        self.strength = self.perception = self.endurance =  1
-        self.charisma = self.luck = self.intelligence = 1
+        self.stats["strength"] = self.perception = self.endurance =  1
+        self.stats["charisma"] = self.luck = self.intelligence = 1
 
     def get_index(self): #Shouldn't need this anymore
         """Return index of Human in list of all people.
@@ -180,9 +213,8 @@ class Human(object):
         person -- Human who's aging
         """
         person.age += 1
-        print_line(
-            person.name + " has matured and is now ",
-            person.age + " years old!")
+        print_line("{} has matured and is now {} years old!" \
+        .format(self, self.age))
 
     def take_damage(self, amount):
         """Take health from Human.
@@ -190,14 +222,14 @@ class Human(object):
         Arguments:
         amount -- amount of health to take
         """
-        person.defense = person.strength * 10
-        damage_taken = amount - person.defense
+        self.defense = self.stats["strength"] * 10
+        damage_taken = amount - self.defense
         if damage_taken < 1:
             damage_taken = 0
         else:
-            person.HP -= damage_taken
-            if person.HP < 1:
-                person.die()
+            self.HP -= damage_taken
+            if self.HP < 1:
+                self.die()
     
     def increase_hunger(self, amount):
         """Increase hunger level of Human by certain amount
@@ -246,7 +278,7 @@ class Human(object):
 
     def die(self, game, cause):
         """Kill self, and unassign from a assigned room.
-
+            #Should make this a method of the main game.
         Arguments:
         game -- main game object
         cause -- cause of death
@@ -255,9 +287,9 @@ class Human(object):
         if self.assigned_room:
             game.rooms[self.assigned_room].remove(str(self))
         if not isinstance(self, Player):
-            del game.people[str(self)]
+            pass
         else:
-            game.player.alive = False
+            self.alive = False
 
 
 class NPC(Human):
@@ -306,6 +338,13 @@ class Player(Human):
         Human.__init__(
             self, first_name, day_of_birth,
             parent_1, parent_2, age, gender)
+        player_stats = ["medic", "crafting", "tactician", "cooking",
+                        "barter", "inspiration", "scrapper",
+                        "electrician"]
+        for stat in player_stats: #Adds player specific stats to stat 
+            # dict
+            self.stats[str(stat)] = 0
+        """
         self.medic = 0  # Improves healing capabilities of stimpacks
         self.crafting = 0  # Chance to not use components when crafting.
         self.tactician = 0  # Boosts defense.
@@ -314,3 +353,4 @@ class Player(Human):
         self.inspiration = 0  # Boosts production and defense.
         self.scrapper = 0  # Boosts chance of bonus components when scrapping.
         self.electrician = 0  # Boosts power production
+        """
