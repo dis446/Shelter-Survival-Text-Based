@@ -96,7 +96,7 @@ class Game(object):
             "see resources",
             action_see_resources)
         self.add_action(
-            "auto assign",
+            "auto assign all",
             action_auto_assign)
         self.add_action(
             "trade",
@@ -205,7 +205,7 @@ class Game(object):
         return capacity
 
     def run(self, debug=False):
-        """Main game. Once all values are initilized, this is run."""
+        """Main game. Once all values are initilized or loaded from a save file, this is run."""
         action_help(self)  # Initially prints the available commands.
         while True and self.player.alive:  # Day loop
             if self.action_points < 50:
@@ -272,7 +272,7 @@ class Game(object):
                     action, *args = a.split()
                     if action.lower() == "skip":
                         break
-                    elif action in ("trade", "assign", "unassign", "auto"):
+                    elif action in ("trade", "assign", "unassign", "auto feed", "auto assign all"):
                         self = self.actions[action](self, *args)
                     elif a in self.actions.keys():
                         try:
@@ -834,29 +834,14 @@ def action_auto_assign(game, *args):
     """
     for person in game.people.values():
         if not person.assigned_room:
-            for room in game.rooms:
+            for room in game.rooms.values():
                 if room.count_assigned() < room.assigned_limit:
-                    person.assign_to_room(r.name)
+                    game = assign_to_room(game, str(person), room.name)
                     break
+    return game
 
 
 # Room Management system:
-
-def get_room_index(room):  # Shouldnt'need this function anymore
-    """Get index of room in room list.
-
-    Arguments:
-    room -- room to get index of
-
-    Returns:
-    r -- index of room
-    """
-    room = str(room)
-    for r in range(len(rooms)):
-        # print_line("Room index scan is now",r)
-        if rooms[r].name == room:
-            # print_line("Room index fetch returns,",r)
-            return r
 
 def action_rush_room(game, room):
     """Rush a room in the game.

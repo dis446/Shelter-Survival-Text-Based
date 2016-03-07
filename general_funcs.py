@@ -160,7 +160,7 @@ def load_time(x, *messages):
         sleep(x / 10000)
 
 
-def count_item(game, item, target_inventory):
+def count_item(game, item, target_inventory): #Useless function.
     """Count total number of specified item in inventory.
 
     Arguments:

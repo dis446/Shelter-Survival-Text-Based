@@ -60,16 +60,17 @@ class Human(object):
 
     def print_(self):
         """Print name and attributes."""
+        print_line("\n")
         print_line(
             self,
-            "    Age: {}".format(self.age),
-            " Gender: {}".format(self.gender),
-            " Hunger: {}".format(self.hunger),
-            " Thirst: {}".format(self.thirst),
+            "\n  Age:  {}".format(self.age) +
+            "  Gender: {}".format(self.gender) +
+            "  Hunger: {}".format(self.hunger) +
+            "  Thirst: {}".format(self.thirst) +
+            "  Room:   {}".format(self.assigned_room), 
             fast = True)
-        if self.assigned_room != "":
-            print_line("   Room: {}".format(self.assigned_room))
-    
+        print_line("\n")
+        
     def see_stats(self):
         """Check stats of inhabitant."""
         for stat in self.stats:
