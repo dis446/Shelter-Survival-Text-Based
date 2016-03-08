@@ -113,10 +113,11 @@ class Human(object):
         person.thirst -= amount
         if person.thirst < 0:
             person.thirst = 0
-        
+    
     def level_up(self):
         """Level up Human and ask player for input on what stat to level up."""
-        see_stats(self.name, self.surname)
+        print_line("{} has gained enough experience to level up!!!".format(self))
+        self.see_stats()
         self.level += 1
         choice_dict = {
             'strength':self.stats["strength"],
@@ -168,7 +169,30 @@ class Human(object):
                 print_line("\nInvalid choice.\n")
                 self.level -= 1
                 self.level_up()
+    
+    def check_xp(self):
+        """Check experience of inhabitant is enough to level up.
 
+        Returns:
+        bool -- whether or not Human can level up"""
+        # Xp needed to level up increases exponentially
+        xp_needed = 10 + (3**self.level)
+        if self.XP >= xp_needed:
+            return True
+        else:
+            return False
+            
+    def gain_xp(self, amount):
+        """Increase experience of person. If they have enough to level 
+        up, they do
+        
+        Arguments:
+        amount -- amount to level up by
+        """
+        self.XP += amount
+        while self.check_xp():
+            self.level_up()
+    
     def heal(self, amount):
         """Heal Human.
 
@@ -195,17 +219,6 @@ class Human(object):
                 " has been reborn and her stats have been reset")
         self.stats["strength"] = self.perception = self.endurance =  1
         self.stats["charisma"] = self.luck = self.intelligence = 1
-
-    def get_index(self): #Shouldn't need this anymore
-        """Return index of Human in list of all people.
-
-        Returns:
-        x -- index of Human in list
-        """
-        for x in range(len(people)):
-            if people[x].name == self.name and \
-                    people[x].surname == self.surname:
-                return int(x)
 
     def mature(self, person):
         """Increment Human's age.
@@ -259,7 +272,6 @@ class Human(object):
             person.days_to_scavenge_for = 10
         else:
             person.days_to_scavenge_for = days
-        
 
     def can_mate(self):
         """Check if Human meets requirements to have children.

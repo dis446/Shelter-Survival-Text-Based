@@ -44,10 +44,12 @@ class Game(object):
         self.inventory['turret'] += 1
         self.trader_inventory = Inventory(self.all_items)
         self.rooms = {
-            'living' : Room('living',self.player),
-            'generator' : Room('generator',self.player),
-            'water works' : Room('water works',self.player),
-            'trader' : Room('trader',self.player)}
+            'living' : Room('living'),
+            'generator' : Room('generator'),
+            'water works' : Room('water works'),
+            #'trader' : Room('trader'),
+            'kitchen' : Room('kitchen')
+        }
         self.people = {}
         self.caps = 100
         self.trader_caps = 500
@@ -116,6 +118,9 @@ class Game(object):
         self.add_action(
             "auto feed all",
             action_auto_feed_all)
+        self.add_action(
+            "build",
+            action_build_room)
 
     def add_action(self, name, action):
         """Add entries to the actions dictionary.
@@ -272,7 +277,7 @@ class Game(object):
                     action, *args = a.split()
                     if action.lower() == "skip":
                         break
-                    elif action in ("trade", "assign", "unassign", "auto feed", "auto assign all"):
+                    elif action in ("trade", "assign", "unassign", "auto feed", "auto assign all", "build"):
                         self = self.actions[action](self, *args)
                     elif a in self.actions.keys():
                         try:
@@ -466,35 +471,38 @@ def living_capacity(game):
     Returns:
     int -- maximum capacity of shelter
     """
-    room = game.room
+    room = game.rooms["living"]
     print_line("Maximum number of inhabitants", 5 * room.level)
     return (5 * room.level)
 
 
 # Construction system:
 
-def action_build(game, room):
+def action_build_room(game, room_name):
+    #Need to check if player has the materials to build room
     """Build room specified.
 
     Arguments:
     game -- Main game object
-    room -- name of room to build
+    room_name -- name of room to build
 
     Returns:
     game -- Main game object
     """
-    built_room = Room(str(r), player)  # creates a room.
-    game.rooms.append(built_room)  # Stores the room in memory.
-    load_time(5, "Building " + r)
-    for y in built_room.components:  # Does this for each component
-        for x in game.inventory:
-            if y == x:  # If it matches, delete this.
-                Item(x).destroy("player")
-                # Ensures that only one instance of the item is removed for
-                # every one instance of the component.
-                break
-    game.player.gain_xp(100)
-    use_points(10)
+    if check_room(game, room_name):
+        if not check_built_room(game, room_name):            
+            room = Room(str(room_name))  # creates a room.
+            game.rooms[str(room_name)] = room  # Stores the room in memory.
+            load_time(50, "Building " + room_name)
+            for y in room.components:  # Does this for each component
+                game.inventory[y] -= 1
+            #game.player.gain_xp(100) #Commented out for now since levelling up
+            # system doesn't work
+            #Need to use points
+        else:
+            print_line("You've already built the {} room.".format(room_name.title()))
+    else:
+        print_line("{} isn't a valid room name.".format(room_name.title()))
     return game
 
 
@@ -591,39 +599,6 @@ def check_person(game, name):
         return True
     else:
         return False
-
-
-def gain_xp(game, person_name, amount):
-    """Add experience to Human.
-
-    Arguments:
-    game -- Main game object
-    person_name -- name of person to gain experience
-    amount -- amount of experience to add
-
-    Returns:
-    game -- with one more experienced person
-    """
-    person = game.people[person_name]
-    person.XP += amount
-
-
-def check_xp(game, person_name):
-    """Check experience of inhabitant.
-
-    Arguments:
-    game -- Main game object
-    person_name -- name of person
-
-    Returns:
-    bool -- Whether inhabitant can level up
-    """
-    person = game.people[person_name]
-    # Xp needed to level up increases exponentially
-    xp_needed = 100 + (3**person.level)
-    if person.XP + 1 > xp_needed:
-        person.level_up()
-    return game
     
 def action_assign_to_room(game, *args):
     """ Assign a person to a room.
@@ -738,7 +713,7 @@ def create_npc(
     while True:
         name = input("Choose a first name for the new child: ")
         if len(name.split()) == 1:  # Player can only input one word
-            if name not in used_names:
+            if name not in used_names: #This doesn't work
                 name = name.title()  # Capitalizes first letter_
                 if parent_2.gender == "m":
                     parent_1, parent_2 = parent_2, parent_1
@@ -749,17 +724,15 @@ def create_npc(
                     parent_2.surname,
                     0,
                     get_gender())
-                # Next few lines need some work.
+                # From here
                 parent_1.children.append(str(name + " " + parent_1_surname))
                 parent_2.children.append(str(name + " " + parent_1_surname))
                 parent_1.partner = parent_2.name + " " + parent_2.surname
                 parent_2.partner = parent_1.name + " " + parent_1.surname
-                action_see_people()
-                if days > 2:  # First few births cost no points
+                if game.days > 2:  # First few births cost no points
                     use_points(50)
-                player.gain_xp(100)
-                use_points(25)
                 used_names.append(name)
+                #Unil here need to be moved outside of this function
                 load_time(5, (name, " is being born!"))
                 return person
             else:
@@ -772,7 +745,7 @@ def create_npc(
             create_npc(
                 parent_1,
                 parent_2)
-
+        
 
 def create_player():
     """Create player inhabitant.

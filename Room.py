@@ -22,16 +22,13 @@ def all_rooms():
 class Room(object):  # Basic class for the rooms in the game.
     """Room class."""
 
-    def __init__(self, name, player):
+    def __init__(self, name):
         """Room class constructor.
 
         Arguments:
         name -- name of room
-        player -- ???
         """
         self.name = name
-        self.level = 1
-        self.power_available = True
         with open('rooms.json') as f:
             parsed = json.loads(f.read())
             try:
@@ -45,7 +42,9 @@ class Room(object):  # Basic class for the rooms in the game.
                 self.power_usage = room['power_usage']
                 self.wattage = room['power_usage']
             except KeyError:
-                print("Unknown item. Please contact dev.")
+                print("Unknown room {}. Please contact dev.".format(name))
+        self.level = 1
+        self.power_available = True
         self.assigned = []
         self.broken = False
 

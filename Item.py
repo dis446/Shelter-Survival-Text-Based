@@ -71,7 +71,6 @@ class Item(object):
 
     def scrap(self):
         """Destroy Item and add its components to inventory."""
-        global inventory
         print_line(self.name, " has been scrapped and these")
         for item in self.components:
             inventory[item] += 1
@@ -85,25 +84,6 @@ class Item(object):
             # Randomly adds extra component of the scrapped item the inventory.
             inventory[self.components[randint(len(self.components))]] += 1
         self.destroy("player")
-
-    def destroy(self, target_inventory):
-        """Remove item from inventory.
-
-        Arguments:
-        target_inventory -- inventory to remove Item from
-        """
-        if target_inventory == "player":
-            global inventory
-            for x in range(len(inventory)):
-                if inventory[x].name == self.name:
-                    inventory.remove(inventory[x])
-                    break
-        elif target_inventory == "trader":
-            global trader_inventory
-            for x in range(len(trader_inventory)):
-                if trader_inventory[x].name == self.name:
-                    trader_inventory.remove(trader_inventory[x])
-                    break
 
 
 class Inventory(dict):
