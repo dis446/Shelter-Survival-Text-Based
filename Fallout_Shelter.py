@@ -42,6 +42,8 @@ class Game(object):
         self.all_rooms = all_rooms()  # Fetches all items from rooms.json
         self.inventory = Inventory(self.all_items)
         self.inventory['turret'] += 1
+        self.inventory["steel"] += 5
+        self.inventory["chip"] += 1
         self.trader_inventory = Inventory(self.all_items)
         self.rooms = {
             'living' : Room('living'),
@@ -58,6 +60,7 @@ class Game(object):
         self.defense = 0
         self.security = "secure"  # Is this the player's job security?
         self.days = 1
+        self.overuse = False #If player uses too many action points in one day.
         self.actions = OrderedDict()  # [('action': function)]
         self.first_few()
         action_see_people(self)
@@ -208,14 +211,27 @@ class Game(object):
         """
         capacity = self.rooms["storage"].production
         return capacity
+        
+    def use_points(self, number):
+        """Remove action points from total.
 
+        Arguments:
+        number -- how many points to remove
+        """
+        if self.action_points - number < 0:  # If overuse occurs, i.e. if overuse is negative
+            self.overuse = True
+            self.overuse_amount = 0 - (self.action_points - number)
+        self.action_points -= usage
+            
     def run(self, debug=False):
         """Main game. Once all values are initilized or loaded from a save file, this is run."""
         action_help(self)  # Initially prints the available commands.
         while True and self.player.alive:  # Day loop
-            if self.action_points < 50:
-                self.action_points += 50
-            load_time(100, "A new day dawns.F It is now day {} in the vault".format(
+            self.action_points = 50
+            if self.overuse:
+                self.action_points -= self.overuse_amount
+                
+            load_time(100, "A new day dawns. It is now day {} in the vault".format(
                 self.days))
             
             for room in self.rooms.values():
@@ -277,7 +293,7 @@ class Game(object):
                     action, *args = a.split()
                     if action.lower() == "skip":
                         break
-                    elif action in ("trade", "assign", "unassign", "auto feed", "auto assign all", "build"):
+                    elif action in ("trade", "assign", "unassign", "auto feed", "auto assign all", "build", "craft"):
                         self = self.actions[action](self, *args)
                     elif a in self.actions.keys():
                         try:
@@ -498,7 +514,7 @@ def action_build_room(game, room_name):
                 game.inventory[y] -= 1
             #game.player.gain_xp(100) #Commented out for now since levelling up
             # system doesn't work
-            #Need to use points
+            game.use_points(50)
         else:
             print_line("You've already built the {} room.".format(room_name.title()))
     else:
@@ -506,33 +522,29 @@ def action_build_room(game, room_name):
     return game
 
 
-def action_craft(game, item):
+def action_craft(game, item_name):
     """Craft specified item.
 
     Arguments:
     game -- Main game object
-    item -- item to craft
+    item_name -- name of item to craft
 
     Returns:
     game -- Main game object
-    """
-    load_time(5, ("Crafting ", x))
-    add_to_inven(x, 1, "player")
-    # Perk bonuses
-    a = Item(x)
-    for l in range(0, 5):
-        if game.player.crafting == l:
-            chance = l * 2
-            break
-    for y in a.components:
-        for x in game.inventory:
-            if y == x:
-                chance_game = randint(0, 101)
-                if chance_game > chance:
-                    game.inventory[x] -= 1
-                break
-    game.player.gain_xp(a.rarity * 10)
-    use_points(5)
+"""
+    if can_craft_item(game, item_name):
+        load_time(5, ("Crafting ", item_name))
+        game.inventory[item_name] += 1
+        # Perk bonuses
+        item = Item(item_name)
+        chance = game.player.stats["crafting"]
+        for component in item.components:
+            if randint(1,101) > chance:
+                #The higher the player's crafting level, the less
+                #likely they are to lose their items.
+                game.inventory[component] -= 1
+        #game.player.gain_xp(item.rarity * 10)
+        #game.use_points(5)
     return game
 
 def action_scrap(game, item):
@@ -1053,6 +1065,7 @@ def add_to_inven(game, item, number, inven): #Shouldn't need this anymore
             pass  
     return game
 
+
 def list_of_items(game, inven):
     """Returns a flat list of every item present in the chosen inventory
     
@@ -1073,6 +1086,32 @@ def list_of_items(game, inven):
             if num > 0:
                 found_items.append(item)
     return found_items
+
+
+def can_craft_item(game, item_name):
+    """Checks to see if an item can be built
+    
+    Arguments:
+    game -- main game object
+    item -- name of item to check
+    
+    Returns:
+    bool -- Whether or not item can be crafted
+    """
+    item = Item(str(item_name))
+    can_craft = True
+    checked_components = []
+    for component in item.components:
+        if component not in checked_components:
+            number_needed = item.components.count(component)
+            number_available = game.inventory[component]
+            if number_needed > number_available:
+                can_craft = False
+                print_line("You need {} more {} to craft this item"\
+                .format(number_needed - number_available, component))
+        checked_components.append(component)
+        checked_components.append(component)
+    return can_craft
     
 def lose_items(game, inven, number):
     """Randomly delete multiple items from inventory.
@@ -1245,31 +1284,6 @@ def happiness_loss():
             "Due to your inhabitants being hungry and/or thirsty the " +
             "shelter's overall happiness has dropped to ",
             happiness)
-
-
-# Action Point usage system:
-
-def use_points(game, point):
-    """Remove action points from total.
-
-    Arguments:
-    game -- main game object
-    point -- how many points to remove
-    """
-    if point > 50:
-        print_line(
-            "Bug with point usage system. ",
-            "It's trying to use more than 50, " +
-            "please note this and contact dev.")
-    else:
-        usage = game.action_points - point
-        game.overuse = False
-        if usage < 0:  # If overuse occurs. i.e. if overuse is negative
-            # overuse_amount = 0 - usage
-            game.overuse = True
-        else:  # If normal usage occurs.
-            # action_points -= usage
-            pass
 
 # Trading system:
 
