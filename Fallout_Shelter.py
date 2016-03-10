@@ -221,7 +221,7 @@ class Game(object):
         if self.action_points - number < 0:  # If overuse occurs, i.e. if overuse is negative
             self.overuse = True
             self.overuse_amount = 0 - (self.action_points - number)
-        self.action_points -= usage
+        self.action_points -= number
             
     def run(self, debug=False):
         """Main game. Once all values are initilized or loaded from a save file, this is run."""
@@ -288,6 +288,7 @@ class Game(object):
                     self = find_rand_items(self, 'trader', 10)
                     
             while self.action_points > 0:  # Choice loop
+                print_line("Action Points Remaining: {}".format(self.action_points))
                 a = input("Choose an action: ")
                 if len(a) > 0:
                     action, *args = a.split()
