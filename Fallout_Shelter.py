@@ -124,6 +124,9 @@ class Game(object):
         self.add_action(
             "build",
             action_build_room)
+        self.add_action(
+            "feed",
+            action_feed)
 
     def add_action(self, name, action):
         """Add entries to the actions dictionary.
@@ -545,23 +548,33 @@ def action_craft(game, item_name):
                 #likely they are to lose their items.
                 game.inventory[component] -= 1
         #game.player.gain_xp(item.rarity * 10)
-        #game.use_points(5)
+        game.use_points(10)
     return game
 
-def action_scrap(game, item):
+def action_scrap(game, item_name):
     """Deletes an item from the inventory and adds it's components to the inventory
 
     Arguments:
     game -- Main game object
-    item -- name of item being scrapped
+    item_name -- name of item being scrapped
 
     Returns:
     game -- Main game object
     """
-    it = Item(item)
-    for component in it.components:
-        game.inventory[component] += 1
-    game.inventory[item] -= 1
+    if item_name in game.all_items:
+        if game.inventory[item_name] > 0:
+            it = Item(item_name)
+            print_line("{} has been scrapped and these: ".format(item_name)) 
+            for component in it.components:
+                game.inventory[component] += 1
+                print(str(component.title()),end = ", ")
+            print_line("Have been added to your inventory")
+            game.inventory[item] -= 1
+            game.use_points(10)
+        else:
+            print_line("You don't have any {}".format(item_name))
+    else:
+        print_line("Invalid item: {}".format(item_name))
     return game
 
 # Human management system:
@@ -664,6 +677,7 @@ def assign_to_room(game, person_name, room_name):
         room.assigned.append(person_name)
         person.assigned_room = room_name
         print_line("{} has been assigned to the {}".format(person_name, str(room)))
+        game.use_points(1)
     else:
         print("The {} has {} people assigned and can hold no more".format(str(room), room.count_assigned()))
     return game
@@ -686,6 +700,7 @@ def action_unassign(game, first_name, surname):
     if len(name.split()) == 2:
         if check_person(game, name): 
             game = unassign(game, name)
+            game.use_points(1)
         else:
             print_line(" This person doesn't exist")
     else:
@@ -709,6 +724,7 @@ def unassign(game, name):
     print_line("{} has been unassigned from the {}".format(name, str(room)))
     person.assigned_room = ""
     room.assigned.remove(name)
+    game.use_points(1)
     return game
 
 def create_npc(
@@ -846,6 +862,7 @@ def action_rush_room(game, room):
         room.broken = True
     else:
         room.rushed = True
+    game.use_points(20)
     room.update_production(game.player)
     return game
 
@@ -1047,26 +1064,6 @@ def find_rand_items(game, inven, num):
                 game.trader_inventory[actual_item] += 1
     return game
 
-
-def add_to_inven(game, item, number, inven): #Shouldn't need this anymore
-    """Add given item to inventory.
-
-    Arguments:
-    x -- item to add to inventory
-    number -- amount of item to add to inventory
-    inven -- inventory to add item to
-    """
-    item = str(item)
-    inven = str(inven)
-    if inven == "player":
-        for y in range(number):
-            pass  
-    elif inven == "trader":
-        for y in range(number):
-            pass  
-    return game
-
-
 def list_of_items(game, inven):
     """Returns a flat list of every item present in the chosen inventory
     
@@ -1139,28 +1136,6 @@ def lose_items(game, inven, number):
         print_line("Major bug in item losing system. Please contact dev!")
     return game
 
-
-def action_scrap(game, item):
-    """Scrap item and recieve its components.
-
-    Arguments:
-    game -- main game object
-    item -- item to scrap
-
-    Returns:
-    game -- with the item removed and it's components added to the
-    """
-    if item not in game.all_items:
-        print_line(
-            "Bug with item scrapping system.",
-            "Invalid argument passes to function. Please contact dev.")
-    else:
-        game.inventory[item] -= 1
-        item = Item(item)
-        for component in item.components:
-            game.inventory[component] += 1
-    use_points(2)
-    return game
 
 # Raiding system:
 
@@ -1249,8 +1224,29 @@ def avg_thirst():
     avg = total // len(people)
     return avg
 
-
-
+def action_feed(game, person_name):
+    """Feed's a person, based on player input.
+    
+    Arguments:
+    game -- Main game object
+    person_name --- Name of person to feed
+    
+    Returns:
+    game -- Main game object
+    """
+    if check_person(game, person_name):
+        if game.inventory["food"] > 0:
+            game.people[str(person_name)].feed(1)
+        else:
+            print_line("You don't have enough food to feed {}".format(person_name))
+        if game.inventory["water"] > 0:
+            game.people[str(person_name)].drink(1)
+        else:
+            print_line("You don't have enough water to feed {}".format(person_name))
+    else:
+        print_line("{} is an invalid name".format(person_name))
+    return game
+        
 def action_auto_feed_all(game):
     """Automatically feed all inhabitants."""
     food_count = game.inventory["food"]
@@ -1376,6 +1372,7 @@ def action_trade(game):
                                 game.inventory[a.split()[2]] += 1
                             game.caps -= total_cost
                             game.trader_caps += total_cost
+                            game.use_points(1)
                 elif a.split()[0].lower() == "sell":
                     # Adjusts the prices, depending on bartering level.
                     total_cost = int(total_cost * (0.8 + (game.player.barter * 0.05)))
@@ -1398,6 +1395,7 @@ def action_trade(game):
                                 game.trader_inventory[a.split()[2]] += 1
                             game.caps += total_cost
                             game.trader_caps -= total_cost
+                            game.use_points(1)
         print_line("Ending trade")
     return game
 
