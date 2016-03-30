@@ -1,49 +1,49 @@
 {
     "living": {
         "risk": 0,
-        "can_produce": False,
+        "can_produce": false,
         "assigned_limit": 0,
         "components": ["wood", "wood", "wood", "wood"],
         "power_usage": 5
     },
     "generator": {
-        "risk": 20,
-        "can_produce": True,
+        "risk": 2,
+        "can_produce": true,
         "assigned_limit": 3,
         "components": ["steel", "steel", "steel", "steel"],
         "power_usage": 0
     },
     "storage": {
         "risk": 0,
-        "can_produce": False,
+        "can_produce": false,
         "assigned_limit": 0,
         "components": ["steel", "steel"],
         "power_usage": 1
     },
     "kitchen": {
-        "risk": 10,
-        "can_produce": True,
+        "risk": 1,
+        "can_produce": true,
         "assigned_limit": 3,
         "components": ["wood", "wood", "wood"],
         "power_usage": 10
     },
     "trader": {
         "risk": 0,
-        "can_produce": False,
+        "can_produce": false,
         "assigned_limit": 1,
         "components": ["wood", "wood", "wood", "steel", "steel"],
         "power_usage": 2
     },
     "water works": {
-        "risk": 20,
-        "can_produce": True,
+        "risk": 2,
+        "can_produce": true,
         "assigned_limit": 3,
         "components": ["wood", "wood", "steel"],
         "power_usage": 10
     },
     "radio": {
         "risk": 0,
-        "can_produce": False,
+        "can_produce": false,
         "assigned_limit": 2,
         "components": ["wood", "wood", "wood", "steel", "steel"],
         "power_usage": 15

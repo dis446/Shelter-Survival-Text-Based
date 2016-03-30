@@ -244,7 +244,8 @@ class Game(object):
                         room.name))
                 if room.rushed:
                     room.rushed = False
-            self = update_all_room_production(self)
+            #self = update_all_room_production(self)
+            #Room production managment not working yet
 
             for person in self.people.values():
                 person.increase_hunger(10)
@@ -607,7 +608,7 @@ def check_person(game, name):
     Returns:
     bool -- whether inhabitant exists or not
     """
-    print("Checking to see if {} exists".format(name.title()))
+    #print("Checking to see if {} exists".format(name.title()))
     if name.title() in game.people.keys():
         return True
     else:
