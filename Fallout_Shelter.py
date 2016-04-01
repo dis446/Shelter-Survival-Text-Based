@@ -48,7 +48,7 @@ class Game(object):
         self.rooms = {
             'living' : Room('living'),
             'generator' : Room('generator'),
-            'water works' : Room('water works'),
+            'water' : Room('water'),
             #'trader' : Room('trader'),
             'kitchen' : Room('kitchen')
         }
@@ -124,6 +124,9 @@ class Game(object):
         self.add_action(
             "build",
             action_build_room)
+        self.add_action(
+            "fix",
+            action_fix_room)
 
     def add_action(self, name, action):
         """Add entries to the actions dictionary.
@@ -234,18 +237,19 @@ class Game(object):
             load_time(100, "A new day dawns. It is now day {} in the vault".format(
                 self.days))
             
+
+            self = update_all_room_production(self)
+            #Room loop
             for room in self.rooms.values():
-                if self.inventory['watt'] > room.wattage:
-                    resource, production = room.production()
+                if self.inventory['watt'] >= room.wattage:
                     self.inventory['watt'] -= room.wattage
-                    self.inventory[resource] += production
+                    if room.produce:
+                        self.inventory[room.produce] += room.production
                 else:
                     print_line("Not enough power to operate room: {}".format(
                         room.name))
                 if room.rushed:
                     room.rushed = False
-            #self = update_all_room_production(self)
-            #Room production managment not working yet
 
             for person in self.people.values():
                 person.increase_hunger(10)
@@ -295,7 +299,9 @@ class Game(object):
                     action, *args = a.split()
                     if action.lower() == "skip":
                         break
-                    elif action in ("trade", "assign", "unassign", "auto feed", "auto assign all", "build", "craft"):
+                    elif action in ("trade", "assign", "unassign", \
+                    "auto feed all", "auto assign all", "build", "craft",\
+                    "fix"):
                         self = self.actions[action](self, *args)
                     elif a in self.actions.keys():
                         try:
@@ -426,6 +432,7 @@ def action_see_rooms(game, *args):
     Arguments:
     game -- main game object
     """
+    game = update_all_room_production(game)
     for room in game.rooms.values():
         room.print_()
 
@@ -636,7 +643,7 @@ def action_assign_to_room(game, *args):
                     args[0].title() + " " + args[1].title(),
                     args[3])
                 else:
-                    if not check_room(game, args[4]):
+                    if not check_room(game, args[3]):
                         print_line("This room doesn't exist")
                     else:
                         print_line("You need to build the {} room".format(args[4]))
@@ -664,6 +671,7 @@ def assign_to_room(game, person_name, room_name):
             game = unassign(game, person_name)
         room.assigned.append(person_name)
         person.assigned_room = room_name
+        game.use_points(1)
         print_line("{} has been assigned to the {}".format(person_name, str(room)))
     else:
         print("The {} has {} people assigned and can hold no more".format(str(room), room.count_assigned()))
@@ -924,6 +932,40 @@ def power_production(game):
     generator = game.rooms['generator']
     return generator.production
 
+def action_fix_room(game, room_name):
+    """Tries to fix room.
+    Arguments:
+    game -- Main game object
+    room_name -- Name of room to try to fix
+    
+    Returns:
+    game -- Main game object
+    """
+    if check_room(game, room_name):
+        if check_built_room(game, room_name):
+            room = game.rooms[room_name]
+            if room.broken:
+                can_fix = True
+                items_needed = Inventory(game.all_items)
+                for component in room.components:
+                    if randrange(0,1) == 0:
+                        items_needed[component] += 1
+                for item_needed in items_needed.keys():
+                    if game.inventory[item_needed] \
+                    < items_needed[item_needed]:
+                        can_fix = False
+                        print_line("You don't have enough {} to fix\
+                        {} room".format(item_needed, room_name))
+                if can_fix:
+                    room.fix()
+            else:
+                print_line("{} room doesn't need to be fixed".format(room_name))
+        else:
+            print_line("You haven't built the {} room yet".format(room_name))
+    else:
+        print_line("Invalid room name: {}".format(room_name))
+    return game
+                        
 def update_all_room_production(game):
     for room in game.rooms.values():
         production = 0
@@ -940,12 +982,14 @@ def update_all_room_production(game):
                             level = person.stats[stat]
                             production += level
                     production += 1
+            """
             if room.perk: #Some player perks improve production
                 for perk in game.player.stats:
                     if perk == room.perk:
                         value = game.player.stats[perk]
                         production = production * \
                         (1 + (value * 0.05))
+            """
             """
             if room.name == "generator":
                 for person_name in room.assigned:
@@ -989,7 +1033,7 @@ def update_all_room_production(game):
             if room.can_rush and room.rushed:
                 production = production * 2
         
-        room.production = production
+        room.production = production * 10
     return game
 
 
@@ -1252,14 +1296,14 @@ def avg_thirst():
 
 
 
-def action_auto_feed_all(game):
+def action_auto_feed_all(game, *args):
     """Automatically feed all inhabitants."""
     food_count = game.inventory["food"]
     water_count = game.inventory["water"]
     load_time(200, "Feeding all inhabitants.")
     while game.inventory["food"] > 0 and avg_hunger() > 1:
         for person in game.people.values():
-            person.feed(1)
+            person.feed(1)  
             game.inventory["food"] -= 1
     while game.inventory["water"] > 0 and avg_thirst() > 1:
         for person in game.people.values():

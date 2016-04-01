@@ -36,7 +36,8 @@ class Room(object):  # Basic class for the rooms in the game.
                 self.risk = room['risk']
                 self.can_produce = room['can_produce']
                 self.assigned_limit = room['assigned_limit']
-                #self.attribute = room['attribute']
+                self.attribute = room['attribute']
+                self.produce = room['produce']
                 #self.perk = room['perk']
                 self.components = room['components']
                 self.power_usage = room['power_usage']
@@ -81,6 +82,7 @@ class Room(object):  # Basic class for the rooms in the game.
             status = "Functional"
         print_line("    Risk: {}%".format(self.risk),
                    "    Level: {}".format(self.level),
+                   "    Attribute: {}".format(self.attribute.title()),
                    "    Power: {}".format(power_availablility),
                    "    Status: {}".format(status))
         if self.can_produce:
@@ -92,14 +94,13 @@ class Room(object):  # Basic class for the rooms in the game.
 
     def rush(self):
         """Rush building of Room."""
-        self.rushed = 1  # Lets game know this room has been rushed.
-        self.risk += 5
-        print_line("{} has been rushed!".format(self.name))
+        self.rushed = True  # Lets game know this room has been rushed.
+        self.risk += 20
+        print_line("{} room has been rushed!".format(self.name))
 
     def fix(self):
         """Repair room if damaged."""
         self.broken = False
-        #Need to remove some items from the inventory.
 
     def count_assigned(self):
         """Count inhabitants assigned to Room."""

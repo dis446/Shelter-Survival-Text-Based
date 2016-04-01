@@ -36,13 +36,13 @@ class Human(object):
 
         # The stats of the person. Affects the production of
         # room the person has been assigned to.
-        self.stats = {"strength": 0,
-                      "perception": 0,
-                      "endurance": 0,
-                      "charisma": 0,
-                      "intelligence": 0,
-                      "luck": 0
-                        }
+        self.stats = {"strength": 1,
+                      "perception": 1,
+                      "endurance": 1,
+                      "charisma": 1,
+                      "intelligence": 1,
+                      "luck": 1
+                     }
         
         self.assigned_room = ""  # Keeps track of where person is working.
         self.children = []  # List of all children
