@@ -1,0 +1,37 @@
+This is a in-progress summary of the game.
+
+The game is divided into several .py source files and a few .json files.
+The main (and longest) source file is Fallout_Shelter.py 
+It stores the main Game class, which initilizes it's values and is only called when a new game is made.
+It initilizes the:
+-Player character, which is a class onto itself
+-Inventory, which is a sorted dictionary in the form of
+--inventory = {"item_name": count_of_instances} 
+---The items are stored only with the name and how many of them there are. If an item's attribute has to be used, the item has be created, on the fly, via the name
+-Rooms, which is a dictionary in the form of 
+--rooms = {"room_name": room_object}
+---Stored in their object form, alongside their names
+-Inhabitants, in the form 
+--people = {"person_name": person_object}
+---Stored in the exact same way rooms are
+-Other variables like day count and the number of caps the player has
+
+
+Player actions are done via dispatching.
+There's a Game.actions ordered dictionary that stores all possible player commands in the form
+-game.actions = {action_name:function_it_calls}
+
+The Human class and functions/methods to do with humans are stored in the Human.py file.
+
+The Items class and functions/methods to do with items are stored in the Item.py file.
+All possible items are stored in the items.json file, with all the specific attributes and stuff
+
+The Room class and functions/methods to do with rooms are stored in the Room.py file.
+All possible rooms are stored in the rooms.json file, with all the specific attributes.
+
+There's a general functions file that stores functions that are used heavily everywhere else. 
+-Most notable of which is the print_line() function which is used instead of the standard print() function to space out prints and give the user time to read output.
+
+There's an incomplete save/load feature that needs work.
+
+
