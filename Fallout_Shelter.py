@@ -92,6 +92,9 @@ class Game(object):
             "see inventory",
             action_see_inventory)
         self.add_action(
+            "see items",
+            action_see_inventory)
+        self.add_action(
             "see trader",
             action_see_inventory)
         self.add_action(
@@ -242,7 +245,7 @@ class Game(object):
             #Room loop
             for room in self.rooms.values():
                 if self.inventory['watt'] >= room.wattage:
-                    self.inventory['watt'] -= room.wattage
+                    self.inventory['watt'] -= room.wattage #Use power
                     if room.produce:
                         self.inventory[room.produce] += room.production
                 else:
@@ -250,11 +253,14 @@ class Game(object):
                         room.name))
                 if room.rushed:
                     room.rushed = False
-
-            for person in self.people.values():
+            
+            self = action_auto_feed_all(game)
+            for person in self.people.values(): #People loop
+                if person.check_xp():
+                    person.level_up()
                 person.increase_hunger(10)
                 if person.hunger > 99:
-                    person.kill(self, "hunger")
+                    person.die(self, "hunger")
                 elif person.hunger > 80:
                     print_line(
                         "Warning! {} is starving and may die soon".format(
@@ -263,7 +269,7 @@ class Game(object):
                     print_line("{} is hungry".format(person))
                 person.increase_thirst(20)
                 if person.thirst > 99:
-                    person.kill(self, "thirst")
+                    person.die(self, "thirst")
                 elif person.thirst > 80:
                     print_line("Warning! {} is extremely thristy " +
                                "and may die soon.".format(person))
@@ -446,45 +452,6 @@ def action_see_resources(game, *args):
     print_line("Food * ", game.inventory["food"])
     print_line("Water * ", game.inventory["water"])
     print_line("Power * ", game.inventory["watt"])
-
-
-# Old print_help function.
-''' def print_help():
-     """Print list of commands available to player."""
-     print_line("""Commands:
-
-     Room actions:
-    see rooms           : View all rooms
-    build x             : Construct room 'x'
-    rush x              : Rush construction of room 'x'
-    upgrade x           : Upgrade room 'x'
-    fix x               : Fix damaged room 'x'
-
-    Inhabitant actions:
-    see people          : View all inhabitants
-    feed x              : Feed inhabitant 'x'
-    enable auto_feed    : Enable automatically feeding inhabitants
-    disable auto_feed   : Disable automatically feeding inhabitants
-    coitus x y          : Send inhabitants 'x' and 'y' to the love-house
-    scavenge x          : Send inhabitant 'x' to scavenge in the wasteland
-    heal x              : Heal inhabitant 'x'
-    heal all            : Heal all inhabitants
-    assign x y          : Assign inhabitant 'x' to room 'y'
-    auto assign         : Automatically assign unassigned inhabitants to room
-
-    Inventory actions:
-    see items           : View all held items
-    scrap x             : Destroy item and add components to your inventory
-    trade               : Begin trading interaction
-
-    Other actions:
-    skip                : Skip current day
-    see day             : View day number
-    see resources       : View all resources available
-    end                 : Quit game
-    help                : See this help text
-    """, fast=True)
-'''
 
 
 def living_capacity(game):
@@ -827,12 +794,19 @@ def action_auto_assign(game, *args):
     Arguments:
     game -- Main game object
     """
-    for person in game.people.values():
-        if not person.assigned_room:
-            for room in game.rooms.values():
-                if room.count_assigned() < room.assigned_limit:
-                    game = assign_to_room(game, str(person), room.name)
-                    break
+    while True:
+        for room in game.rooms.values():
+            if room.count_assigned() < room.assigned_limit:
+                for person in game.people.values():
+                    if not person.assigned_room:
+                        break
+                game = assign_to_room(game, str(person), room.name)
+        unemployed_count = 0
+        for person in game.people.values():
+            if not person.assigned_room:
+                unemployed_count +=1
+        if unemployed_count == 0:
+            break
     return game
 
 
@@ -982,56 +956,17 @@ def update_all_room_production(game):
                             level = person.stats[stat]
                             production += level
                     production += 1
-            """
-            if room.perk: #Some player perks improve production
-                for perk in game.player.stats:
-                    if perk == room.perk:
-                        value = game.player.stats[perk]
-                        production = production * \
-                        (1 + (value * 0.05))
-            """
-            """
-            if room.name == "generator":
-                for person_name in room.assigned:
-                    person = game.people[person_name]
-                    production += person.strength
-                if player.electrician > 0:
-                    production = production * \
-                        (1 + (player.electrician * 0.05))
-            elif room.name == "kitchen":
-                for person_name in room.assigned:
-                    person = game.people[person_name]
-                    production += person.intelligence
-                if player.cooking > 0:
-                    production = production * \
-                        (1 + (player.cooking * 0.05))
-
-            elif room.name == "water works":
-                for person_name in room.assigned:
-                    person = game.people[person_name]
-                    production += person.perception
-                if player.cooking > 0:
-                    production = production * \
-                        (1 + (player.cooking * 0.05))
-            elif room.name == "radio":
-                for person_name in room.assigned:
-                    person = game.people[person_name]
-                    production += person.charisma
-                if player.inspiration > 0:
-                    production = production * \
-                        (1 + (player.inspiration * 0.05))
-            else:
-                print_line(
-                    "Bug with room production update system.",
-                    "Please contact dev.")
-                print_line("Room name is {}".format(room.name))
             
-            """
+            if room.perk: #Some player perks improve production.
+                value = game.player.stats[room.perk]
+                production = production * (1 + (value * 0.05))
+                
             if player.stats["inspiration"] > 0:
                 production = production * \
-                    (1 + (player.inspiration * 0.03))
-            if room.can_rush and room.rushed:
-                production = production * 2
+                (1 + (player.inspiration * 0.03))
+            if room.can_rush:
+                if room.rushed:
+                    production = production * 2
         
         room.production = production * 10
     return game
@@ -1269,29 +1204,29 @@ def update_defense(game, player):
 
 # Happiness System:
 
-def avg_hunger():
+def avg_hunger(game):
     """Calculate average hunger level of all inhabitants.
 
     Returns:
     avg -- average hunger level
     """
     total = 0
-    for x in people:
-        total += x.hunger
-    avg = total // len(people)
+    for person in game.people.values():
+        total += person.hunger
+    avg = total // len(game.people)
     return avg
 
 
-def avg_thirst():
+def avg_thirst(game):
     """Calculate average thirst level of all inhabitants.
 
     Returns:
     avg -- average thirst level
     """
     total = 0
-    for x in people:
-        total += x.thirst
-    avg = total // len(people)
+    for person in game.people.values():
+        total += person.thirst
+    avg = total // len(game.people)
     return avg
 
 
@@ -1301,11 +1236,11 @@ def action_auto_feed_all(game, *args):
     food_count = game.inventory["food"]
     water_count = game.inventory["water"]
     load_time(200, "Feeding all inhabitants.")
-    while game.inventory["food"] > 0 and avg_hunger() > 1:
+    while game.inventory["food"] > 0 and avg_hunger(game) > 1:
         for person in game.people.values():
             person.feed(1)  
             game.inventory["food"] -= 1
-    while game.inventory["water"] > 0 and avg_thirst() > 1:
+    while game.inventory["water"] > 0 and avg_thirst(game) > 1:
         for person in game.people.values():
             person.drink(1)
             game.inventory["water"] -= 1

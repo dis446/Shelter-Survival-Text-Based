@@ -69,31 +69,15 @@ class Human(object):
             "  Thirst: {}".format(self.thirst) +
             "  Room:   {}".format(self.assigned_room), 
             fast = True)
+        for stat in self.stats.keys():
+            print_line("   " + stat + " : " + str(self.stats[stat]))
         print_line("\n")
         
     def see_stats(self):
         """Check stats of inhabitant."""
         for stat in self.stats:
             print_line("{}: {}".format(stat, self.stats[stat]))
-            
-        """ #Old system    
-        print_line("Strength: ", self.strength)
-        print_line("Perception: ", self.perception)
-        print_line("Endurance: ", self.endurance)
-        print_line("Charisma: ", self.charisma)
-        print_line("Intelligence: ", self.intelligence)
-        print_line("Luck: ", self.luck)
-        if isinstance(self, Player):  # Player has extra stats
-            print_line("")
-            print_line("Medic: ", self.medic)
-            print_line("Crafting: ", self.crafting)
-            print_line("Tactician: ", self.tactician)
-            print_line("Cooking: ", self.cooking)
-            print_line("Inspiration: ", self.inspiration)
-            print_line("Scrapping: ", self.scrapper)
-            print_line("Bartering: ", self.barter)
-            print_line("Electricain: ", self.electrician)
-        """
+  
     def feed(self, amount):
         """Reduce hunger level of inhabitant.
 
@@ -110,9 +94,9 @@ class Human(object):
         Arguments:
         amount -- how much to feed inhabitant
         """
-        person.thirst -= amount
-        if person.thirst < 0:
-            person.thirst = 0
+        self.thirst -= amount
+        if self.thirst < 0:
+            self.thirst = 0
     
     def level_up(self):
         """Level up Human and ask player for input on what stat to level up."""

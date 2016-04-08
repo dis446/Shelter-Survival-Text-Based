@@ -38,7 +38,7 @@ class Room(object):  # Basic class for the rooms in the game.
                 self.assigned_limit = room['assigned_limit']
                 self.attribute = room['attribute']
                 self.produce = room['produce']
-                #self.perk = room['perk']
+                self.perk = room['perk']
                 self.components = room['components']
                 self.power_usage = room['power_usage']
                 self.wattage = room['power_usage']
