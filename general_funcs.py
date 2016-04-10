@@ -150,12 +150,10 @@ def load_time(x, *messages):
     x -- length of loading bar in seconds
     messages -- tuple of message to print before loading bar
     """
+    print_line(*messages)
     if load:
-        print_line(str(message))
         for x in tqdm(range(0, x)):
             sleep(0.01)
     else:
-        for message in messages:
-            print_line(message)
         sleep(x / 10000)
 
