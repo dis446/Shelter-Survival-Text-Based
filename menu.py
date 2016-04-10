@@ -37,7 +37,7 @@ def menu_item(name):
 
 @menu_item("Change Speed")
 def speed_change(shell, stack):
-    speed = shell.choose_from("Change Speed", ['slow', 'normal', 'fast'])
+    speed = shell.choose_from("Change Speed", shell.speeds)
     shell.set_speed(speed)
     return None
 

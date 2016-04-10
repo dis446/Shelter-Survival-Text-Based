@@ -9,6 +9,19 @@ class GameShell(object):
     handled by this class
     """
 
+    _speeds = OrderedDict((
+            ('slow', 0.8),
+            ('normal', 0.4),
+            ('fast', 0.1),
+        ))
+
+    @property
+    def speeds(self):
+        """
+        returns a list of valid options for speed
+        """
+        return list(self._speeds.keys())
+
     def __init__(self):
         try:
             try:
@@ -42,27 +55,42 @@ class GameShell(object):
 
         return input(prompt)
 
-    def print_line(self, *lines, end="\n", indent=0, speed=None):
+    def print_line(self, *strings, sep='', end="\n", indent=0, speed=None):
         """
         Print lines with indentation indent and an artifical delay between
         each line governed by speed
 
         Arguments:
         *lines -- lines to print
-        end    -- character to insert betwween lines
+        sep    -- character to insert between strings
+        end    -- character to insert at the end of the line
         indent -- indentation level
-        speed  -- speed at which lines should be output, can be 'fast', 'slow',
+        speed  -- speed at which strings should be output, can be 'fast', 'slow',
                   'normal' or None. None will use self.speed, defaults to None
         """
-        #special case for no lines
-        if len(lines) == 0:
-            print(end=end, flush=True)
-            return
+        #special case for no lines so that it works the same way as print()
+        if len(strings) == 0:
+            strings = ['']
 
         indent_str = "    " * indent
-        for line in lines:
-            print(indent_str + str(line), end=end, flush=True)
-            self._sleep(speed)
+        print(indent_str, end='')
+
+        #if we're separating strings with newlines we need to add indentation
+        #before each line
+        if sep == '\n':
+            sep += indent_str
+
+
+        for i,string in enumerate(strings):
+            #print the separator before every string except the first
+            if i > 0:
+                print(sep, end='', flush=True)
+                self._sleep(speed)
+            print(string, end='')
+
+        #finally print end
+        print(end, end='', flush=True)
+        self._sleep(speed)
 
 
 
@@ -149,11 +177,6 @@ class GameShell(object):
     def _init_readline(self):
         self._readline.parse_and_bind("tab: completion")
 
-    intervals = OrderedDict((
-            ('slow', 0.8),
-            ('normal', 0.4),
-            ('fast', 0.1),
-        ))
 
     def _sleep(self, speed=None):
         """
@@ -164,7 +187,7 @@ class GameShell(object):
         if speed is None:
             speed = self.speed
 
-        interval = self.intervals[speed]
+        interval = self._speeds[speed.lower()]
         sleep(interval)
 
 class ScreenStack(object):
