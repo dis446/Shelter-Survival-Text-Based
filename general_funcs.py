@@ -117,7 +117,7 @@ SLOW = 0.8
 FAST = 0.1
 NORMAL = 0.4
 
-def print_line(*messages, end = "\n", speed = SLOW):
+def print_line(*messages, end = "\n", speed = FAST):
     """Print message with artificial spacing by sleeping.
 
     Arguments:
