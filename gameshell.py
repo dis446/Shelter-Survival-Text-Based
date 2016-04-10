@@ -37,9 +37,7 @@ class GameShell(object):
         except ImportError:
             pass
 
-        self.current_screen = None
         self.speed = 'normal'
-        self.screen_stack = []
 
     def readline(self, prompt):
         """
