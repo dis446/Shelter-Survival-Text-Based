@@ -9,22 +9,21 @@ if load:
     from tqdm import tqdm
 
 
-def input_int(s):
+def input_int(message):
     """Allow user to input integers while catching errors.
 
     Arguments:
-    s -- string to print as a prompt
+    message -- string to print as a prompt
 
     Returns:
-    x -- integer inputted by user
+    inp -- integer inputted by user
     """
     while True:
+        inp = input(str(message))
         try:
-            x = int(input(s))
-            break
+            return int(inp)
         except:
             print_line("Invalid. Only integer numbers are accepted!")
-    return x
 
 
 def default_input(text):
@@ -114,8 +113,11 @@ def sentence_split(text):
     sen = sens[0] + "."
     return sen
 
+SLOW = 0.8
+FAST = 0.1
+NORMAL = 0.4
 
-def print_line(*messages, end = "\n", fast= True, slow = False):
+def print_line(*messages, end = "\n", speed = SLOW):
     """Print message with artificial spacing by sleeping.
 
     Arguments:
@@ -130,12 +132,7 @@ def print_line(*messages, end = "\n", fast= True, slow = False):
     for message in messages:
         message = str(message)
         for line in message.splitlines():
-            if fast:
-                sleep(0.1)
-            elif slow:
-                sleep(0.8)
-            else:
-                sleep(0.4)
+            sleep(speed)
             if end != "\n":
                 stdout.write(line)
                 stdout.flush()

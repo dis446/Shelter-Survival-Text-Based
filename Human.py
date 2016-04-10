@@ -111,48 +111,9 @@ class Human(object):
             'intelligence':self.stats["intelligence"], 
             'luck':self.stats["luck"]
             }
-        if isinstance(self, Player):  # If player has leveled up
-            print_line("\n")
-            print_line("You can level up any of these attributes: ")
-            for stat in choice_dict.keys():
-                print_line(" {}".format(stat), end = " ")
-            choice = input("Please choose an attribute to level up: ")
-            choice.lower()
-            perks = ["medic", "crafting", "tactitian", "cooking",
-                     "inspiration", "scrapper", "barter", "electrician"]
-            #Perks specific to the player are added to the dictionary of
-            #available choices
-            for perk in perks:
-                choice_dict[perk] = self.stats[perk]
-            """ #Old choice_dict dictionary
-            choice_dict = {
-            'strength':self.stats["strength"], 'perception':self.stats["perception"],
-            'endurance':self.stats["endurance"], 'charisma':self.stats["charisma"],
-            'intelligence':self.stats["intelligence"], 'luck':self.stats["luck"],
-            'medic':self.stats["medic"], 'crafting':self.stats["crafting"],
-            'tactician':self.stats["tactician"], 'cooking':self.stats["cooking"],
-            'inspiration':self.stats["inspiration"], 'scrapper':self.stats["scrapper"],
-            'barter':self.stats["barter"], 'electrician':self.stats["electician"]
-            }
-            """
-            if choice in choice_dict.keys():
-                choice_dict[choice] += 1
-            else:
-                print_line("Invalid choice")
-                self.level -= 1
-                self.level_up()
-        else:  # If NPC has levelled up
+        #This method is overridden and super() is called by both subclasses of the Human class.
             
-            for stat in choice_dict.keys():
-                print_line(" {}".format(stat), end = " ")
-            choice = input("Please choose an attribute to level up: ")
-            choice.lower()
-            if choice in choice_dict:
-                choice_dict[choice] += 1
-            else:
-                print_line("\nInvalid choice.\n")
-                self.level -= 1
-                self.level_up()
+            
     
     def check_xp(self):
         """Check experience of inhabitant is enough to level up.
@@ -314,7 +275,19 @@ class NPC(Human):
         self.scavenging = False
         self.days_scavenging = 0
         self.days_to_scavenge_for = 0
-
+    
+    def level_up(self):
+        super().level_up()
+        for stat in choice_dict.keys():
+            print_line(" {}".format(stat), end = " ")
+        choice = input("Please choose an attribute to level up: ")
+        choice.lower()
+        if choice in choice_dict:
+            choice_dict[choice] += 1
+        else:
+            print_line("\nInvalid choice.\n")
+            self.level -= 1
+            self.level_up()
 
 class Player(Human):
     """Player class, inherits Human attributes."""
@@ -351,3 +324,35 @@ class Player(Human):
         self.scrapper = 0  # Boosts chance of bonus components when scrapping.
         self.electrician = 0  # Boosts power production
         """
+        
+    def level_up(self):
+        super().level_up()
+        print_line("\n")
+        print_line("You can level up any of these attributes: ")
+        for stat in choice_dict.keys():
+            print_line(" {}".format(stat), end = " ")
+        choice = input("Please choose an attribute to level up: ")
+        choice.lower()
+        perks = ["medic", "crafting", "tactitian", "cooking",
+                 "inspiration", "scrapper", "barter", "electrician"]
+        #Perks specific to the player are added to the dictionary of
+        #available choices
+        for perk in perks:
+            choice_dict[perk] = self.stats[perk]
+        """ #Old choice_dict dictionary
+        choice_dict = {
+        'strength':self.stats["strength"], 'perception':self.stats["perception"],
+        'endurance':self.stats["endurance"], 'charisma':self.stats["charisma"],
+        'intelligence':self.stats["intelligence"], 'luck':self.stats["luck"],
+        'medic':self.stats["medic"], 'crafting':self.stats["crafting"],
+        'tactician':self.stats["tactician"], 'cooking':self.stats["cooking"],
+        'inspiration':self.stats["inspiration"], 'scrapper':self.stats["scrapper"],
+        'barter':self.stats["barter"], 'electrician':self.stats["electician"]
+        }
+        """
+        if choice in choice_dict.keys():
+            choice_dict[choice] += 1
+        else:
+            print_line("Invalid choice")
+            self.level -= 1
+            self.level_up()
