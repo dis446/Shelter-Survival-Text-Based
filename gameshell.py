@@ -55,11 +55,10 @@ class GameShell(object):
 
     def print_line(self, *strings, sep='', end="\n", indent=0, speed=None):
         """
-        Print lines with indentation indent and an artifical delay between
-        each line governed by speed
+        Print strings with an artifical delay between each string
 
         Arguments:
-        *lines -- lines to print
+        *strings -- strings to print
         sep    -- character to insert between strings
         end    -- character to insert at the end of the line
         indent -- indentation level
@@ -94,15 +93,14 @@ class GameShell(object):
 
     def choose_from(self, text, choices):
         """
-        Outputs a menu style selection for choices headed by text and
-        returns the user's selection
+        Outputs a menu style selection and returns the user's selection
 
         Arguments:
-        text -- header text for the menu
-        choices -- iterable of choice. to handle the case where choices are
-                   more complex objects than simple strings, choices will be
+        text    -- header text for the menu
+        choices -- iterable of choices. To handle the case where choices are
+                   more complex objects than simple strings, choices are
                    displayed as the 'str' representation of each choice and the
-                   actual object selected will be returned
+                   actual object selected is returned
 
         Return:
         choice -- Member of 'choices' selected
@@ -132,8 +130,8 @@ class GameShell(object):
         returns a boolean representing the decision
 
         Arguments:
-        text -- confirmation text to output - should NOT include (y/n) or
-                similar as this will be added for you
+        text    -- confirmation text to output - should NOT include (y/n) or
+                   similar as this is added automatically
         default -- default option if the user inputs no choice, should be
                    either 'y' or 'n'. Defaults to 'n'
 
@@ -165,14 +163,31 @@ class GameShell(object):
             return s in ('y', 'yes')
 
     def set_speed(self, speed):
+        """
+        Sets the speed of the shell
+
+        Arguments:
+        speed -- speed to set. Should be one of the options given by self.speeds
+        """
         self.speed = speed
 
 
     def set_completer(self, complete):
+        """
+        Set completer function for readline if it is availible
+
+        Arguments:
+        complete -- completer function to set.
+        """
+
         if self._has_readline:
             self._readline.set_completer(complete)
 
     def _init_readline(self):
+        """
+        Initialise the readline library
+        """
+        #TODO: specify histfile location using appdirs
         self._readline.parse_and_bind("tab: completion")
 
 
