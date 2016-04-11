@@ -97,29 +97,33 @@ class GameShell(object):
 
         Arguments:
         text    -- header text for the menu
-        choices -- iterable of choices. To handle the case where choices are
-                   more complex objects than simple strings, choices are
-                   displayed as the 'str' representation of each choice and the
-                   actual object selected is returned
+        choices -- iterable of (label, item) pairs. label is used to display
+                   the choice to the user, item is what will be returned if
+                   this option is selected
 
         Return:
-        choice -- Member of 'choices' selected
+        choice -- item part of member of 'choices' selected
         """
 
         self.print_line()
         self.print_line(text)
-        for i, choice in enumerate(choices, start=1):
-            self.print_line("{:d}) {!s}".format(i, choice), indent=1)
+
+        #counterintuitively zip can be used to unzip an interator of tuples
+        #into a tuple of iterators by using *
+        labels, items = zip(*choices)
+
+        for i, label in enumerate(labels, start=1):
+            self.print_line("{:d}) {}".format(i, label), indent=1)
 
         self.print_line()
         while True:
-            choice = self.readline("Select a choice ({}-{}):".format(1,len(choices)))
+            choice = self.readline("Select a choice ({}-{}):".format(1,len(labels)))
             try:
                 choice = int(choice) - 1
                 #don't allow negative indices
                 if choice < 0:
                     raise IndexError()
-                return choices[choice]
+                return items[choice]
             except (ValueError, IndexError):
                 self.print_line("Invalid Choice")
                 continue
