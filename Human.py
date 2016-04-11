@@ -1,6 +1,6 @@
 """Module containing all Human classes."""
 
-from general_funcs import print_line
+from general_funcs import print_line, SLOW, FAST, NORMAL
 
 
 class Human(object):
@@ -68,7 +68,7 @@ class Human(object):
             "  Hunger: {}".format(self.hunger) +
             "  Thirst: {}".format(self.thirst) +
             "  Room:   {}".format(self.assigned_room), 
-            fast = True)
+            speed = FAST)
         for stat in self.stats.keys():
             print_line("   " + stat + " : " + str(self.stats[stat]))
         print_line("\n")

@@ -1,6 +1,6 @@
 """Module containing all Item classes."""
 
-from general_funcs import print_line
+from general_funcs import print_line, FAST, SLOW, NORMAL
 import json
 import sys
 import os
@@ -58,7 +58,7 @@ class Item(object):
             att.format("Rarity", self.rarity),
             att.format("Components", self.components),
             end="",
-            fast=True)
+            speed=FAST)
         print()
 
     def count_component(self, component):

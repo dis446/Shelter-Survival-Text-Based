@@ -307,8 +307,11 @@ class Game(object):
                         break
                     elif action in ("trade", "assign", "unassign", \
                     "auto feed all", "auto assign all", "build", "craft",\
-                    "fix"):
-                        self = self.actions[action](self, *args)
+                    "fix", 'rush'):
+                        try:
+                            self = self.actions[action](self, *args)
+                        except TypeError:
+                            print_line("Incorrect number of arguments")
                     elif a in self.actions.keys():
                         try:
                             self.actions[a](self, *args)
@@ -393,7 +396,7 @@ def action_help(game):
             action,
             ' ' * (2 + lens[i]),
             desc),
-            fast=True)
+            speed=FAST)
 
 
 def action_see_day(game, *args):
@@ -822,14 +825,24 @@ def action_rush_room(game, room):
     Returns:
     game -- main game object
     """
-    room = game.rooms[room]
+    try:
+        room = game.rooms[room]
+    except KeyError:
+        print_line("No such room!")
+        return game
+
+    if not room.can_rush:
+        print_line("Cannot rush {}".format(room))
+        return game
+
+    room.rush()
+
     random = randint(0,101)
     if random < room.risk:
         print_line(" The {} room has been broken.".format(room.name))
         room.broken = True
     else:
         room.rushed = True
-    room.update_production(game.player)
     return game
 
 def check_room(game, room):
@@ -1082,6 +1095,10 @@ def can_craft_item(game, item_name):
     item = Item(str(item_name))
     can_craft = True
     checked_components = []
+
+    #handle case where item is not in items.json
+    if not hasattr(item, 'components'):
+        return False
     for component in item.components:
         if component not in checked_components:
             number_needed = item.components.count(component)
