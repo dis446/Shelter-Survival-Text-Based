@@ -164,9 +164,9 @@ class Game(object):
         while True:
             gender = input("Please enter your gender (M/F): ")
             if len(gender) >= 1 and gender[0].upper() in ("M", "F"):
-                gender = gender.upper()
+                gender = gender[0].upper()
                 break
-            print_line("Invalid gender.")
+            print_line("Invalid gender choice.")
         self.player = Player(first_name, 0, father, mother, 21, gender)
 
     def first_few(self):
@@ -544,24 +544,6 @@ def action_scrap(game, item):
 
 # Human management system:
 
-def get_player_gender():
-    """Ask player what gender they are.
-
-    Returns:
-    char -- 'm' or 'f'
-    """
-    gender = input("Please choose a gender(M/F): ")
-    if len(gender) > 0:
-        gender = gender[0].lower()
-        if gender == "m" or gender == "f":
-            return gender
-        else:
-            print_line("Invalid gender choice!")
-            get_player_gender()
-    else:
-        print_line("No input detected!")
-        get_player_gender()
-
 
 def get_gender():
     """Randomly generate gender for NPC.
@@ -776,10 +758,10 @@ def create_player():
         gender = input("What is your gender?(m/f) ")
         if len(gender) == 0:
             print_line("You need a gender.")
-        elif gender not in ("m", "f"):
+        elif gender[0].lower() not in ("m", "f"):
             print_line("Invalid input. Only accepts 'm' or 'f'.")
         else:
-            gender = gender.lower()
+            gender = gender[0].lower()
             break
 
     return Player(
