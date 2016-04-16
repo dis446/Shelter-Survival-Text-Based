@@ -13,7 +13,16 @@ from Item import Item, Inventory, all_items
 
 from general_funcs import *
 
-
+try:
+    try:
+        import readline
+    except ImportError:
+        import pyreadline as readline
+        
+#can't get any readline library, default to standard IO
+except ImportError:
+    pass
+    
 def save_file():
     """Generate save file location/name based on system.
 
