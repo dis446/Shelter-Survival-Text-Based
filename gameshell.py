@@ -97,7 +97,7 @@ class GameShell(object):
 
         Arguments:
         text    -- header text for the menu
-        choices -- iterable of (label, item) pairs. label is used to display
+        choices -- dictionary of {label: item, label:item} pairs. label is used to display
                    the choice to the user, item is what will be returned if
                    this option is selected
 
@@ -107,27 +107,25 @@ class GameShell(object):
 
         self.print_line()
         self.print_line(text)
-
-        #counterintuitively zip can be used to unzip an interator of tuples
-        #into a tuple of iterators by using *
-        labels, items = zip(*choices)
-
-        for i, label in enumerate(labels, start=1):
-            self.print_line("{:d}) {}".format(i, label), indent=1)
-
         self.print_line()
+        
+        for label,i in enumerate(choices.keys(),1):
+            self.print_line("{}: {}".format(label, i))
+            
         while True:
-            choice = self.readline("Select a choice ({}-{}):".format(1,len(labels)))
+            choice = self.readline("Select a choice ({}-{}):".format(1,len(choices)))
             try:
                 choice = int(choice) - 1
                 #don't allow negative indices
                 if choice < 0:
                     raise IndexError()
-                return items[choice]
+                return list(choices.keys())[choice]
+                
             except (ValueError, IndexError):
                 self.print_line("Invalid Choice")
                 continue
-
+            
+            
     def confirmation_dialogue(self, text, default='n'):
         """
         Outputs a confirmation dialogue, validates the user input and

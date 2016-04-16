@@ -10,6 +10,7 @@ import os
 from Human import Human, Player, NPC
 from Room import Room, all_rooms
 from Item import Item, Inventory, all_items
+from gameshell import GameShell
 
 from general_funcs import *
 
@@ -37,6 +38,7 @@ class Game(object):
 
     def __init__(self):
         """Initilize main game system."""
+        self.shell = GameShell()
         self.setup_player()
         self.all_items = all_items()  # Fetches all items from items.json
         self.all_rooms = all_rooms()  # Fetches all items from rooms.json
@@ -144,25 +146,25 @@ class Game(object):
         """Create player object."""
         invalid_name = "Invalid name. Only one word is acceptable."
         while True:
-            name = input("Choose a first name for yourself: ")
+            name = self.shell.readline("Choose a first name for yourself: ")
             if validate_name(name):
                 first_name = name
                 break
             print_line(invalid_name)
         while True:
-            name = input("What is the surname of your father? ")
+            name = self.shell.readline("What is the surname of your father? ")
             if validate_name(name):
                 father = Human(surname=name)
                 break
             print_line(invalid_name)
         while True:
-            name = input("What is the surname of your mother? ")
+            name = self.shell.readline("What is the surname of your mother? ")
             if validate_name(name):
                 mother = Human(surname=name)
                 break
             print_line(invalid_name)
         while True:
-            gender = input("Please enter your gender (M/F): ")
+            gender = self.shell.choose_from("Please enter your gender: ", {"Male": "M", "Female": "F"})
             if len(gender) >= 1 and gender[0].upper() in ("M", "F"):
                 gender = gender[0].upper()
                 break
