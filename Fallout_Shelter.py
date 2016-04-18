@@ -705,7 +705,7 @@ def action_coitus(game, *args):
                 person = create_npc(parent_1, parent_2)
                 game.people[str(person)] = person
             else:
-            print_line("Invalid name: {}".format(parent_2_name))
+                print_line("Invalid name: {}".format(parent_2_name))
         else:
             print_line("Invalid name: {}".format(parent_1_name))
     else:
