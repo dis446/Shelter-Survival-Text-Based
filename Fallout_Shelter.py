@@ -134,6 +134,9 @@ class Game(object):
             "auto feed all",
             action_auto_feed_all)
         self.add_action(
+            "coitus",
+            action_coitus)
+        self.add_action(
             "build",
             action_build_room)
         self.add_action(
@@ -316,7 +319,7 @@ class Game(object):
                         break
                     elif action in ("trade", "assign", "unassign", \
                     "auto feed all", "auto assign all", "build", "craft",\
-                    "fix", 'rush'):
+                    "fix", 'rush', 'coitus'):
                         try:
                             self = self.actions[action](self, *args)
                         except TypeError:
@@ -680,6 +683,33 @@ def unassign(game, name):
     person.assigned_room = ""
     room.assigned.remove(name)
     return game
+
+def action_coitus(game, *args):
+    """Have two adults try for a child.
+    
+    Arguments:
+    game -- main game object
+    parent_1 -- name of first parent
+    parent_2 -- name of second parent
+    
+    Returns:
+    game -- main game object
+    """
+    if len(args.split(" ")) == 4:
+        parent_1_name = args[0:2]
+        if check_person(game, parent_1_name):
+            parent_1 = game.people[parent_1_name]
+            parent_2_name = args[2:]
+            if check_person(game, parent_2_name):
+                parent_2 = game.people[parent_2_name]
+                person = create_npc(parent_1, parent_2)
+                game.people[str(person)] = person
+            else:
+            print_line("Invalid name: {}".format(parent_2_name))
+        else:
+            print_line("Invalid name: {}".format(parent_1_name))
+    else:
+        print_line("Invalid input. You have to input two names")
 
 def create_npc(
         parent_1,

@@ -56,7 +56,7 @@ class Human(object):
         Returns:
         str -- "Firstname Lastname"
         """
-        return "{} {}".format(self.name, self.surname)
+        return "{} {}".format(self.name.title(), self.surname.title())
 
     def print_(self):
         """Print name and attributes."""
