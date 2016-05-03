@@ -695,25 +695,38 @@ def action_coitus(game, *args):
     Returns:
     game -- main game object
     """
-    if len(args.split(" ")) == 4:
-        parent_1_name = args[0:2]
+    if len(args) > 1:
+        print(args)
+        print(args[0])
+        
+    #    if args[-1] == args[3]:
+        parent_1_name = (args[0] + " " + args[1]).title()
+        print("parent name:", parent_1_name)
         if check_person(game, parent_1_name):
             parent_1 = game.people[parent_1_name]
-            parent_2_name = args[2:]
+            parent_2_name = (args[2] + " " + args[3]).title()
             if check_person(game, parent_2_name):
                 parent_2 = game.people[parent_2_name]
-                person = create_npc(parent_1, parent_2)
+                person = create_npc(parent_1, parent_2,game.days)
                 game.people[str(person)] = person
+                parent_1.children.append(person.name + " " + parent_1.surname)
+                parent_2.children.append(person.name + " " + parent_1.surname)
+                parent_1.partner = parent_2.name + " " + parent_2.surname
+                parent_2.partner = parent_1.name + " " + parent_1.surname
+                if game.days > 2:  # First few births cost no points
+                    use_points(50)
             else:
                 print_line("Invalid name: {}".format(parent_2_name))
         else:
             print_line("Invalid name: {}".format(parent_1_name))
-    else:
-        print_line("Invalid input. You have to input two names")
+    #    else:
+    #        print_line("Invalid input. You have to input two names")
+    return game
 
 def create_npc(
         parent_1,
-        parent_2):
+        parent_2,
+        day_count):
     """Create new child inhabitant.
 
     Arguments:
@@ -726,38 +739,22 @@ def create_npc(
     while True:
         name = input("Choose a first name for the new child: ")
         if len(name.split()) == 1:  # Player can only input one word
-            if name not in used_names: #This doesn't work
-                name = name.title()  # Capitalizes first letter_
-                if parent_2.gender == "m":
-                    parent_1, parent_2 = parent_2, parent_1
-                person = NPC(
-                    name,
-                    days,
-                    parent_1.surname,
-                    parent_2.surname,
-                    0,
-                    get_gender())
-                # From here
-                parent_1.children.append(str(name + " " + parent_1_surname))
-                parent_2.children.append(str(name + " " + parent_1_surname))
-                parent_1.partner = parent_2.name + " " + parent_2.surname
-                parent_2.partner = parent_1.name + " " + parent_1.surname
-                if game.days > 2:  # First few births cost no points
-                    use_points(50)
-                used_names.append(name)
-                #Unil here need to be moved outside of this function
-                load_time(5, (name, " is being born!"))
-                return person
-            else:
-                print_line("Someone already has that name.")
-                create_npc(
-                    parent_1,
-                    parent_2)
+            name = name.title()  # Capitalizes first letter
+            if parent_2.gender == "m":
+                parent_1, parent_2 = parent_2, parent_1 #Ensure father
+                #is parent_1, for surname purposes.
+            person = NPC(
+                name,
+                day_count,
+                parent_1,
+                parent_2,
+                0,
+                get_gender())
+            load_time(50, (name.title() + " is being born!"))
+            return person
         else:
             print_line("You have to input a single word!")
-            create_npc(
-                parent_1,
-                parent_2)
+            
         
 
 def create_player():

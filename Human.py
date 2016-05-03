@@ -22,9 +22,9 @@ class Human(object):
         self.alive = True
         self.name = first_name  # First name
         self.day_of_birth = day_of_birth
-        self.parent_1 = parent_1  # Surname
-        self.parent_2 = parent_2  # Surname
-        self.age = age
+        self.parent_1 = parent_1 #Object
+        self.parent_2 = parent_2 #Object
+        self.age = age 
         self.gender = gender.upper()
         self.hunger = 0
         self.thirst = 0
@@ -261,8 +261,8 @@ class NPC(Human):
         Arguments:
         first_name -- first name of NPC
         day_of_birth -- day NPC was born on
-        parent_1 -- name of father
-        parent_2 -- name of mother
+        parent_1 -- father
+        parent_2 -- mother
         age -- age of NPC
         gender -- gender of NPC
         """
@@ -300,8 +300,8 @@ class Player(Human):
         Arguments:
         first_name -- first name of Player
         day_of_birth -- day Player was born
-        parent_1 -- name of Player's father
-        parent_2 -- name of Player's mother
+        parent_1 -- father
+        parent_2 -- mother
         age -- age of player
         gender -- gender of player
         """
