@@ -1,7 +1,7 @@
 """Module containing all Human classes."""
 
 from general_funcs import print_line, SLOW, FAST, NORMAL
-
+from Item import Inventory, all_items
 
 class Human(object):
     """Basic class for all humans in game."""
@@ -28,6 +28,8 @@ class Human(object):
         self.gender = gender.upper()
         self.hunger = 0
         self.thirst = 0
+        self.job = "" #eg trader, mechanic, hunter, farmer etc.
+        self.inventory = Inventory(all_items())
         try:
             self.surname = self.parent_1.surname
         except:
@@ -45,9 +47,9 @@ class Human(object):
                      }
         
         self.assigned_room = ""  # Keeps track of where person is working.
-        self.children = []  # List of all children
-        self.partner = ""
-        self.level = 1  # Determines production efficiency
+        self.children = []  # List of all children's names.
+        self.partner = "" #Significant other's name.
+        self.level = 1  # Determines production efficiency.
         self.XP = 0
 
     def __str__(self):
@@ -113,15 +115,13 @@ class Human(object):
             }
         #This method is overridden and super() is called by both subclasses of the Human class.
             
-            
-    
     def check_xp(self):
         """Check experience of inhabitant is enough to level up.
 
         Returns:
         bool -- whether or not Human can level up"""
         # Xp needed to level up increases exponentially
-        xp_needed = 10 + (3**self.level)
+        xp_needed = 10 + (2**self.level)
         if self.XP >= xp_needed:
             return True
         else:
@@ -129,7 +129,7 @@ class Human(object):
             
     def gain_xp(self, amount):
         """Increase experience of person. If they have enough to level 
-        up, they do
+        up, they do.
         
         Arguments:
         amount -- amount to level up by
@@ -137,20 +137,39 @@ class Human(object):
         self.XP += amount
         while self.check_xp():
             self.level_up()
-    
+            
+    def max_HP(self):
+        """Determines the maximum amount of natural health the person 
+        can have, depending on level and gear equppied.
+        
+        Returns:
+        max_HP -- The maximum amount of health. Base is 100.
+        """
+        
+        max_HP = 100 + (10*self.level)
+        max_HP += 5*(self.stats["strength"])
+        """ #Leave this until armour is implemeted in Item.py
+        for item_name in self.inventory.keys():
+            try:
+                if self.inventory[item_name].is_armour:
+                    max_HP += self.inventory[item_name].level 
+        """
+        return max_HP
+        
+        
     def heal(self, amount):
         """Heal Human.
 
         Arguments:
         amount -- amount of health to give
         """
-        self = people[0]
-        if self.medic > 0:  # Medic Boost.
-            amount = amount * (1 + (0.05 * self.medic))
+        max_health = self.max_HP()
         self.HP += amount
-        if self.HP > 99:  # Truncates health
-            self.HP = 100
-
+        if self.HP > max_health:  # Truncates health
+            self.HP = max_health
+        print_line("{} has healed and now has {} health \
+        points".format(str(self), self.HP)) 
+        
     def rebirth(self):
         """Don't know if I'll ever use this."""
         self.age = 0

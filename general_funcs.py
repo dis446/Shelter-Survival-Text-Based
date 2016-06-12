@@ -113,9 +113,9 @@ def sentence_split(text):
     sen = sens[0] + "."
     return sen
 
-SLOW = 0.8
-FAST = 0.1
-NORMAL = 0.4
+SLOW = 0.5
+FAST = 0.01
+NORMAL = 0.2
 
 def print_line(*messages, end = "\n", speed = FAST):
     """Print message with artificial spacing by sleeping.
