@@ -276,7 +276,11 @@ class Game(object):
                     person.level_up()
                 person.increase_hunger(10)
                 if person.hunger > 99:
+                    
+                    if self.assigned_room:
+                        self = unassign(self, str(person))
                     person.die(self, "hunger")
+                    
                 elif person.hunger > 80:
                     print_line(
                         "Warning! {} is starving and may die soon".format(
@@ -284,11 +288,15 @@ class Game(object):
                 elif person.hunger > 50:
                     print_line("{} is hungry".format(person))
                 person.increase_thirst(20)
+                
                 if person.thirst > 99:
+                    if person.assigned_room:
+                        self = unassign(self, str(person))
                     person.die(self, "thirst")
+                    
                 elif person.thirst > 80:
                     print_line("Warning! {} is extremely thristy " +
-                               "and may die soon.".format(person))
+                               "and may die soon.".format(str(person)))
                 elif person.thirst > 50:
                     print_line("{} is thirsty".format(person))
                 if person.current_activity != "":
@@ -590,7 +598,7 @@ def check_person(game, name):
     if name.title() in game.people.keys():
         return True
     else:
-        print_line("{} {} does not exist").format(name.split()[0], name.split()[1])
+        print_line("{} {} does   not exist").format(name.split()[0], name.split()[1])
         return False
     
     
@@ -645,26 +653,27 @@ def assign_to_room(game, person_name, room_name):
         print("The {} has {} people assigned and can hold no more".format(str(room), room.count_assigned()))
     return game
 
-def action_unassign(game, first_name, surname):
+def action_unassign(game, *args):
     """ Unassigns person from their room.
         Checks to see if all arguments are valid, then passes them to 
         unassing() function. Only called by the player.
     
     Arguments:
     game -- main game object
-    first_name -- first name of person to unassign
-    surname -- surname of person to unassign
+    name -- name of person to unassign
     
     Returns:
     game -- Main game object
     
     """
-    name = first_name.title() + " " + surname.title() 
+    name = str(args[0] + " " + args[1]).title()
+    print("Input name is", name)
     if len(name.split()) == 2:
         if check_person(game, name): 
             game = unassign(game, name)
+            print_line("{} has been unassigned from their room.".format(name))
     else:
-        print_line("The name must be 2 words")
+        print_line("The name must be of type: 2 words")
     return game
 
 def unassign(game, name):
@@ -678,10 +687,9 @@ def unassign(game, name):
     game -- Main game object
     
     """
-    name = name.split()[0].title() + " " + name.split()[1].title() 
+    name.title()
     person = game.people[name]
     room = game.rooms[person.assigned_room]
-    print_line("{} has been unassigned from the {}".format(name, str(room)))
     person.assigned_room = ""
     room.assigned.remove(name)
     return game

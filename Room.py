@@ -46,7 +46,7 @@ class Room(object):  # Basic class for the rooms in the game.
                 print("Unknown room {}. Please contact dev.".format(name))
         self.level = 1
         self.power_available = True
-        self.assigned = []
+        self.assigned = [] #list of names of people assigned
         self.broken = False
 
         if self.can_produce:
@@ -125,6 +125,7 @@ class Room(object):  # Basic class for the rooms in the game.
         """
         return self.components.count(str(component))
 
+        
     def use_power(self):
         """Consume player's power."""
         for x in range(0, self.power_usage):
