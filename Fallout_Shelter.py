@@ -1,7 +1,7 @@
 """Text-based Fallout Shelter game developed by T.G."""
 
 from collections import OrderedDict
-from random import randint
+from random import randint, randrange
 from appdirs import user_data_dir
 import pickle
 import sys
@@ -19,7 +19,7 @@ try:
     except ImportError:
         import pyreadline as readline
         
-#can't get any readline library, default to standard IO
+#if can't get any readline library, default to standard IO
 except ImportError:
     pass
     
@@ -67,9 +67,9 @@ class Game(object):
         self.happiness = 100
         self.action_points = 50
         self.defense = 0
-        self.security = "secure"  # Is this the player's job security?
+        self.security = "secure"
         self.days = 1
-        self.overuse = False #If player uses too many action points in one day.
+        self.overuse = False  # If player uses too many action points in one day.
         self.actions = OrderedDict()  # [('action': function)]
         self.first_few()
         action_see_people(self)
@@ -301,7 +301,7 @@ class Game(object):
                     print_line("{} is thirsty".format(person))
                 if person.current_activity != "":
                     if person.current_activity == "scavenging":
-                        person = take_damage(person, randint(0, 30))
+                        person.take_damage(person, randint(0, 30))
                         if person.health < 20:
                             pass  # Need to end scavenging.
                     elif person.current_activity == "guarding":
@@ -806,7 +806,7 @@ def create_player():
 
     return Player(
         name,
-        days,
+        0,
         parent_1,
         parent_2,
         21,
@@ -1225,7 +1225,7 @@ def raid(game):
     Arguments:
     game -- main game object
     """
-    game = update_defense(game, player)
+    game = update_defense(game)
     raiders = ["Super Mutant", "Raider", "Synth", "Feral Ghoul"]
     raider_index = randint(0, len(raiders))
     raider = raiders[raider_index]  # Randomly chooses a raider party.
@@ -1258,8 +1258,9 @@ def raid(game):
     return game
 
 
-def update_defense(game, player):
+def update_defense(game):
     """Update defense of shelter based on guns and turrets in inventory."""
+    player = game.player
     game.defense = 0
     turret_count = game.player.inventory["turret"]
     game.defense += 10 * turret_count

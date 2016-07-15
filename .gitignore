@@ -133,3 +133,4 @@ test.py
 fix.txt
 fstb.p
 *.fuse_hidden*
+*.iml

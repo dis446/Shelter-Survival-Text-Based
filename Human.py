@@ -155,8 +155,7 @@ class Human(object):
                     max_HP += self.inventory[item_name].level 
         """
         return max_HP
-        
-        
+
     def heal(self, amount):
         """Heal Human.
 
