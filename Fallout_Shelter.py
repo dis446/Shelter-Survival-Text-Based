@@ -27,7 +27,7 @@ SOFTWARE.
 
 from collections import OrderedDict
 from random import randint, randrange
-from appdirs import user_data_dir
+#from appdirs import user_data_dir
 import pickle
 import sys
 import os
@@ -47,13 +47,13 @@ try:
 #if can't get any readline library, default to standard IO
 except ImportError:
     pass
-    
+"""  
 def save_file():
-    """Generate save file location/name based on system.
+    #Generate save file location/name based on system.
 
-    Returns:
-    str -- path to save file
-    """
+    #Returns:
+    #str -- path to save file
+
     sfn = "fstb.p"
     if "-l" in sys.argv:
         sfp = os.path.split(os.path.abspath(sys.argv[0]))[0]
@@ -63,8 +63,28 @@ def save_file():
     return os.path.join(sfp, sfn)
 
 
-_save_file = save_file()
 
+def load_game(_=None, save=_save_file):
+    Load game from file, `load filename` to load from specific file.
+
+    Arguments:
+    save -- file to load from
+
+    Returns:
+    game -- Game object
+    
+    with open(save, "rb") as s:
+        try:
+            game = pickle.load(s)
+        except pickle.UnpicklingError:
+            print_line("Unable to load game.")
+            return None
+    print_line("Game loaded from {}.".format(save))
+    return game
+
+
+_save_file = save_file()
+"""
 
 class Game(object):
     """Main game class."""
@@ -100,76 +120,30 @@ class Game(object):
         action_see_people(self)
         if check_built_room(self, "trader"):
             self = find_rand_items(self, 'trader', 10)
-
-        self.add_action(
-            "quit",
-            action_quit)
-        self.add_action(
-            "save",
-            action_save)
-        self.add_action(
-            "load",
-            load_game)
-        self.add_action(
-            "skip",
-            None)
-        self.add_action(
-            "help",
-            action_help)
-        self.add_action(
-            "see day",
-            action_see_day)
-        self.add_action(
-            "see people",
-            action_see_people)
-        self.add_action(
-            "see inventory",
-            action_see_inventory)
-        self.add_action(
-            "see items",
-            action_see_inventory)
-        self.add_action(
-            "see trader",
-            action_see_inventory)
-        self.add_action(
-            "see rooms",
-            action_see_rooms)
-        self.add_action(
-            "see resources",
-            action_see_resources)
-        self.add_action(
-            "auto assign all",
-            action_auto_assign)
-        self.add_action(
-            "trade",
-            action_trade)
-        self.add_action(
-            "craft",
-            action_craft)
-        self.add_action(
-            "rush",
-            action_rush_room)
-        self.add_action(
-            "assign",
-            action_assign_to_room)
-        self.add_action(
-            "unassign",
-            action_unassign)
-        self.add_action(
-            "auto feed all",
-            action_auto_feed_all)
-        self.add_action(
-            "coitus",
-            action_coitus)
-        self.add_action(
-            "build",
-            action_build_room)
-        self.add_action(
-            "fix",
-            action_fix_room)
-        self.add_action(
-            "heal",
-            action_heal)
+        
+        self.actions["quit"] = action_quit
+        self.actions["skip"] = None
+        #self.actions["save"] = action_save 
+        #self.actions["load"] = load_game
+        self.actions["help"] = action_help
+        self.actions["see day"] = action_see_day
+        self.actions["see people"] = action_see_people
+        self.actions["see inventory"] = action_see_inventory
+        self.actions["see items"] = action_see_inventory
+        self.actions["see trader"] = action_see_inventory
+        self.actions["see rooms"] = action_see_rooms
+        self.actions["see resources"] = action_see_resources
+        self.actions["auto assign all"] = action_auto_assign
+        self.actions["trade"] = action_trade
+        self.actions["craft"] = action_craft
+        self.actions["rush"] = action_rush_room
+        self.actions["assign"] = action_assign_to_room
+        self.actions["unassign"] = action_unassign
+        self.actions["auto feed all"] = action_auto_feed_all
+        self.actions["coitus"] = action_coitus
+        self.actions["build"] = action_build_room
+        self.actions["fix"] =  action_fix_room
+        self.actions["heal"] = action_heal
 
     def add_action(self, name, action):
         """Add entries to the actions dictionary.
@@ -376,25 +350,6 @@ class Game(object):
             self.days += 1
 
 
-def load_game(_=None, save=_save_file):
-    """Load game from file, `load filename` to load from specific file.
-
-    Arguments:
-    save -- file to load from
-
-    Returns:
-    game -- Game object
-    """
-    with open(save, "rb") as s:
-        try:
-            game = pickle.load(s)
-        except pickle.UnpicklingError:
-            print_line("Unable to load game.")
-            return None
-    print_line("Game loaded from {}.".format(save))
-    return game
-
-
 def action_quit(*_):
     """Quit current game.
 
@@ -407,14 +362,13 @@ def action_quit(*_):
     else:
         sys.exit(0)
 
-
+"""
 def action_save(game, save=_save_file):
-    """Save current game state, `save filename` to save to specific file.
+    Save current game state, `save filename` to save to specific file.
 
     Arguments:
     game -- game object to save
     save -- file to save to
-    """
     if os.path.exists(save):
         ow = default_input("{} already exists, overwrite? (Y/n) ".format(save))
         if ow != 'y':
@@ -426,7 +380,7 @@ def action_save(game, save=_save_file):
             print_line("Unable to save game.")
             return
     print_line("Game has been saved to {}.".format(save))
-
+"""
 
 def action_help(game):
     """See help for all actions available.
@@ -1257,8 +1211,8 @@ def raid(game):
     max_attack = days // 5
     attack_power = randint(1, max_attack)
     load_time(10, ("There was a " + raider + " raid on your shelter!"))
-    print_line("The total enemy power was", attack_power)
-    print_line("Your total defenses are", defense)
+    print_line("The total enemy power was ", attack_power)
+    print_line("Your total defenses are ", defense)
     if defense > attack_power:
         print_line("Your defenses were strong enough to send them packing!")
     else:
@@ -1338,7 +1292,7 @@ def action_auto_feed_all(game, *args):
     load_time(200, "Feeding all inhabitants.")
     while game.player.inventory["food"] > 0 and avg_hunger(game) > 1:
         for person in game.people.values():
-            person.feed(1)  
+            person.feed(1)
             game.player.inventory["food"] -= 1
     while game.player.inventory["water"] > 0 and avg_thirst(game) > 1:
         for person in game.people.values():
@@ -1930,10 +1884,10 @@ def choice():  # Need to move these commands into Game() class
 
 if __name__ == '__main__':
     game = None
-    if os.path.exists(_save_file):
-        load = default_input("Load game from {}? (Y/n) ".format(_save_file))
-        if load == "y":
-            game = load_game()
-    if game is None:
-        game = Game()
+    #if os.path.exists(_save_file):
+    #    load = default_input("Load game from {}? (Y/n) ".format(_save_file))
+    #    if load == "y":
+    #        game = load_game()
+    #if game is None:
+    game = Game()
     game.run()
